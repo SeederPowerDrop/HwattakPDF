@@ -89,7 +89,7 @@ outputs/HwattakPDF-0.8.0-macOS-arm64.zip
 | 항목 | 값 |
 |---|---|
 | ZIP 크기 | 6,960,784 bytes |
-| SHA-256 | `d4fa6bf7d3c65d47d642a51244e875109c0453f4960126953c1242b1a8f683fd` |
+| SHA-256 | `e164620d852da6ebee845b214c324be7b4dddd40e80709bb946576f2aee1f1c8` |
 | 아키텍처 | arm64 |
 | 최소 macOS | 14.0 |
 | 서명 | ad-hoc, `TeamIdentifier=not set` |
