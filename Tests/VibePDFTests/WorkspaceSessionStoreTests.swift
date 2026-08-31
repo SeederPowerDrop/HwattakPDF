@@ -918,7 +918,7 @@ final class WorkspaceSessionStoreTests: XCTestCase {
             persistence: persistence,
             bookmarkCoder: FakeWorkspaceSessionBookmarkCoder()
         )
-        weak let weakSessionStore = sessionStore
+        weak var weakSessionStore = sessionStore
         let main = MultiDocumentWorkspaceState(
             sessionStore: try XCTUnwrap(sessionStore)
         )
@@ -929,7 +929,7 @@ final class WorkspaceSessionStoreTests: XCTestCase {
                 sessionStore: try XCTUnwrap(sessionStore),
                 tearOutStore: tearOutStore
             )
-        weak let weakCoordinator = coordinator
+        weak var weakCoordinator = coordinator
 
         sessionStore = nil
         XCTAssertNotNil(weakSessionStore, "The main workspace owns its store lifetime")
