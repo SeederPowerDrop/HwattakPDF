@@ -1,0 +1,21 @@
+{
+  "actions": [
+    {
+      "description": "PDF 옆에 YouTube 검색·재생 패널을 엽니다.",
+      "id": "open-youtube-study",
+      "output": "youtubePanel",
+      "template": "https://www.youtube.com/",
+      "title": "YouTube 학습 패널 열기"
+    }
+  ],
+  "author": "HwattakPDF",
+  "capabilities": [
+    "youtubeContent"
+  ],
+  "description": "PDF를 보면서 학습 영상을 검색하고 개인정보 보호 강화 플레이어로 재생합니다.",
+  "displayName": "YouTube 학습",
+  "identifier": "dev.hwattakpdf.plugins.youtube-study",
+  "minimumHostVersion": "0.8.0",
+  "schemaVersion": 2,
+  "version": "1.0.0"
+}

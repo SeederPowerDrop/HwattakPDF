@@ -1,0 +1,11 @@
+# Request the current project owner's review for every pull request by default.
+# More specific teams can be added later when the maintainer group grows.
+* @SeederPowerDrop
+
+# Changes to contribution, security, and automation rules are especially
+# sensitive. Repeating the owner keeps that intent visible near the paths even
+# though the global rule above already applies.
+/.github/ @SeederPowerDrop
+/SECURITY.md @SeederPowerDrop
+/CONTRIBUTING.md @SeederPowerDrop
+/Documentation/LICENSE-CHOICE.md @SeederPowerDrop

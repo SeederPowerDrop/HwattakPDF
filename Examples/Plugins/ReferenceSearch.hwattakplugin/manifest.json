@@ -1,0 +1,29 @@
+{
+  "actions": [
+    {
+      "description": "Search Wikipedia for the selected text after HwattakPDF shows its external-link confirmation.",
+      "id": "search-wikipedia",
+      "output": "openURL",
+      "template": "https://en.wikipedia.org/w/index.php?search={{selection.urlEncoded}}",
+      "title": "Search Wikipedia"
+    },
+    {
+      "description": "Search Google Scholar for the selected text after HwattakPDF shows its external-link confirmation.",
+      "id": "search-google-scholar",
+      "output": "openURL",
+      "template": "https://scholar.google.com/scholar?q={{selection.urlEncoded}}",
+      "title": "Search Google Scholar"
+    }
+  ],
+  "author": "HwattakPDF Examples",
+  "capabilities": [
+    "selectedText",
+    "externalURL"
+  ],
+  "description": "Opens a confirmed Wikipedia or Google Scholar search for the selected PDF text.",
+  "displayName": "Reference Search",
+  "identifier": "dev.example.hwattakpdf.reference-search",
+  "minimumHostVersion": "0.7.0",
+  "schemaVersion": 1,
+  "version": "1.0.0"
+}

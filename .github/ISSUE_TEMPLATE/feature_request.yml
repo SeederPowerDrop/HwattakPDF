@@ -1,0 +1,60 @@
+name: 기능 제안
+description: 해결하고 싶은 PDF 작업 문제와 제안하는 흐름을 설명해 주세요.
+title: "[Feature] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        기능 이름보다 사용자가 막히는 순간을 먼저 알려 주세요. 기존 본문 편집, 그래픽 서명과 인증서 서명처럼 비슷해 보여도 기술 경계가 다른 기능은 [제품 정의](../../Documentation/PRODUCT.md)와 [아키텍처](../../Documentation/ARCHITECTURE.md)를 참고해 주세요.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 해결하려는 문제
+      description: 누가, 어떤 PDF로, 어떤 일을 하다가 막히는지 적어 주세요.
+      placeholder: 예) 500쪽 교재에서 이번 주에 붙인 메모만 모아 복습하고 싶지만 현재는 페이지를 다시 훑어야 합니다.
+    validations:
+      required: true
+
+  - type: textarea
+    id: workflow
+    attributes:
+      label: 기대하는 사용 흐름
+      description: 버튼 목록보다 처음부터 끝까지의 작업 순서를 적어 주세요.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 현재 사용 중인 우회 방법
+      description: 다른 앱, 수동 작업 또는 포기한 부분이 있다면 알려 주세요.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 이 기능이 없을 때의 영향
+      options:
+        - 작업을 완료할 수 없음 또는 데이터 손실 위험
+        - 매우 자주 반복되는 큰 불편
+        - 가끔 필요한 편의 기능
+        - 장기 아이디어
+    validations:
+      required: true
+
+  - type: textarea
+    id: boundaries
+    attributes:
+      label: 데이터·성능·접근성 고려사항
+      description: 외부 전송 허용 여부, 예상 문서 크기, 키보드/VoiceOver 요구, 호환해야 할 뷰어를 적어 주세요.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: 제안 전 확인
+      options:
+        - label: 기존 이슈와 제품 로드맵에서 같은 제안을 검색했습니다.
+          required: true
+        - label: 개인정보나 저작권이 있는 PDF 원본을 첨부하지 않았습니다.
+          required: true

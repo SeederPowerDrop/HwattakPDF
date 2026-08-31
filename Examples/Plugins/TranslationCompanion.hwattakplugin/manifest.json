@@ -1,0 +1,31 @@
+{
+  "actions": [
+    {
+      "description": "PDF에서 선택한 문장을 확인한 뒤 Google 번역, ChatGPT 또는 Claude와 함께 번역합니다.",
+      "id": "translate-selection",
+      "output": "translatePanel",
+      "template": "{{selection}}",
+      "title": "선택 문장 번역"
+    },
+    {
+      "description": "현재 PDF 페이지의 텍스트를 확인한 뒤 외부 번역 서비스와 함께 번역합니다.",
+      "id": "translate-current-page",
+      "output": "translatePanel",
+      "template": "{{page.text}}",
+      "title": "현재 페이지 번역"
+    }
+  ],
+  "author": "HwattakPDF",
+  "capabilities": [
+    "selectedText",
+    "currentPageText",
+    "clipboardWrite",
+    "translationService"
+  ],
+  "description": "선택 문장이나 현재 페이지를 검토한 뒤 Google 번역, ChatGPT 또는 Claude를 PDF 옆 패널에서 사용합니다.",
+  "displayName": "번역 도우미",
+  "identifier": "dev.hwattakpdf.plugins.translation-companion",
+  "minimumHostVersion": "0.8.0",
+  "schemaVersion": 2,
+  "version": "1.0.0"
+}

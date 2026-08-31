@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="background" x1="160" y1="80" x2="860" y2="940" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#466889"/>
+      <stop offset="0.55" stop-color="#294766"/>
+      <stop offset="1" stop-color="#172E49"/>
+    </linearGradient>
+    <linearGradient id="paper" x1="300" y1="215" x2="700" y2="805" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fffdf5"/>
+      <stop offset="1" stop-color="#eee9dc"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%">
+      <feDropShadow dx="0" dy="28" stdDeviation="30" flood-color="#0b1725" flood-opacity="0.40"/>
+    </filter>
+  </defs>
+
+  <rect x="62" y="62" width="900" height="900" rx="214" fill="url(#background)"/>
+  <path d="M142 702C305 583 400 807 565 674C688 574 760 460 902 400V748C902 834 834 902 748 902H276C202 902 142 842 142 768Z" fill="#091b2f" opacity="0.22"/>
+
+  <g filter="url(#shadow)">
+    <path d="M286 194H620L760 334V781C760 814 733 841 700 841H286C253 841 226 814 226 781V254C226 221 253 194 286 194Z" fill="url(#paper)"/>
+    <path d="M620 194V300C620 319 635 334 654 334H760Z" fill="#d9dfdf"/>
+  </g>
+
+  <rect x="300" y="394" width="385" height="32" rx="16" fill="#294766" opacity="0.94"/>
+  <rect x="300" y="460" width="306" height="24" rx="12" fill="#8797a3"/>
+  <rect x="300" y="512" width="348" height="24" rx="12" fill="#8797a3"/>
+
+  <g transform="translate(450 610)">
+    <rect x="0" y="0" width="108" height="86" rx="18" fill="#294766"/>
+    <rect x="126" y="0" width="108" height="86" rx="18" fill="#294766" opacity="0.88"/>
+    <rect x="0" y="104" width="108" height="86" rx="18" fill="#294766" opacity="0.76"/>
+    <rect x="126" y="104" width="108" height="86" rx="18" fill="#294766" opacity="0.64"/>
+  </g>
+</svg>

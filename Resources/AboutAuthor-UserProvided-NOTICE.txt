@@ -1,0 +1,14 @@
+Resource: AboutAuthor-SeederPowerDrop-UserProvided.jpg
+Copyright: Copyright 2026 SeederPowerDrop
+SPDX-License-Identifier: MPL-2.0
+Source: Image supplied directly by the HwattakPDF project owner on 2026-08-19.
+SHA-256: a7bae1f9d82833339173d5c2e17ca490b8acd34f7a1c946d4d028183e90470ae
+
+On 2026-08-31, the project owner confirmed the authority required to publish
+this artwork in the public HwattakPDF repository, include it in the app bundle
+and release ZIP, and make it available under the Mozilla Public License 2.0.
+There is no asset-specific exception to that license.
+
+The license does not by itself grant permission to imply that a modified or
+redistributed build is an official HwattakPDF release. See the repository's
+ASSETS.md and TRADEMARKS.md for provenance and non-endorsement guidance.

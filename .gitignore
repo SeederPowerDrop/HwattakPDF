@@ -1,0 +1,54 @@
+# macOS creates this metadata file in folders opened by Finder.
+.DS_Store
+
+# Swift Package Manager build products are reproducible and can be large.
+.build/
+
+# HwattakPDF's packaging script writes release candidates here. Publish a
+# signed/notarized archive as a GitHub Release asset instead of committing it.
+outputs/
+
+# Module caches, verification bundles, and other disposable build work live
+# here. Keeping them out of Git also prevents machine-specific absolute paths
+# from leaking into a commit.
+work/
+
+# SwiftPM/Xcode user state belongs to one developer, not to the project.
+.swiftpm/xcode/package.xcworkspace/xcuserdata/
+.swiftpm/configuration/
+.swiftpm/security/
+xcuserdata/
+DerivedData/
+
+# Local credentials, signing material, logs, and databases must never enter a
+# public commit. Keep an explicitly named example file when configuration
+# documentation needs one.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.mobileprovision
+*.provisionprofile
+*.log
+*.sqlite
+*.sqlite-*
+.netrc
+*credentials*.json
+
+# Apple build, archive, and Finder metadata belong in release staging only.
+*.app/
+*.dmg
+*.pkg
+*.xcarchive/
+*.xcresult/
+*.dSYM/
+._*
+.AppleDouble/
+
+# Editors may create swap or backup files while a document is open.
+*.swp
+*.swo
+*~

@@ -1,0 +1,21 @@
+{
+  "actions": [
+    {
+      "description": "PDF 옆에 임시 HTTPS 웹 검색 패널을 엽니다.",
+      "id": "open-web-browser",
+      "output": "browserPanel",
+      "template": "https://www.google.com/",
+      "title": "웹 브라우저 열기"
+    }
+  ],
+  "author": "HwattakPDF",
+  "capabilities": [
+    "embeddedWebBrowser"
+  ],
+  "description": "PDF를 읽는 동안 검색어와 공개 HTTPS 웹사이트를 오른쪽 패널에서 찾아봅니다.",
+  "displayName": "웹 브라우저",
+  "identifier": "dev.hwattakpdf.plugins.web-browser",
+  "minimumHostVersion": "0.8.0",
+  "schemaVersion": 2,
+  "version": "1.0.0"
+}

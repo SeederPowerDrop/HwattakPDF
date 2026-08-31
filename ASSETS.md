@@ -1,0 +1,57 @@
+# HwattakPDF 자산 라이선스와 출처
+
+Copyright 2026 SeederPowerDrop
+
+SPDX-License-Identifier: MPL-2.0
+
+이 문서에 열거한 시각 자산은 별도 예외 없이
+[Mozilla Public License 2.0](LICENSE)의 적용을 받습니다. 프로젝트 소유자는
+2026-08-31에 이 자산을 공개 저장소, HwattakPDF 앱 번들 및 배포 ZIP에 포함하고
+MPL-2.0으로 제공하는 데 필요한 권리를 보유하고 있음을 확인했습니다.
+
+OpenAI ImageGen으로 제작한 자산은 프로젝트 소유자의 지시에 따라 생성되었고,
+생성 또는 편집 입력으로 제3자 이미지·로고·기타 시각 자산을 제공하지 않았음을
+같은 날 확인했습니다. ImageGen 사용 사실은 OpenAI가 HwattakPDF를 후원하거나
+공식적으로 보증한다는 뜻이 아닙니다.
+
+## 앱 번들에 사용하는 자산
+
+| 저장소 파일 | 용도와 출처 | SHA-256 |
+| --- | --- | --- |
+| `Resources/AppIcon-StackAndSelect.png` | 선택 가능한 앱 아이콘. ImageGen 탐색안 B와 같은 파일 | `c94cd6e1d36c7a7c30e4c1a9366c0255bf0e6ab5a6b3c014c40b7e319c2e0cc7` |
+| `Resources/AppIcon-PrecisionMarkup.png` | 선택 가능한 앱 아이콘. ImageGen 탐색안 A와 같은 파일 | `c39919beac3ce65cc1664ff982715cb33dc42e167f711c4bb9158e72b566210c` |
+| `Resources/AppIcon-FoldWorkspace.png` | 기본 앱 아이콘. ImageGen 탐색안 C와 같은 파일 | `e9db64c1a79bad8aab7e80311d9c324644588add3c6a33760085f2cf9661d324` |
+| `Resources/AboutAuthor-SeederPowerDrop-UserProvided.jpg` | 프로젝트 소유자가 제공한 정보 화면 그림 | `a7bae1f9d82833339173d5c2e17ca490b8acd34f7a1c946d4d028183e90470ae` |
+
+배포 스크립트가 만드는 `AppIcon.png`는
+`Resources/AppIcon-FoldWorkspace.png`의 번들용 복사본이며 별도의 원본 자산이
+아닙니다. 소개 그림의 개별 기록은
+`Resources/AboutAuthor-UserProvided-NOTICE.txt`에도 보존합니다.
+
+## 탐색·제작 기록 자산
+
+아래 파일은 현재 앱 번들에는 들어가지 않는 디자인 탐색 또는 원본 기록입니다.
+
+| 저장소 파일 | 출처 또는 관계 | SHA-256 |
+| --- | --- | --- |
+| `Resources/AppIcon-Concept-A-ReadMark.png` | OpenAI ImageGen; `AppIcon-PrecisionMarkup.png`와 동일 | `c39919beac3ce65cc1664ff982715cb33dc42e167f711c4bb9158e72b566210c` |
+| `Resources/AppIcon-Concept-B-PageStack.png` | OpenAI ImageGen; `AppIcon-StackAndSelect.png`와 동일 | `c94cd6e1d36c7a7c30e4c1a9366c0255bf0e6ab5a6b3c014c40b7e319c2e0cc7` |
+| `Resources/AppIcon-Concept-C-SplitWorkspace.png` | OpenAI ImageGen; `AppIcon-FoldWorkspace.png`와 동일 | `e9db64c1a79bad8aab7e80311d9c324644588add3c6a33760085f2cf9661d324` |
+| `Resources/AppIcon-Concept-D-TransformCursor.png` | OpenAI ImageGen 탐색안 | `910a0c54e88a508b8ee21a84307917ee05f0c168ee833868ce6e4e4f1f7b72c2` |
+| `Resources/AppIcon-Concept-E-LayerSplice.png` | OpenAI ImageGen 탐색안 | `b91861775993dd0aa77d6691fe673c1c83aec9fda3dccd00fa2e4770063ef1c3` |
+| `Resources/AppIcon-Concept-F-PrecisionMarker.png` | OpenAI ImageGen 탐색안 | `b82194c64bb73a3f36f5f74ad730d26ec352ee453355aa1f00fc0f09737a7134` |
+| `Resources/AppIcon-Concept-G-HingeV.png` | OpenAI ImageGen 탐색안 | `54696764e5bacf4df2f76172a92d6528e89edb8ba45ff1318694dbe13d1cf467` |
+| `Resources/AppIcon-Concept-H-ZFoldPrism.png` | OpenAI ImageGen 탐색안 | `fe4387d1e86209d885bbd20bd00969981518502e1670c54681c05153feba8669` |
+| `Resources/AppIcon-Concept-I-TitaniumPortal.png` | OpenAI ImageGen 탐색안 | `d62afb626ba6b375ed8a076f2f89d2c39f95245936da8076e4e3ffe6828778fd` |
+| `Resources/AppIcon-FreedPage.png` | OpenAI ImageGen 탐색안 | `2f6c5471e82871d165cce87ce6ff2e0385f2affc7c050b7742443b9004d667dc` |
+| `Resources/AppIcon-FreedPage-v2.png` | 앞선 Freed Page 자산을 대상으로 한 OpenAI ImageGen 편집안 | `e966df005389b49c8a507e07dff0d0a1b2449cea82990703792500071de155ff` |
+| `Resources/AppIcon.svg` | 프로젝트 안에서 제작한 프로젝트 소유 벡터 아이콘 탐색안; 제3자 자산 입력 없음 | `edf6d22a01aece56656c6174fff6217cb23700f27e434d93348f809fc62f5a7e` |
+
+`Documentation/AppIcon-*.prompt.md` 파일은 ImageGen 제작 과정의 출처와 프롬프트
+기록이며 이미지 자체를 대신하는 제3자 자산이 아닙니다.
+
+## 상표와 공식성
+
+MPL-2.0은 위 자산에 적용되지만, 그 사실만으로 HwattakPDF의 상표를 사용할
+권리나 수정본이 공식 배포본이라는 인상을 줄 권리가 생기지는 않습니다. 정확한
+출처 표기와 혼동 방지 원칙은 [TRADEMARKS.md](TRADEMARKS.md)를 참고하세요.

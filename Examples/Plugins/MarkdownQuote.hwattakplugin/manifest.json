@@ -1,0 +1,30 @@
+{
+  "actions": [
+    {
+      "description": "Preview the selected text as a Markdown quote with its document and page reference.",
+      "id": "preview-markdown-quote",
+      "output": "showText",
+      "template": "> {{selection}}\n\n— **{{document.name}}**, p. {{page.number}}/{{document.pageCount}}",
+      "title": "Preview Markdown Quote"
+    },
+    {
+      "description": "Copy the Markdown quote to the macOS clipboard.",
+      "id": "copy-markdown-quote",
+      "output": "copyText",
+      "template": "> {{selection}}\n\n— **{{document.name}}**, p. {{page.number}}/{{document.pageCount}}",
+      "title": "Copy Markdown Quote"
+    }
+  ],
+  "author": "HwattakPDF Examples",
+  "capabilities": [
+    "documentMetadata",
+    "selectedText",
+    "clipboardWrite"
+  ],
+  "description": "Previews or copies a selected PDF passage as a Markdown quote with a page reference.",
+  "displayName": "Markdown Quote",
+  "identifier": "dev.example.hwattakpdf.markdown-quote",
+  "minimumHostVersion": "0.7.0",
+  "schemaVersion": 1,
+  "version": "1.0.0"
+}

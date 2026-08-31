@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  macos-arm64:
+    name: macOS 15 arm64
+    runs-on: macos-15
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      - name: Record toolchain
+        shell: zsh {0}
+        run: |
+          set -euo pipefail
+          test "$(uname -m)" = "arm64"
+          sw_vers
+          swift --version
+          xcode-select -p
+
+      - name: Validate source and resources
+        shell: zsh {0}
+        run: ./scripts/validate_project.sh
+
+      - name: Run isolated test batches
+        shell: zsh {0}
+        run: ./scripts/run_test_batches.sh
+
+      - name: Build and verify app archive
+        shell: zsh {0}
+        run: ./scripts/build_app.sh
+
+  pdfkit-integration-macos-26:
+    name: PDFKit integration on macOS 26 arm64
+    runs-on: macos-26
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      # macOS 15 PDFKit crashes while tearing down the two-up and pointer-zoom
+      # fixtures, so those assertions are skipped in the main job. Run their
+      # complete class on the next supported PDFKit runtime instead of allowing
+      # a permanently green-but-unexercised integration path.
+      - name: Run PDFKit viewport integration tests
+        shell: zsh {0}
+        run: swift test --disable-sandbox --filter PDFViewportScrollInteractionTests

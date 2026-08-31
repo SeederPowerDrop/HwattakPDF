@@ -1,0 +1,99 @@
+name: 버그 제보
+description: 재현 가능한 오동작, 충돌 또는 데이터 손실 가능성을 알려 주세요.
+title: "[Bug] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        제보해 주셔서 감사합니다. 보안 취약점, API 키, 서명 이미지 또는 민감한 PDF는 공개 이슈에 올리지 말고 먼저 [보안 정책](../../SECURITY.md)을 읽어 주세요.
+
+  - type: input
+    id: version
+    attributes:
+      label: HwattakPDF 버전과 build
+      description: 정보 창 또는 앱 번들의 Info.plist에서 확인할 수 있습니다.
+      placeholder: 예) 0.8.0 (18)
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: 실행 환경
+      description: macOS 버전, Mac 모델/칩, 입력 장치 등 재현에 영향을 주는 정보를 적어 주세요.
+      placeholder: 예) macOS 15.x, MacBook Pro M3, 내장 트랙패드
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: 문제 영역
+      options:
+        - 열기·저장·종료
+        - 탭·스택·워크스페이스·복원
+        - 보기·스크롤·확대·사이드바
+        - 검색·페이지 이동
+        - 주석·펜·실행 취소
+        - 이미지·서명
+        - 페이지 재정렬·병합·추출
+        - OCR
+        - PDF AI·웹·MCP
+        - 성능·메모리
+        - 현지화·접근성
+        - 기타
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 재현 단계
+      description: 앱을 새로 연 상태부터 번호를 붙여 가장 짧은 절차를 써 주세요.
+      placeholder: |
+        1. PDF 두 개를 연다.
+        2. 첫 탭을 두 번째 탭 중앙에 놓아 스택을 만든다.
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 기대한 결과
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 실제 결과
+      description: 오류 문구는 복사해도 되지만 로컬 경로와 개인정보를 지워 주세요.
+    validations:
+      required: true
+
+  - type: textarea
+    id: document
+    attributes:
+      label: PDF 특성
+      description: 원본 대신 재현에 필요한 특성만 적어 주세요. 가능하면 개인정보 없는 합성 PDF를 사용합니다.
+      placeholder: 예) 320쪽, 85MB, 스캔 이미지, 90도 회전 페이지 포함, 암호 없음
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 추가 자료
+      description: 비식별화한 스크린샷, crash report, 관련 로그 또는 회귀가 시작된 버전을 적어 주세요.
+
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: 공개 자료 확인
+      options:
+        - label: API 키, 서명, 계정, 로컬 경로와 개인정보를 제거했습니다.
+          required: true
+        - label: 저작권이 불분명한 상업 교재나 문서 원본을 첨부하지 않았습니다.
+          required: true
+        - label: 같은 증상의 기존 이슈를 검색했습니다.
+          required: true

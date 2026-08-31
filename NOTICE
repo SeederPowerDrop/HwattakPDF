@@ -1,0 +1,33 @@
+HwattakPDF
+Copyright 2026 SeederPowerDrop
+
+HwattakPDF source code, documentation, and project-owned visual assets are
+made available under the Mozilla Public License, version 2.0 (MPL-2.0).
+A copy of the license is provided in the repository's LICENSE file. The
+official source repository is:
+
+    https://github.com/SeederPowerDrop/HwattakPDF
+
+The visual assets covered by the same license, with no asset-specific
+exception, are identified in ASSETS.md. The PNG application icon assets
+recorded there were created with OpenAI ImageGen at the direction of the
+project owner; the project-owned vector exploration is identified separately.
+The project owner confirmed on 2026-08-31 that no third-party image, logo, or
+other visual asset was supplied as generation or edit input. Use of ImageGen
+does not imply OpenAI sponsorship, endorsement, or affiliation.
+
+The About-window artwork was supplied by the project owner. On 2026-08-31,
+the project owner confirmed the authority required to publish it in the
+public repository, include it in application and release archives, and make
+it available under MPL-2.0. Its file-specific provenance and checksum are
+recorded in Resources/AboutAuthor-UserProvided-NOTICE.txt.
+
+MPL-2.0 does not by itself grant rights to use project trademarks or imply
+that a modified or redistributed build is an official HwattakPDF release.
+See TRADEMARKS.md for the project's non-endorsement and attribution guidance.
+
+Names of third-party products and services are used to describe
+interoperability, user-selected services, comparative research, source
+records, or non-copying design constraints. Those names and marks belong to
+their respective owners; their mention does not imply sponsorship,
+endorsement, or affiliation.

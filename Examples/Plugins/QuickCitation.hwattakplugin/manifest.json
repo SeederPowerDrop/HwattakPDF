@@ -1,0 +1,38 @@
+{
+  "actions": [
+    {
+      "description": "Show a bounded citation for the current selection.",
+      "id": "show-citation",
+      "output": "showText",
+      "template": "{{document.name}} — p. {{page.number}}/{{document.pageCount}}\n\n{{selection}}",
+      "title": "Show Quick Citation"
+    },
+    {
+      "description": "Copy the citation to the macOS clipboard.",
+      "id": "copy-citation",
+      "output": "copyText",
+      "template": "{{document.name}} — p. {{page.number}}/{{document.pageCount}}\n\n{{selection}}",
+      "title": "Copy Quick Citation"
+    },
+    {
+      "description": "Open a confirmed HTTPS search for the selected text.",
+      "id": "search-selection",
+      "output": "openURL",
+      "template": "https://www.google.com/search?q={{selection.urlEncoded}}",
+      "title": "Search Selected Text"
+    }
+  ],
+  "author": "HwattakPDF Examples",
+  "capabilities": [
+    "documentMetadata",
+    "selectedText",
+    "clipboardWrite",
+    "externalURL"
+  ],
+  "description": "Shows or copies a short citation and can open a confirmed web search for selected text.",
+  "displayName": "Quick Citation",
+  "identifier": "dev.example.hwattakpdf.quick-citation",
+  "minimumHostVersion": "0.7.0",
+  "schemaVersion": 1,
+  "version": "1.0.0"
+}

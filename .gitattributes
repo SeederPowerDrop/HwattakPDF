@@ -1,0 +1,16 @@
+# Store text with LF line endings so diffs remain stable across editors.
+* text=auto
+*.swift text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.sh text eol=lf
+*.strings text eol=lf
+
+# Images and archives are binary. Git must never try to merge or normalize them.
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.icns binary
+*.pdf binary
+*.zip binary
