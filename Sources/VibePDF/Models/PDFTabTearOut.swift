@@ -362,7 +362,7 @@ final class AppWideWorkspaceSessionCoordinator:
     private func observe(_ snapshot: WorkspaceSessionDetachedWindowSnapshot) {
         workspaceObservers[snapshot.windowID] = snapshot.workspace.objectWillChange
             .sink { [weak self] _ in
-                Task { @MainActor [weak self] in
+                MainActor.assumeIsolated {
                     self?.schedulePersistence()
                 }
             }

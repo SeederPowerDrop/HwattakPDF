@@ -770,6 +770,7 @@ final class WorkspaceSessionStoreTests: XCTestCase {
             tearOutStore: tearOutStore,
             debounceDuration: .milliseconds(40)
         )
+        let writeCountBeforeOpeningWindow = persistence.writeCount
         let movedTabID = try XCTUnwrap(main.activeTabID)
         let requestID = try XCTUnwrap(
             tearOutStore.stageNewWindow(tabID: movedTabID, from: main)
@@ -777,7 +778,10 @@ final class WorkspaceSessionStoreTests: XCTestCase {
         let detached = try XCTUnwrap(tearOutStore.workspace(for: requestID))
         let detachedWorkspaceID = detached.activeWorkspaceID
 
-        try await Task.sleep(for: .milliseconds(120))
+        try await waitForPersistenceWriteCount(
+            writeCountBeforeOpeningWindow + 1,
+            in: persistence
+        )
         var archive = try JSONDecoder().decode(
             WorkspaceSessionArchive.self,
             from: XCTUnwrap(persistence.data)
@@ -799,7 +803,11 @@ final class WorkspaceSessionStoreTests: XCTestCase {
         XCTAssertTrue(detached.renameWorkspace(detachedWorkspaceID, to: "First"))
         XCTAssertTrue(detached.renameWorkspace(detachedWorkspaceID, to: "Final"))
         _ = detached.newTab()
-        try await Task.sleep(for: .milliseconds(120))
+        try await waitForPersistenceWriteCount(
+            writeCountBeforeRapidChanges + 1,
+            in: persistence
+        )
+        try await Task.sleep(for: .milliseconds(80))
         XCTAssertEqual(persistence.writeCount, writeCountBeforeRapidChanges + 1)
 
         archive = try JSONDecoder().decode(
@@ -812,8 +820,12 @@ final class WorkspaceSessionStoreTests: XCTestCase {
         XCTAssertEqual(detachedRecord.title, "Final")
         XCTAssertEqual(detachedRecord.tabs.count, 2)
 
+        let writeCountBeforeRemoval = persistence.writeCount
         tearOutStore.releaseWindow(requestID)
-        try await Task.sleep(for: .milliseconds(120))
+        try await waitForPersistenceWriteCount(
+            writeCountBeforeRemoval + 1,
+            in: persistence
+        )
         archive = try JSONDecoder().decode(
             WorkspaceSessionArchive.self,
             from: XCTUnwrap(persistence.data)
@@ -1140,6 +1152,23 @@ final class WorkspaceSessionStoreTests: XCTestCase {
             main.allTabs.count + detached.allTabs.count
         )
         withExtendedLifetime(coordinator) {}
+    }
+
+    @MainActor
+    private func waitForPersistenceWriteCount(
+        _ expectedCount: Int,
+        in persistence: MemoryWorkspaceSessionPersistence
+    ) async throws {
+        for _ in 0..<200 {
+            if persistence.writeCount >= expectedCount {
+                return
+            }
+            try await Task.sleep(for: .milliseconds(10))
+        }
+        XCTFail(
+            "Timed out waiting for persistence write count \(expectedCount); "
+                + "received \(persistence.writeCount)"
+        )
     }
 
     private func tabRecord(

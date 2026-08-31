@@ -2,7 +2,7 @@
 
 이 문서는 현재 0.8.0 (build 18) 작업 트리에서 버그 보완 뒤 다시 실행한 자동 검증과 공개 전 남은 한계를 기록한다. 과거 0.7 마일스톤의 테스트 수·성능 측정·산출물 해시는 재사용하지 않았다. 수동 제품 검증은 [RELEASE-CHECKLIST.md](RELEASE-CHECKLIST.md)를 함께 사용한다.
 
-> 검증 기준일: 2026-08-31 (Europe/Paris)
+> 검증 기준일: 2026-09-01 (Europe/Paris)
 > 상태: **로컬 자동 검증 통과 — 공개 권리 확인 완료, 실제 기기·공증·실서비스 검증은 별도**
 
 ## 검증 환경
@@ -68,6 +68,7 @@ macOS 15 PDFKit이 offscreen `PDFView`의 two-up 및 pointer zoom fixture를 정
 ## 이번 보완에서 확인한 경계
 
 - 정보 화면의 소개·후원 문구를 10개 지원 언어로 현지화했다. 840×690 실제 창 크기로 전 언어를 렌더링해 긴 번역과 Arabic RTL 배치를 확인했고, 후원 버튼은 스크롤과 관계없이 항상 보이도록 하단에 고정했다.
+- 분리 창 워크스페이스의 변경 알림이 debounce 예약 전에 별도 MainActor 작업을 한 번 더 거치던 지연을 제거했다. 테스트도 고정 sleep 대신 실제 persistence write 완료를 제한 시간 내 확인해 느린 CI에서도 최종 제목·탭 수·창 제거 상태를 검증한다.
 - release 빌드에서 개발용 `#filePath` 리소스 fallback을 제외하고 prefix-map·strip·문자열 검사를 적용해 실행 파일의 로컬 사용자 경로를 0건으로 만들었다. ZIP도 확장 속성과 resource fork 없이 생성해 `._*` 및 `__MACOSX` 항목이 0건임을 확인했다.
 - 사용자 암호로 연 암호화 PDF는 양식·페이지·주석 등 저장 가능한 변경을 읽기 전용으로 차단한다. 소유자 암호 세션은 정상 편집된다.
 - PDF 페이지 추출·병합은 콘텐츠 복사와 문서 조합 권한, PNG는 콘텐츠 복사 권한, 검색 가능한 OCR 사본은 암호화 문서의 소유자 권한을 모델과 서비스 양쪽에서 검사한다.
@@ -87,8 +88,8 @@ outputs/HwattakPDF-0.8.0-macOS-arm64.zip
 
 | 항목 | 값 |
 |---|---|
-| ZIP 크기 | 6,961,704 bytes |
-| SHA-256 | `31cef3237f1e4b951e4168882541fa323a6ce3c6e109b7efe1d269e00e5e3d0e` |
+| ZIP 크기 | 6,960,784 bytes |
+| SHA-256 | `d4fa6bf7d3c65d47d642a51244e875109c0453f4960126953c1242b1a8f683fd` |
 | 아키텍처 | arm64 |
 | 최소 macOS | 14.0 |
 | 서명 | ad-hoc, `TeamIdentifier=not set` |
