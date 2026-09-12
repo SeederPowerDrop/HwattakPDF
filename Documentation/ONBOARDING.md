@@ -12,6 +12,7 @@
 - **hibernated tab**: URL과 보기 상태만 남기고 큰 PDFKit 객체를 해제한 깨끗한 비활성 탭
 - **annotation**: PDF 원래 본문과 별도로 페이지 위에 놓이는 텍스트·잉크·스탬프 등의 객체
 - **dirty**: 메모리의 변경이 마지막 저장 지점과 다름
+- **conversion builder**: 열린 PDF를 직접 바꾸지 않고 이미지·HTML·선택 PDF 페이지·공백에서 새 파생 PDF를 만드는 별도 작업 상태
 
 ## 2. 폴더를 읽는 순서
 
@@ -90,6 +91,16 @@ PDFSelection 수천 개를 결과 배열에 보관하지 않는 것은 검색 �
 UI가 사용하는 살아 있는 문서를 background task에 직접 넘기지 않습니다. 임시 PDF 스냅샷을 만들고 Vision이 한 페이지씩 인식하며, 각 결과를 독립된 체크포인트로 저장합니다. 취소 뒤 같은 문서·설정으로 다시 시작하면 완료 페이지를 재사용합니다.
 
 체크포인트는 Keychain이 아니라 Application Support의 평문 JSON이며 인식한 원문과 위치 상자를 포함합니다. 현재 자동 만료·삭제 UI가 없으므로 fixture에는 실제 민감 문서를 쓰지 않고, 체크포인트 형식이나 위치를 바꾸는 PR은 migration뿐 아니라 보존 기간·삭제 실패·사용자 고지까지 함께 검토합니다.
+
+### 이미지·HTML에서 새 PDF를 만들 때
+
+1. `ImagePDFBuilderView`는 입력 목록, 처리 방식, 예상치와 진행 상태만 표시합니다.
+2. `ImagePDFAssemblyModel`이 security scope와 immutable export snapshot을 소유하고 source를 한 항목씩 조립합니다.
+3. `ImagePDFConverter`는 decode 예산 안의 이미지 페이지를, `HTMLPDFConverter`는 로컬 자원만 사용하는 A4 벡터 페이지들을 만듭니다.
+4. 선택한 OCR은 기존 Vision·검색 가능 PDF exporter를 재사용합니다.
+5. 저장 뒤 결과 PDF를 다시 열어 페이지 수를 확인한 다음 실제 시간과 용량을 게시합니다.
+
+속도 우선도 `PDFDocument`를 여러 스레드에서 동시에 바꾸지 않습니다. 차이는 이미지 decode 예산, HTML 준비 대기, OCR DPI·인식 품질입니다. HTML에는 로컬 JavaScript가 실행되므로 테스트에는 실제 사용자 문서 대신 합성 fixture만 쓰고, 원격 차단을 완전한 process sandbox라고 설명하지 않습니다.
 
 ## 5. 좌표계가 세 종류인 이유
 

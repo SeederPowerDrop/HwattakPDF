@@ -1361,3 +1361,159 @@
 "security.user_session_read_only" = "فُتح ملف PDF المشفّر هذا بكلمة سر المستخدم. افتحه بكلمة سر المالك لتحريره وحفظ التغييرات.";
 "security.save_protected_copy_required" = "لا يمكن استخدام الحفظ العادي مع ملفات PDF المشفّرة. استخدم تصدير ملف PDF محمي بكلمة سر.";
 "security.export.document_changed" = "تغيّر المستند، لذلك تم إيقاف التصدير. حاول مرة أخرى.";
+"menu.open_document" = "فتح PDF أو صورة…";
+"panel.title.open_documents" = "فتح PDF أو صورة";
+"panel.open_documents" = "افتح ملفات PDF والصور في علامات تبويب منفصلة.";
+"conversion.office.menu" = "تحويل ملف PDF الحالي";
+"conversion.word.menu" = "مستند Word ‏(.docx)…";
+"conversion.word.title" = "تحويل إلى مستند Word";
+"conversion.word.saved" = "تم حفظ مستند Word ‏«%@».";
+"conversion.powerpoint.menu" = "PowerPoint ‏(.pptx)…";
+"conversion.powerpoint.title" = "تحويل إلى PowerPoint";
+"conversion.powerpoint.saved" = "تم حفظ مستند PowerPoint ‏«%@».";
+"conversion.images_to_pdf.menu" = "إنشاء PDF من الملفات والصفحات…";
+"conversion.images_to_pdf.title" = "تحويل الصور إلى PDF";
+"conversion.images.default_name" = "صور.pdf";
+"conversion.error.no_images" = "اختر صورة واحدة على الأقل.";
+"conversion.error.image_read" = "تعذّرت قراءة الصورة «%@».";
+"conversion.error.open_files" = "تعذّر فتح هذه الملفات: %@";
+"conversion.error.package_too_large" = "مستند Office كبير جدًا.";
+"conversion.error.package_invalid" = "تعذّر إنشاء مستند Office.";
+"builder.title" = "إنشاء ملف PDF";
+"builder.subtitle" = "رتّب الصور وملفات HTML وصفحات PDF المحددة والصفحات الفارغة بأي ترتيب.";
+"builder.local_badge" = "معالجة محلية";
+"builder.add_images" = "إضافة صور";
+"builder.add_html" = "إضافة HTML";
+"builder.add_pdf" = "استيراد صفحات PDF";
+"builder.add_blank" = "صفحة فارغة";
+"builder.empty.title" = "لا توجد صفحات بعد";
+"builder.empty.detail" = "أضف صورًا أو ملفات HTML أو صفحات PDF محددة أو صفحات فارغة.";
+"builder.ocr.toggle" = "إضافة نص OCR قابل للبحث";
+"builder.ocr.detail" = "يتعرّف Apple Vision على الصفحات بالتتابع ويضيف طبقة نص مخفية للبحث والتحديد.";
+"builder.ocr.languages" = "لغات التعرّف";
+"builder.ocr.stability" = "تُعالج الصفحات واحدة تلو الأخرى بدقة 240 DPI مع إعطاء الأولوية للدقة.";
+"builder.ocr.result" = "النص المستخرج";
+"builder.ocr.copy" = "نسخ النص";
+"builder.ocr.save_text" = "حفظ ملف النص…";
+"builder.export" = "حفظ PDF";
+"builder.export_title" = "حفظ PDF المجمّع";
+"builder.default_name" = "مستند جديد.pdf";
+"builder.text_default_name" = "نص OCR.txt";
+"builder.item.image" = "صفحة صورة";
+"builder.item.html" = "مستند HTML";
+"builder.item.imported_pdf" = "صفحة PDF مستوردة";
+"builder.item.blank" = "صفحة فارغة";
+"builder.item.blank_size" = "A4 فارغة · %d × %d نقطة";
+"builder.item.pdf_page" = "%@ · الصفحة %d";
+"builder.pdf_picker.title" = "تحديد الصفحات المراد استيرادها";
+"builder.pdf_picker.selected" = "تم تحديد %d من %d صفحة";
+"builder.pdf_picker.page" = "الصفحة %d";
+"builder.pdf_picker.all" = "تحديد الكل";
+"builder.pdf_picker.none" = "مسح التحديد";
+"builder.pdf_picker.add" = "إضافة الصفحات المحددة";
+"builder.status.ready" = "أضف صورة أو ملف HTML أو صفحة PDF للبدء.";
+"builder.status.pages" = "%d عناصر جاهزة";
+"builder.status.html" = "جارٍ تصيير %@…";
+"builder.status.assembling" = "جارٍ تجميع الصفحات بأمان…";
+"builder.status.ocr" = "جارٍ بدء OCR المحلي…";
+"builder.status.ocr_page" = "OCR الصفحة %d من %d";
+"builder.status.validating" = "جارٍ إعادة فتح PDF المكتمل للتحقق…";
+"builder.status.saved" = "تم حفظ «%@» والتحقق منه.";
+"builder.status.cancelled" = "تم إلغاء العملية.";
+"builder.status.cancelling" = "جارٍ الإلغاء بعد الصفحة الحالية…";
+"builder.status.failed" = "تعذّر إنشاء PDF.";
+"builder.status.text_copied" = "تم نسخ نص OCR.";
+"builder.status.text_saved" = "تم حفظ الملف النصي «%@».";
+"builder.error.title" = "خطأ في إنشاء PDF";
+"builder.error.validation" = "تعذّر التحقق من عدد صفحات PDF المحفوظ.";
+"builder.error.pdf_page" = "تعذّرت قراءة الصفحة %d من PDF المستورد.";
+"builder.error.blank_page" = "تعذّر إنشاء صفحة فارغة.";
+"builder.profile.title" = "نمط المعالجة";
+"builder.profile.stability" = "الأولوية للثبات";
+"builder.profile.stability_detail" = "ينتظر مدة أطول لتحميل HTML والموارد المحلية، ويحافظ على قدر أكبر من تفاصيل الصور. عند تمكين OCR، يستخدم التعرف الدقيق بدقة 240 نقطة في البوصة.";
+"builder.profile.speed" = "الأولوية للسرعة";
+"builder.profile.speed_detail" = "يقلّل وقت انتظار استقرار HTML ويخفض دقة الصور الكبيرة. عند تمكين OCR، يستخدم التعرف السريع بدقة 160 نقطة في البوصة.";
+"builder.estimate.title" = "تقدير التصدير";
+"builder.estimate.input" = "الإدخال";
+"builder.estimate.time" = "الوقت المقدّر";
+"builder.estimate.output" = "الحجم المقدّر";
+"builder.estimate.pages" = "عدد الصفحات المقدّر: %d";
+"builder.estimate.note" = "تُعرض التقديرات كنطاقات وقد تختلف حسب تعقيد المستند وحمل النظام.";
+"builder.estimate.confidence.high" = "ثقة عالية";
+"builder.estimate.confidence.medium" = "ثقة متوسطة";
+"builder.estimate.confidence.low" = "ثقة منخفضة";
+"builder.html.network_note" = "تُستخدم الموارد المحلية الموجودة في المجلد نفسه، بينما تُحظر الموارد البعيدة لحماية الخصوصية.";
+"builder.result.actual" = "التصدير الفعلي";
+"builder.result.time" = "الوقت المستغرق";
+"builder.result.size" = "حجم الملف";
+"builder.error.html.unsupported" = "ملف HTML ‏«%@» غير مدعوم.";
+"builder.error.html.unreadable" = "تعذّرت قراءة ملف HTML ‏«%@».";
+"builder.error.html.too_large" = "حجم ملف HTML هو %lld بايت؛ الحد هو %lld بايت.";
+"builder.error.html.unsafe_navigation" = "حاول HTML فتح مورد محظور: %@";
+"builder.error.html.timeout" = "انتهت مهلة تصيير HTML.";
+"builder.error.html.process_terminated" = "انتهت عملية تصيير HTML بشكل غير متوقع.";
+"builder.error.html.rendering" = "تعذّر تصيير HTML: %@";
+"builder.error.html.invalid_size" = "حجم صفحة HTML المصيّرة غير صالح.";
+"builder.error.html.too_many_pages" = "أنتج HTML عدد %d من الصفحات؛ الحد هو %d صفحات.";
+"builder.error.html.invalid_pdf" = "تعذّر التحقق من ملف PDF الناتج من HTML.";
+
+"plugins.permission.annotation_write" = "إضافة تعليقات PDF (مع إمكانية التراجع)";
+
+"plugins.permission.tool_control" = "إعداد القلم والممحاة وأداة التحديد";
+
+"plugins.permission.workspace_navigation" = "تغيير وضع العرض والتنقل بين الصفحات";
+
+"plugins.command.unavailable" = "هذا الأمر غير متاح في الوضع أو التحديد الحالي.";
+
+"plugins.command.review" = "ينفّذ أمرًا في التطبيق. يمكن التراجع عن التعليقات؛ لا تُحفظ الملفات تلقائيًا.";
+
+"plugins.palette.title" = "أوامر الإضافات…";
+
+"plugins.palette.search" = "البحث عن أوامر أو إضافات";
+
+"plugins.palette.help" = "Enter: أول أمر متاح · Esc: إغلاق";
+
+"pen.pressure.enabled" = "استخدام ضغط القلم";
+
+"pen.pressure.help" = "يستخدم الضغط عبر Sidecar أو لوح الرسم. تُحفظ الخطوط الحساسة للضغط كأختام PDF؛ خطوط الفأرة ذات عرض ثابت.";
+
+"recovery.title" = "استعادة العمل…";
+
+"recovery.enabled" = "الاحتفاظ بنسخ استعادة محلية تلقائية";
+
+"recovery.help" = "تُنسخ التعديلات المؤكدة بعد توقف 5 ثوانٍ (60 لأكثر من 500 صفحة). تُستثنى ملفات PDF المشفرة. قد لا تشمل أحدث التعديلات. احفظ العمل المستعاد في ملف PDF منفصل.";
+
+"recovery.open" = "فتح نسخة الاستعادة";
+
+"recovery.empty" = "لا توجد نسخ استعادة متاحة.";
+
+"recovery.limit" = "تم بلوغ الحد: 256 ميغابايت للنسخة، وإجمالي 1 غيغابايت و32 نسخة. احفظ عملك واحذف النسخ القديمة.";
+
+"recovery.delete_confirm" = "حذف هذه النسخة؟ سيبقى ملف PDF الأصلي.";
+
+"ocr.cache.busy" = "التعرّف الضوئي قيد التشغيل. أعد المحاولة بعد انتهائه.";
+
+"ocr.cache.help" = "تحتفظ نقاط استئناف OCR بالنص المستخرج محليًا دون تشفير. حذفها يمنع استئناف تلك المهام.";
+
+"ocr.cache.clear" = "حذف نقاط استئناف OCR…";
+
+"ocr.cache.cleared" = "تم حذف نقاط استئناف OCR.";
+
+"action.refresh" = "تحديث";
+"plugins.error.pdf_copying_not_allowed" = "لا تسمح الأذونات الحالية لملف PDF هذا بمشاركة النص مع الإضافات.";
+
+// Default PDF app association
+"settings.default_pdf.title" = "تطبيق PDF الافتراضي";
+"settings.default_pdf.description" = "افتح ملفات PDF باستخدام HwattakPDF عند النقر المزدوج عليها في فايندر.";
+"settings.default_pdf.current" = "التطبيق الافتراضي الحالي: %@";
+"settings.default_pdf.unknown" = "تعذر التحديد";
+"settings.default_pdf.active" = "هذه النسخة من HwattakPDF هي تطبيق PDF الافتراضي.";
+"settings.default_pdf.set" = "إعداد الارتباط في فايندر…";
+"settings.default_pdf.refresh" = "تحديث حالة الارتباط";
+"settings.default_pdf.failed" = "تعذر تجهيز إعداد الارتباط: %@";
+"settings.default_pdf.requires_app" = "متاح من خلال HwattakPDF.app المثبّت. ضع التطبيق في مجلد التطبيقات ثم شغّله.";
+"settings.default_pdf.location_hint" = "نوصي بوضع التطبيق في مجلد التطبيقات قبل تعيينه كتطبيق افتراضي. إذا نقلته أو حذفته لاحقًا، فقد تحتاج إلى إعداد الارتباط مجددًا.";
+"settings.default_pdf.manual_title" = "كيفية تعيين تطبيق PDF الافتراضي";
+"settings.default_pdf.manual_help" = "يحدد الزر أدناه ملف PDF للإعداد في فايندر. اختر إحضار المعلومات (⌘I) ← اختر HwattakPDF ضمن فتح بواسطة ← انقر على تغيير الكل. يُفحص الارتباط مجددًا عند العودة إلى التطبيق.";
+"settings.default_pdf.manual_note" = "يتم تأكيد ارتباطات ملفات macOS في فايندر. إذا كان لملف ارتباط فردي، فتحقق أيضًا من نافذة إحضار المعلومات الخاصة به.";
+"settings.default_pdf.revealed" = "افتح إحضار المعلومات (⌘I) لملف PDF المحدد في فايندر، واختر HwattakPDF ضمن فتح بواسطة، ثم انقر على تغيير الكل.";

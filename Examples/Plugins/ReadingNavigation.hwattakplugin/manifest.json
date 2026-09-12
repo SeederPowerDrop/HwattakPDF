@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 3,
+  "identifier": "dev.hwattakpdf.plugins.reading-navigation",
+  "displayName": "Reading Navigation",
+  "version": "1.0.0",
+  "author": "HwattakPDF",
+  "description": "Navigate long PDFs and switch reading modes.",
+  "minimumHostVersion": "0.8.0",
+  "capabilities": [
+    "workspaceNavigation"
+  ],
+  "actions": [
+    {
+      "id": "next-page",
+      "title": "Next page",
+      "output": "documentCommand",
+      "template": "",
+      "command": {
+        "kind": "nextPage"
+      }
+    },
+    {
+      "id": "previous-page",
+      "title": "Previous page",
+      "output": "documentCommand",
+      "template": "",
+      "command": {
+        "kind": "previousPage"
+      }
+    },
+    {
+      "id": "viewer-mode",
+      "title": "Viewer mode",
+      "output": "documentCommand",
+      "template": "",
+      "command": {
+        "kind": "viewerMode"
+      }
+    },
+    {
+      "id": "editing-mode",
+      "title": "Editing mode",
+      "output": "documentCommand",
+      "template": "",
+      "command": {
+        "kind": "editingMode"
+      }
+    },
+    {
+      "id": "study-mode",
+      "title": "Study mode",
+      "output": "documentCommand",
+      "template": "",
+      "command": {
+        "kind": "studyMode"
+      }
+    }
+  ]
+}

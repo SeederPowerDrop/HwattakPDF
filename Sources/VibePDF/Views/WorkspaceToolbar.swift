@@ -191,7 +191,7 @@ struct WorkspaceToolbar: View {
 
                     iconButton(
                         "folder.fill",
-                        help: L10n.string("PDF 열기 (⌘O)"),
+                        help: L10n.string("menu.open_document") + " (⌘O)",
                         action: openDocument
                     )
                 }
@@ -655,6 +655,7 @@ struct WorkspaceToolbar: View {
         case .translatePanel: "character.bubble"
         case .youtubePanel: "play.rectangle"
         case .browserPanel: "globe"
+        case .documentCommand: "pencil.and.outline"
         }
     }
 

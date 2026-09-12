@@ -1373,3 +1373,159 @@
 "security.user_session_read_only" = "Diese verschlüsselte PDF wurde mit einem Benutzerpasswort geöffnet. Öffnen Sie sie mit dem Eigentümerpasswort, um sie zu bearbeiten und Änderungen zu sichern.";
 "security.save_protected_copy_required" = "Verschlüsselte PDFs können nicht normal gesichert werden. Verwenden Sie „Passwortgeschützte PDF exportieren“.";
 "security.export.document_changed" = "Das Dokument wurde geändert; der Export wurde abgebrochen. Versuchen Sie es erneut.";
+"menu.open_document" = "PDF oder Bild öffnen…";
+"panel.title.open_documents" = "PDF oder Bild öffnen";
+"panel.open_documents" = "PDFs und Bilder in separaten Tabs öffnen.";
+"conversion.office.menu" = "Aktuelle PDF konvertieren";
+"conversion.word.menu" = "Word-Dokument (.docx)…";
+"conversion.word.title" = "In Word-Dokument konvertieren";
+"conversion.word.saved" = "Word-Dokument „%@“ wurde gespeichert.";
+"conversion.powerpoint.menu" = "PowerPoint-Präsentation (.pptx)…";
+"conversion.powerpoint.title" = "In PowerPoint konvertieren";
+"conversion.powerpoint.saved" = "PowerPoint-Dokument „%@“ wurde gespeichert.";
+"conversion.images_to_pdf.menu" = "PDF aus Dateien und Seiten erstellen…";
+"conversion.images_to_pdf.title" = "Bilder in PDF konvertieren";
+"conversion.images.default_name" = "Bilder.pdf";
+"conversion.error.no_images" = "Wählen Sie mindestens ein Bild aus.";
+"conversion.error.image_read" = "Das Bild „%@“ konnte nicht gelesen werden.";
+"conversion.error.open_files" = "Diese Dateien konnten nicht geöffnet werden: %@";
+"conversion.error.package_too_large" = "Das Office-Dokument ist zu groß.";
+"conversion.error.package_invalid" = "Das Office-Dokument konnte nicht erstellt werden.";
+"builder.title" = "PDF erstellen";
+"builder.subtitle" = "Bilder, HTML-Dateien, ausgewählte PDF-Seiten und leere Seiten beliebig anordnen.";
+"builder.local_badge" = "Lokale Verarbeitung";
+"builder.add_images" = "Bilder hinzufügen";
+"builder.add_html" = "HTML hinzufügen";
+"builder.add_pdf" = "PDF-Seiten importieren";
+"builder.add_blank" = "Leere Seite";
+"builder.empty.title" = "Noch keine Seiten";
+"builder.empty.detail" = "Fügen Sie Bilder, HTML-Dateien, ausgewählte PDF-Seiten oder leere Seiten hinzu.";
+"builder.ocr.toggle" = "Durchsuchbaren OCR-Text hinzufügen";
+"builder.ocr.detail" = "Apple Vision erkennt Seiten nacheinander und fügt eine unsichtbare Textebene hinzu.";
+"builder.ocr.languages" = "Erkennungssprachen";
+"builder.ocr.stability" = "Seiten werden für hohe Genauigkeit einzeln mit 240 DPI verarbeitet.";
+"builder.ocr.result" = "Extrahierter Text";
+"builder.ocr.copy" = "Text kopieren";
+"builder.ocr.save_text" = "Textdatei speichern…";
+"builder.export" = "PDF speichern";
+"builder.export_title" = "Zusammengestellte PDF speichern";
+"builder.default_name" = "Neues Dokument.pdf";
+"builder.text_default_name" = "OCR-Text.txt";
+"builder.item.image" = "Bildseite";
+"builder.item.html" = "HTML-Dokument";
+"builder.item.imported_pdf" = "Importierte PDF-Seite";
+"builder.item.blank" = "Leere Seite";
+"builder.item.blank_size" = "A4 leer · %d × %d pt";
+"builder.item.pdf_page" = "%@ · Seite %d";
+"builder.pdf_picker.title" = "Zu importierende Seiten auswählen";
+"builder.pdf_picker.selected" = "%d von %d Seiten ausgewählt";
+"builder.pdf_picker.page" = "Seite %d";
+"builder.pdf_picker.all" = "Alle auswählen";
+"builder.pdf_picker.none" = "Auswahl aufheben";
+"builder.pdf_picker.add" = "Ausgewählte Seiten hinzufügen";
+"builder.status.ready" = "Fügen Sie zum Start ein Bild, eine HTML-Datei oder eine PDF-Seite hinzu.";
+"builder.status.pages" = "%d Elemente bereit";
+"builder.status.html" = "„%@“ wird gerendert…";
+"builder.status.assembling" = "Seiten werden sicher zusammengestellt…";
+"builder.status.ocr" = "Lokale OCR wird gestartet…";
+"builder.status.ocr_page" = "OCR-Seite %d von %d";
+"builder.status.validating" = "Die fertige PDF wird zur Prüfung erneut geöffnet…";
+"builder.status.saved" = "„%@“ wurde gespeichert und geprüft.";
+"builder.status.cancelled" = "Der Vorgang wurde abgebrochen.";
+"builder.status.cancelling" = "Abbruch nach der aktuellen Seite…";
+"builder.status.failed" = "Die PDF konnte nicht erstellt werden.";
+"builder.status.text_copied" = "OCR-Text wurde kopiert.";
+"builder.status.text_saved" = "Textdatei „%@“ wurde gespeichert.";
+"builder.error.title" = "Fehler beim PDF-Erstellen";
+"builder.error.validation" = "Die Seitenzahl der gespeicherten PDF konnte nicht geprüft werden.";
+"builder.error.pdf_page" = "Seite %d der importierten PDF konnte nicht gelesen werden.";
+"builder.error.blank_page" = "Eine leere Seite konnte nicht erstellt werden.";
+"builder.profile.title" = "Verarbeitungsprofil";
+"builder.profile.stability" = "Stabilität";
+"builder.profile.stability_detail" = "Wartet länger, bis HTML-Inhalte und lokale Ressourcen geladen sind, und bewahrt mehr Bilddetails. Bei aktivierter OCR kommt die genaue Erkennung mit 240 dpi zum Einsatz.";
+"builder.profile.speed" = "Geschwindigkeit";
+"builder.profile.speed_detail" = "Wartet kürzer auf die Stabilisierung von HTML-Inhalten und skaliert große Bilder herunter. Bei aktivierter OCR kommt die schnelle Erkennung mit 160 dpi zum Einsatz.";
+"builder.estimate.title" = "Geschätzter Export";
+"builder.estimate.input" = "Eingabe";
+"builder.estimate.time" = "Geschätzte Dauer";
+"builder.estimate.output" = "Geschätzte Größe";
+"builder.estimate.pages" = "%d geschätzte Seiten";
+"builder.estimate.note" = "Die Schätzwerte werden als Bereiche angegeben und können je nach Dokumentkomplexität und Systemlast abweichen.";
+"builder.estimate.confidence.high" = "Hohe Prognosesicherheit";
+"builder.estimate.confidence.medium" = "Mittlere Prognosesicherheit";
+"builder.estimate.confidence.low" = "Geringe Prognosesicherheit";
+"builder.html.network_note" = "Lokale Inhalte im selben Ordner werden verwendet; externe Ressourcen werden zum Schutz der Privatsphäre blockiert.";
+"builder.result.actual" = "Tatsächlicher Export";
+"builder.result.time" = "Benötigte Zeit";
+"builder.result.size" = "Dateigröße";
+"builder.error.html.unsupported" = "Die HTML-Datei „%@“ wird nicht unterstützt.";
+"builder.error.html.unreadable" = "Die HTML-Datei „%@“ konnte nicht gelesen werden.";
+"builder.error.html.too_large" = "Die HTML-Datei ist %lld Byte groß; zulässig sind höchstens %lld Byte.";
+"builder.error.html.unsafe_navigation" = "Das HTML versuchte, eine gesperrte Ressource zu öffnen: %@";
+"builder.error.html.timeout" = "Zeitüberschreitung beim Rendern des HTML-Inhalts.";
+"builder.error.html.process_terminated" = "Der HTML-Renderprozess wurde unerwartet beendet.";
+"builder.error.html.rendering" = "Das HTML konnte nicht gerendert werden: %@";
+"builder.error.html.invalid_size" = "Das gerenderte HTML hat eine ungültige Seitengröße.";
+"builder.error.html.too_many_pages" = "Das HTML ergab %d Seiten; zulässig sind höchstens %d Seiten.";
+"builder.error.html.invalid_pdf" = "Die aus dem HTML erstellte PDF konnte nicht geprüft werden.";
+
+"plugins.permission.annotation_write" = "PDF-Anmerkungen hinzufügen (widerrufbar)";
+
+"plugins.permission.tool_control" = "Stift, Radierer und Auswahl einstellen";
+
+"plugins.permission.workspace_navigation" = "Ansichtsmodus wechseln und Seiten durchblättern";
+
+"plugins.command.unavailable" = "Dieser Befehl ist im aktuellen Modus oder für diese Auswahl nicht verfügbar.";
+
+"plugins.command.review" = "Führt einen App-Befehl aus. Anmerkungen lassen sich widerrufen; Dateien werden nicht automatisch gespeichert.";
+
+"plugins.palette.title" = "Plugin-Befehle…";
+
+"plugins.palette.search" = "Befehle oder Plugins suchen";
+
+"plugins.palette.help" = "Eingabe: erster verfügbarer Befehl · Esc: schließen";
+
+"pen.pressure.enabled" = "Stiftdruck verwenden";
+
+"pen.pressure.help" = "Nutzt den Druck über Sidecar oder ein Grafiktablett. Druckabhängige Striche werden als PDF-Stempel gespeichert; Mausstriche haben eine feste Breite.";
+
+"recovery.title" = "Arbeit wiederherstellen…";
+
+"recovery.enabled" = "Lokale Wiederherstellungskopien behalten";
+
+"recovery.help" = "Übernimmt bestätigte Änderungen nach 5 Sekunden Pause (60 bei über 500 Seiten). Verschlüsselte PDFs sind ausgeschlossen. Neueste Änderungen können fehlen. Wiederhergestellte Arbeit separat speichern.";
+
+"recovery.open" = "Wiederherstellungskopie öffnen";
+
+"recovery.empty" = "Keine Wiederherstellungskopien vorhanden.";
+
+"recovery.limit" = "Grenze erreicht: 256 MB je Kopie, insgesamt 1 GB und 32 Kopien. Arbeit speichern und alte Kopien löschen.";
+
+"recovery.delete_confirm" = "Diese Kopie löschen? Das Original-PDF bleibt erhalten.";
+
+"ocr.cache.busy" = "OCR läuft noch. Bitte nach Abschluss erneut versuchen.";
+
+"ocr.cache.help" = "OCR-Zwischenstände enthalten lokal erkannten Klartext. Nach dem Löschen können diese Arbeiten nicht fortgesetzt werden.";
+
+"ocr.cache.clear" = "OCR-Zwischenstände löschen…";
+
+"ocr.cache.cleared" = "OCR-Zwischenstände gelöscht.";
+
+"action.refresh" = "Aktualisieren";
+"plugins.error.pdf_copying_not_allowed" = "Die aktuellen Berechtigungen dieser PDF erlauben keine Weitergabe von Text an Plugins.";
+
+// Default PDF app association
+"settings.default_pdf.title" = "Standard-App für PDFs";
+"settings.default_pdf.description" = "PDFs mit HwattakPDF öffnen, wenn du im Finder darauf doppelklickst.";
+"settings.default_pdf.current" = "Aktuelle Standard-App: %@";
+"settings.default_pdf.unknown" = "Nicht ermittelbar";
+"settings.default_pdf.active" = "Diese Kopie von HwattakPDF ist deine Standard-App für PDFs.";
+"settings.default_pdf.set" = "Im Finder einrichten…";
+"settings.default_pdf.refresh" = "Zuordnungsstatus aktualisieren";
+"settings.default_pdf.failed" = "Das Einrichten der Zuordnung konnte nicht vorbereitet werden: %@";
+"settings.default_pdf.requires_app" = "In der installierten HwattakPDF.app verfügbar. Lege die App im Ordner Programme ab und starte sie.";
+"settings.default_pdf.location_hint" = "Wir empfehlen, die App im Ordner Programme abzulegen, bevor du sie als Standard festlegst. Wenn du sie später verschiebst oder löschst, musst du die Zuordnung möglicherweise erneut festlegen.";
+"settings.default_pdf.manual_title" = "Standard-App für PDFs festlegen";
+"settings.default_pdf.manual_help" = "Die Taste unten wählt eine PDF zum Einrichten im Finder aus. Wähle Informationen (⌘I) → unter Öffnen mit HwattakPDF auswählen → Alle ändern anklicken. Wenn du zur App zurückkehrst, wird die Zuordnung erneut geprüft.";
+"settings.default_pdf.manual_note" = "macOS-Dateizuordnungen werden im Finder bestätigt. Wenn eine Datei eine individuelle Zuordnung hat, prüfe auch ihr Informationsfenster.";
+"settings.default_pdf.revealed" = "Öffne Informationen (⌘I) für die im Finder ausgewählte PDF, wähle unter Öffnen mit HwattakPDF und klicke dann auf Alle ändern.";

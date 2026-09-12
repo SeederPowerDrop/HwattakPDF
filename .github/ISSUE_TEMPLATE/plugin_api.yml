@@ -1,0 +1,45 @@
+name: 플러그인 API 제안 / Plugin API proposal
+description: 현재 문서 명령·템플릿으로 만들기 어려운 확장 기능을 제안합니다.
+title: "[Plugin API] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        [제작 가이드](../../Documentation/PLUGIN-DEVELOPMENT.md)와 [현재 호환성](../../Documentation/PLUGIN-COMPATIBILITY.md)을 먼저 확인해 주세요.
+        아직 구현되지 않은 API를 함께 설계하기 위한 양식입니다. 취약점이나 민감한 문서는 공개하지 말고 [보안 정책](../../SECURITY.md)을 따릅니다.
+  - type: textarea
+    id: workflow
+    attributes:
+      label: 사용자 문제와 구체적인 예 / User workflow
+      description: 입력 → 사용자가 하는 행동 → 기대 결과를 적어 주세요.
+    validations:
+      required: true
+  - type: textarea
+    id: gap
+    attributes:
+      label: 현재 API로 부족한 부분 / Current API gap
+      description: 기존 명령·템플릿으로 해 본 방법, 새 연산·이벤트·UI가 필요한 이유를 설명해 주세요.
+    validations:
+      required: true
+  - type: textarea
+    id: data
+    attributes:
+      label: 입력·권한·데이터 수명 / Data and permissions
+      description: 어떤 PDF/선택/주석/기기 데이터를 읽거나 바꾸는지, 외부 전송·저장·삭제 여부를 적어 주세요. 실제 개인정보나 키는 넣지 마세요.
+    validations:
+      required: true
+  - type: textarea
+    id: lifecycle
+    attributes:
+      label: 실패·취소·실행 취소 / Failure and lifecycle
+      description: 문서 교체, 탭 전환, 권한 거부, 중복 실행, 플러그인 비활성화 때 기대하는 동작을 적어 주세요.
+    validations:
+      required: true
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: 호환성·성능·검증 / Compatibility and validation
+      description: 앱 버전과 schema, 대상 OS/기기, 최대 문서 크기·시간·동시성, 개인정보 없는 시험 방법을 적어 주세요.
+    validations:
+      required: true

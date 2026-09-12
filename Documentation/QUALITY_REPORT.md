@@ -1,8 +1,10 @@
 # HwattakPDF 0.8.0 (build 18) 품질 검증 보고서
 
-이 문서는 현재 0.8.0 (build 18) 작업 트리에서 버그 보완 뒤 다시 실행한 자동 검증과 공개 전 남은 한계를 기록한다. 과거 0.7 마일스톤의 테스트 수·성능 측정·산출물 해시는 재사용하지 않았다. 수동 제품 검증은 [RELEASE-CHECKLIST.md](RELEASE-CHECKLIST.md)를 함께 사용한다.
+> 2026-09-05 안정화 후속: [수정·성능·복구 검증](STABILIZATION-2026-09-05.md), [schema 3 문서 명령 API와 태블릿 입력](PLUGIN-HOST-API.md). 아래의 이전 단계 설명보다 후속 기록을 우선한다.
 
-> 검증 기준일: 2026-09-01 (Europe/Paris)
+이 문서는 공개된 0.8.0 (build 18), commit `1584312`의 자동 검증과 공개 당시 남은 한계를 기록한 고정 기준선이다. 다음 릴리스용 소스 트리의 미출시 이미지·HTML·Office 변환 작업은 이 문서의 테스트 수·산출물·해시에 포함되지 않으며 [개발노트](DEVELOPMENT-LOG.md)의 2026-09-03 기록을 따른다. 과거 0.7 마일스톤의 테스트 수·성능 측정·산출물 해시는 재사용하지 않았다. 수동 제품 검증은 [RELEASE-CHECKLIST.md](RELEASE-CHECKLIST.md)를 함께 사용한다.
+
+> 검증 기준일: 2026-09-01
 > 상태: **로컬 자동 검증 통과 — 공개 권리 확인 완료, 실제 기기·공증·실서비스 검증은 별도**
 
 ## 검증 환경
@@ -15,7 +17,7 @@
 | Swift | Apple Swift 6.2.4, arm64-apple-macosx15.0 |
 | 패키지 | swift-tools 6.0, Swift language mode 5, macOS 14.0+ |
 | 앱 | 0.8.0 (build 18), bundle id `com.vibepdf.mac` |
-| 소스 기준 | 첫 공개 `v0.8.0` 후보 작업 트리 |
+| 소스 기준 | 공개 `v0.8.0`, commit `1584312` |
 
 ## 재현 명령
 
@@ -58,7 +60,7 @@
 | Plugins | 2 | 42 | 0 | 0 |
 | **합계** | **48** | **641** | **0** | **2** |
 
-macOS 15 PDFKit이 offscreen `PDFView`의 two-up 및 pointer zoom fixture를 정리할 때 충돌하는 문제 때문에 아래 두 통합 항목만 로컬에서 예상 건너뛴다.
+이 저장소의 macOS 15 테스트 환경에서 offscreen `PDFView`의 two-up 및 pointer zoom fixture를 정리할 때 충돌이 관찰되어 아래 두 통합 항목만 로컬에서 예상 건너뛴다.
 
 - `testNativePagedTwoUpShowsOneExactSpreadWithoutBookCoverOffset`
 - `testPDFKitZoomKeepsThePDFPointUnderAnOffCenterPointer`
@@ -102,7 +104,7 @@ outputs/HwattakPDF-0.8.0-macOS-arm64.zip
 - 최소 지원 버전인 macOS 14, 실제 macOS 26, Arabic RTL, 키보드 전용, Sidecar 입력을 자동 테스트가 대체하지 않는다.
 - Developer ID 서명, hardened runtime, Apple 공증, Gatekeeper 다운로드 경로와 App Store provisioning은 검증하지 않았다.
 - 실제 AI 공급자 계정·과금·rate limit·원격 MCP는 mock 자동 테스트와 별도의 운영 검증 항목이다. YouTube 학습 manifest는 개인정보처리방침·이용약관·동의 UI를 완성하기 전까지 소스 전용 예제로 두고 0.8.0 배포 번들에서 제외했다.
-- OCR 체크포인트 텍스트는 Application Support에 평문으로 남으며 현재 앱 내 삭제·자동 만료 정책이 없다.
+- OCR 체크포인트 텍스트는 Application Support에 평문으로 남는다. 2026-09-05에 앱 설정의 삭제 기능을 추가했으며, 자동 만료 정책은 아직 없다.
 - 50~200MB 실문서 다수의 장시간 스크롤·검색, peak RSS, frame pacing, thermal 영향은 Instruments로 별도 측정해야 한다.
 - 코드·문서·권리가 확인된 프로젝트 자산은 MPL-2.0으로 공개한다. 결정 근거와 자산 checksum은 [라이선스 결정 기록](LICENSE-CHOICE.md), [자산 기록](ASSET-AND-DEPENDENCY-NOTICES.md), 루트 `ASSETS.md`에 남겼다.
-- 앱 정보 화면·README·10개 언어·행동 강령은 공식 저장소 주소로 갱신했다. 공개 전에 GitHub Private vulnerability reporting을 활성화하고 `SECURITY.md`의 직접 신고 링크를 실제 일반 사용자 권한으로 확인해야 한다.
+- 앱 정보 화면·README·10개 언어·행동 강령은 공식 저장소 주소로 갱신했다. Private vulnerability reporting은 공개 뒤 활성화되어 2026-09-03 GitHub API로 다시 확인했지만, `SECURITY.md`의 직접 신고 링크가 관리자 권한이 없는 별도 GitHub 계정으로 로그인한 환경에서 실제 제출 화면까지 열리는지는 별도로 확인해야 한다.

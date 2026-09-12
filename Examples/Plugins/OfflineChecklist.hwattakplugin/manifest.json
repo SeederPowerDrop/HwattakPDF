@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "identifier": "org.example.offline-checklist",
+  "displayName": "Offline Study Checklist",
+  "version": "1.0.0",
+  "author": "Your name",
+  "description": "A local study checklist with no PDF text, clipboard, or network permissions.",
+  "minimumHostVersion": "0.8.0",
+  "capabilities": [],
+  "actions": [
+    {
+      "id": "show-checklist",
+      "title": "학습 체크리스트 / Study checklist",
+      "output": "showText",
+      "template": "1. Read the section.\n2. Highlight one key sentence.\n3. Explain the idea in your own words.\n4. Save your PDF."
+    }
+  ]
+}

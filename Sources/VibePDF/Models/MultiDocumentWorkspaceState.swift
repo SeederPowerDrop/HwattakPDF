@@ -666,7 +666,8 @@ final class MultiDocumentWorkspaceState: ObservableObject {
     func openPDFsInTabsAsync(
         urls: [URL],
         inGroup groupID: UUID? = nil,
-        maximumInspectionConcurrency: Int = PDFLazyDocumentBatchInspector.defaultMaximumConcurrency
+        maximumInspectionConcurrency: Int = PDFLazyDocumentBatchInspector.defaultMaximumConcurrency,
+        imageSources: [URL: URL] = [:]
     ) async -> [UUID] {
         let targetWorkspaceID = activeWorkspaceID
         let uniqueURLs = uniquePDFURLs(urls)
@@ -719,7 +720,7 @@ final class MultiDocumentWorkspaceState: ObservableObject {
         }
 
         return withExtendedLifetime(batchAccesses) {
-            installPreparedPDFBatch(prepared.compactMap { $0 }, inGroup: groupID)
+            installPreparedPDFBatch(prepared.compactMap { $0 }, inGroup: groupID, imageSources: imageSources)
         }
     }
 
@@ -763,6 +764,67 @@ final class MultiDocumentWorkspaceState: ObservableObject {
         return task
     }
 
+    /// Decode one image at a time off the main actor, retaining source identity
+    /// and security scope through cancellation and lazy tab installation.
+    @discardableResult
+    func beginOpeningViewableFilesInTabs(
+        urls: [URL],
+        completion: (([UUID]) -> Void)? = nil
+    ) -> Task<[UUID], Never> {
+        guard !urls.isEmpty else { return Task { [] } }
+        cancelPendingBatchOpen()
+        let requestID = UUID()
+        let targetWorkspaceID = activeWorkspaceID
+        let accesses = urls.map { SecurityScopedAccess(url: $0) }
+        pendingBatchOpenRequestID = requestID
+        let task = Task { @MainActor [weak self] () -> [UUID] in
+            guard let self else { return [] }
+            var preparedURLs: [URL] = []
+            var imageSources: [URL: URL] = [:]
+            var failures: [String] = []
+            defer {
+                withExtendedLifetime(accesses) {}
+                for preview in imageSources.keys where !self.allTabs.contains(where: { $0.workspace.documentURL == preview }) {
+                    ImagePDFConverter.removePreview(at: preview)
+                }
+                if self.pendingBatchOpenRequestID == requestID {
+                    self.pendingBatchOpenTask = nil
+                    self.pendingBatchOpenRequestID = nil
+                }
+            }
+            for url in self.uniquePDFURLs(urls) {
+                guard !Task.isCancelled, self.activeWorkspaceID == targetWorkspaceID else { return [] }
+                if let existing = self.session(opening: url), let backing = existing.workspace.documentURL {
+                    preparedURLs.append(backing)
+                } else if url.pathExtension.lowercased() == "pdf" {
+                    preparedURLs.append(url)
+                } else if ImagePDFConverter.supportedExtensions.contains(url.pathExtension.lowercased()) {
+                    do {
+                        let preview = try await ImagePDFConverter.makePreviewInBackground(from: url)
+                        imageSources[preview] = url
+                        preparedURLs.append(preview)
+                    } catch is CancellationError {
+                        return []
+                    } catch {
+                        failures.append(url.lastPathComponent)
+                    }
+                } else {
+                    failures.append(url.lastPathComponent)
+                }
+            }
+            guard !Task.isCancelled, self.activeWorkspaceID == targetWorkspaceID else { return [] }
+            let opened = await self.openPDFsInTabsAsync(urls: preparedURLs, imageSources: imageSources)
+            guard !Task.isCancelled, self.pendingBatchOpenRequestID == requestID else { return [] }
+            if !failures.isEmpty {
+                self.activeWorkspace?.presentedError = L10n.format("conversion.error.open_files", failures.joined(separator: ", "))
+            }
+            completion?(opened)
+            return opened
+        }
+        pendingBatchOpenTask = task
+        return task
+    }
+
     func cancelPendingBatchOpen() {
         pendingBatchOpenTask?.cancel()
         pendingBatchOpenTask = nil
@@ -775,7 +837,8 @@ final class MultiDocumentWorkspaceState: ObservableObject {
 
     private func installPreparedPDFBatch(
         _ prepared: [PreparedPDFBatchOpen],
-        inGroup groupID: UUID?
+        inGroup groupID: UUID?,
+        imageSources: [URL: URL] = [:]
     ) -> [UUID] {
         guard !prepared.isEmpty else { return [] }
         let originalTabs = tabs
@@ -855,6 +918,7 @@ final class MultiDocumentWorkspaceState: ObservableObject {
                 requiresSuccessfulActivation = descriptor.isEncrypted
             }
 
+            if let source = imageSources[url] { targetSession.workspace.associateImageSource(source) }
             openedIDs.append(targetSession.id)
             openedDocuments.append(
                 (targetSession.id, url, requiresSuccessfulActivation)
@@ -904,7 +968,9 @@ final class MultiDocumentWorkspaceState: ObservableObject {
                 !openedDocument.requiresSuccessfulActivation
                     || installedSession?.workspace.isHibernated == false
             else { continue }
-            recordRecentDocument(url: openedDocument.url)
+            if imageSources[openedDocument.url] == nil, installedSession?.workspace.imageSourceURL == nil {
+                recordRecentDocument(url: openedDocument.url)
+            }
         }
 
         if !openedIDs.isEmpty {
@@ -1425,6 +1491,8 @@ final class MultiDocumentWorkspaceState: ObservableObject {
     private func session(opening url: URL) -> PDFTabSession? {
         let requestedKey = canonicalFileKey(for: url)
         return tabs.first { session in
+            if let imageSource = session.workspace.imageSourceURL,
+               PDFSourceFileVersion.refersToSameLocation(imageSource, url) { return true }
             guard let openURL = session.workspace.documentURL else { return false }
             return canonicalFileKey(for: openURL) == requestedKey
         }
@@ -1483,6 +1551,9 @@ final class MultiDocumentWorkspaceState: ObservableObject {
     }
 
     private func observe(_ session: PDFTabSession) {
+        if sessionStore != nil || recentDocumentsStore != nil {
+            session.workspace.configureRecovery(store: PDFRecoveryStore())
+        }
         workspaceObservers[session.id] = session.workspace.objectWillChange
             .sink { [weak self] _ in
                 Task { @MainActor [weak self] in

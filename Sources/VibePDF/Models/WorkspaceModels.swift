@@ -35,6 +35,7 @@ enum WorkspaceTool: String, CaseIterable, Identifiable {
 
 /// PDF ink annotation을 그릴 때 적용하는 시각 속성이다.
 struct InkSettings: Equatable {
+    var pressureEnabled = true
     var color = NSColor.systemRed
     var width: CGFloat = 2.4
 
@@ -177,12 +178,18 @@ enum OCRRunState: Equatable {
 
 /// OCR 결과를 바꾸는 입력값. 체크포인트 fingerprint에도 포함되므로 이 설정이
 /// 바뀌면 예전 결과를 잘못 재사용하지 않는다.
+enum OCRRecognitionQuality: String, Codable, Equatable {
+    case accurate
+    case fast
+}
+
 struct OCRConfiguration: Codable, Equatable {
     var languages = ["ko-KR", "en-US", "ja-JP"]
     var skipPagesWithText = true
     var minimumExistingCharacters = 24
     var renderDPI: CGFloat = 220
     var useLanguageCorrection = true
+    var recognitionQuality: OCRRecognitionQuality = .accurate
 }
 
 /// Vision이 인식한 문자열과 페이지 안의 정규화된 위치다.

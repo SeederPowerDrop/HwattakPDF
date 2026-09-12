@@ -1374,3 +1374,159 @@
 "security.user_session_read_only" = "This encrypted PDF was opened with a user password. Open it with the owner password to edit and save changes.";
 "security.save_protected_copy_required" = "Encrypted PDFs cannot use ordinary Save. Use Export Password-Protected PDF instead.";
 "security.export.document_changed" = "The document changed, so the export was stopped. Try again.";
+"menu.open_document" = "Open PDF or Image…";
+"panel.title.open_documents" = "Open PDF or Image";
+"panel.open_documents" = "Open PDFs, JPEGs, PNGs, and other images in separate tabs.";
+"conversion.office.menu" = "Convert Current PDF";
+"conversion.word.menu" = "Word Document (.docx)…";
+"conversion.word.title" = "Convert to Word Document";
+"conversion.word.saved" = "Saved Word document “%@”.";
+"conversion.powerpoint.menu" = "PowerPoint (.pptx)…";
+"conversion.powerpoint.title" = "Convert to PowerPoint";
+"conversion.powerpoint.saved" = "Saved PowerPoint document “%@”.";
+"conversion.images_to_pdf.menu" = "Build PDF from Files and Pages…";
+"conversion.images_to_pdf.title" = "Convert Images to PDF";
+"conversion.images.default_name" = "Images.pdf";
+"conversion.error.no_images" = "Select at least one image to convert.";
+"conversion.error.image_read" = "The image “%@” could not be read.";
+"conversion.error.open_files" = "These files could not be opened: %@";
+"conversion.error.package_too_large" = "The Office document exceeds the supported package size.";
+"conversion.error.package_invalid" = "The Office document package could not be created.";
+"builder.title" = "Build a PDF";
+"builder.subtitle" = "Arrange images, HTML files, selected PDF pages, and blank pages in any order.";
+"builder.local_badge" = "Processed locally";
+"builder.add_images" = "Add Images";
+"builder.add_html" = "Add HTML";
+"builder.add_pdf" = "Import PDF Pages";
+"builder.add_blank" = "Blank Page";
+"builder.empty.title" = "No pages yet";
+"builder.empty.detail" = "Add images, HTML files, selected PDF pages, or blank pages.";
+"builder.ocr.toggle" = "Add searchable OCR text";
+"builder.ocr.detail" = "Apple Vision recognizes pages sequentially and adds an invisible text layer for search and selection.";
+"builder.ocr.languages" = "Recognition languages";
+"builder.ocr.stability" = "Pages are processed one at a time at an accuracy-first 240 DPI. Long documents may take time.";
+"builder.ocr.result" = "Extracted text";
+"builder.ocr.copy" = "Copy Text";
+"builder.ocr.save_text" = "Save Text File…";
+"builder.export" = "Save PDF";
+"builder.export_title" = "Save Assembled PDF";
+"builder.default_name" = "New Document.pdf";
+"builder.text_default_name" = "OCR Text.txt";
+"builder.item.image" = "Image page";
+"builder.item.html" = "HTML document";
+"builder.item.imported_pdf" = "Imported PDF page";
+"builder.item.blank" = "Blank page";
+"builder.item.blank_size" = "A4 blank · %d × %d pt";
+"builder.item.pdf_page" = "%@ · page %d";
+"builder.pdf_picker.title" = "Select Pages to Import";
+"builder.pdf_picker.selected" = "%d of %d pages selected";
+"builder.pdf_picker.page" = "Page %d";
+"builder.pdf_picker.all" = "Select All";
+"builder.pdf_picker.none" = "Clear Selection";
+"builder.pdf_picker.add" = "Add Selected Pages";
+"builder.status.ready" = "Add an image, HTML file, or PDF page to begin.";
+"builder.status.pages" = "%d items ready";
+"builder.status.html" = "Rendering %@…";
+"builder.status.assembling" = "Assembling pages safely…";
+"builder.status.ocr" = "Starting local OCR…";
+"builder.status.ocr_page" = "OCR page %d of %d";
+"builder.status.validating" = "Reopening the completed PDF for validation…";
+"builder.status.saved" = "Saved and validated “%@”.";
+"builder.status.cancelled" = "The operation was cancelled.";
+"builder.status.cancelling" = "Cancelling after the current page…";
+"builder.status.failed" = "The PDF could not be created.";
+"builder.status.text_copied" = "Copied the OCR text.";
+"builder.status.text_saved" = "Saved text file “%@”.";
+"builder.error.title" = "PDF Builder Error";
+"builder.error.validation" = "The saved PDF page count could not be validated.";
+"builder.error.pdf_page" = "Page %d of the imported PDF could not be read.";
+"builder.error.blank_page" = "A blank page could not be created.";
+"builder.profile.title" = "Processing Profile";
+"builder.profile.stability" = "Stability";
+"builder.profile.stability_detail" = "Allows more time for HTML and local resources to load, and preserves more image detail. With OCR enabled, it uses accurate recognition at 240 DPI.";
+"builder.profile.speed" = "Speed";
+"builder.profile.speed_detail" = "Waits less time for HTML to settle and downsamples large images. With OCR enabled, it uses fast recognition at 160 DPI.";
+"builder.estimate.title" = "Estimated Export";
+"builder.estimate.input" = "Input";
+"builder.estimate.time" = "Estimated time";
+"builder.estimate.output" = "Estimated size";
+"builder.estimate.pages" = "%d estimated pages";
+"builder.estimate.note" = "Estimates are ranges and may vary with document complexity and system load.";
+"builder.estimate.confidence.high" = "High confidence";
+"builder.estimate.confidence.medium" = "Medium confidence";
+"builder.estimate.confidence.low" = "Low confidence";
+"builder.html.network_note" = "Local assets in the same folder are used; remote resources are blocked for privacy.";
+"builder.result.actual" = "Actual Export";
+"builder.result.time" = "Elapsed time";
+"builder.result.size" = "File size";
+"builder.error.html.unsupported" = "The HTML file “%@” is not supported.";
+"builder.error.html.unreadable" = "The HTML file “%@” could not be read.";
+"builder.error.html.too_large" = "The HTML file is %lld bytes; the limit is %lld bytes.";
+"builder.error.html.unsafe_navigation" = "The HTML tried to open a blocked resource: %@";
+"builder.error.html.timeout" = "HTML rendering timed out.";
+"builder.error.html.process_terminated" = "The HTML rendering process ended unexpectedly.";
+"builder.error.html.rendering" = "The HTML could not be rendered: %@";
+"builder.error.html.invalid_size" = "The rendered HTML has an invalid page size.";
+"builder.error.html.too_many_pages" = "The HTML produced %d pages; the limit is %d pages.";
+"builder.error.html.invalid_pdf" = "The PDF produced from the HTML could not be validated.";
+
+"plugins.permission.annotation_write" = "Add PDF annotations (supports Undo)";
+
+"plugins.permission.tool_control" = "Configure pen, eraser and selection tools";
+
+"plugins.permission.workspace_navigation" = "Change viewing mode and navigate pages";
+
+"plugins.command.unavailable" = "This command is unavailable for the current mode or selection.";
+
+"plugins.command.review" = "Runs an app document command. Annotation edits support Undo; files are not saved automatically.";
+
+"plugins.palette.title" = "Plugin commands…";
+
+"plugins.palette.search" = "Search commands or plugins";
+
+"plugins.palette.help" = "Enter: first available command · Esc: close";
+
+"pen.pressure.enabled" = "Use tablet pressure";
+
+"pen.pressure.help" = "Uses pressure from an Apple Pencil through Sidecar or a tablet. Pressure strokes are saved as PDF stamps; mouse strokes use fixed width.";
+
+"recovery.title" = "Recover work…";
+
+"recovery.enabled" = "Keep local automatic recovery copies";
+
+"recovery.help" = "Committed edits are copied locally after a 5-second editing pause (60 seconds above 500 pages). Encrypted PDFs are excluded; the latest edits may not yet be captured. Save recovered work as a separate PDF.";
+
+"recovery.open" = "Open recovery copy";
+
+"recovery.empty" = "No recovery copies are available.";
+
+"recovery.limit" = "Recovery storage limit reached (256 MB per copy; 1 GB and 32 copies total). Save your work and remove old copies in Recover work.";
+
+"recovery.delete_confirm" = "Delete this recovery copy? The original PDF is unaffected.";
+
+"ocr.cache.busy" = "OCR checkpoints cannot be deleted while recognition is running. Try again when it finishes.";
+
+"ocr.cache.help" = "OCR checkpoints retain recognized text locally in plain text. Deleting them removes the ability to resume past recognition work.";
+
+"ocr.cache.clear" = "Delete OCR checkpoints…";
+
+"ocr.cache.cleared" = "OCR checkpoints deleted.";
+
+"action.refresh" = "Refresh";
+"plugins.error.pdf_copying_not_allowed" = "This PDF’s current permissions do not allow text to be shared with plugins.";
+
+// Default PDF app association
+"settings.default_pdf.title" = "Default PDF App";
+"settings.default_pdf.description" = "Open PDFs with HwattakPDF when you double-click them in Finder.";
+"settings.default_pdf.current" = "Current default app: %@";
+"settings.default_pdf.unknown" = "Unable to determine";
+"settings.default_pdf.active" = "This copy of HwattakPDF is your default PDF app.";
+"settings.default_pdf.set" = "Set Up in Finder…";
+"settings.default_pdf.refresh" = "Refresh Association Status";
+"settings.default_pdf.failed" = "Could not prepare the association setup: %@";
+"settings.default_pdf.requires_app" = "Available from the installed HwattakPDF.app. Place the app in the Applications folder and launch it.";
+"settings.default_pdf.location_hint" = "We recommend placing the app in the Applications folder before setting it as the default. Moving or deleting it later may require setting the association again.";
+"settings.default_pdf.manual_title" = "How to Set the Default PDF App";
+"settings.default_pdf.manual_help" = "The button below selects a setup PDF in Finder. Choose Get Info (⌘I) → choose HwattakPDF under Open with → click Change All. The association is checked again when you return to the app.";
+"settings.default_pdf.manual_note" = "macOS file associations are confirmed in Finder. If an individual file has a separate association, check its Get Info window as well.";
+"settings.default_pdf.revealed" = "Open Get Info (⌘I) for the PDF selected in Finder, choose HwattakPDF under Open with, then click Change All.";

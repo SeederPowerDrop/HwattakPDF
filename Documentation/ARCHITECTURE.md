@@ -1,8 +1,12 @@
 # HwattakPDF 아키텍처
 
-> 기준일: 2026-08-28
-> 현재 버전: 0.8.0 (build 18)
-> 현재 구현: macOS 14 이상, Swift Package, SwiftUI + AppKit + PDFKit + Vision
+> 2026-09-05 안정화 후속: [수정·성능·복구 검증](STABILIZATION-2026-09-05.md), [schema 3 문서 명령 API와 태블릿 입력](PLUGIN-HOST-API.md). 아래의 이전 단계 설명보다 후속 기록을 우선한다.
+
+> 최초 기준일: 2026-08-28
+> 최신 보완일: 2026-09-03
+> 공개 버전: 0.8.0 (build 18)
+> 미출시 개발 트리: 이미지·HTML 기반 PDF 만들기와 페이지 이미지형 DOCX/PPTX 내보내기
+> 현재 구현: macOS 14 이상, Swift Package, SwiftUI + AppKit + PDFKit + Vision + WebKit
 > 목적: 현재 코드가 실제로 보장하는 경계와 다음 단계의 설계 방향을 구분한다.
 
 ## 1. 아키텍처 목표
@@ -25,6 +29,7 @@ flowchart TB
     App --> SessionStore["WorkspaceSessionStore · 보안 북마크 + 원자 JSON"]
     App --> Shell["TabbedWorkspaceView"]
     App --> PluginManager["PluginManager · bounded 선언형 registry"]
+    App --> BuilderUI["ImagePDFBuilderView · 미출시 변환 작업대"]
     PluginManager --> PluginRunner["PluginActionRunner · host-rendered action"]
     PluginRunner --> PluginEffects["v1 · 대화상자 · 클립보드 · 승인된 기본 브라우저"]
     PluginRunner --> PanelRequest["v2 · immutable bounded PluginPanelRequest"]
@@ -41,6 +46,11 @@ flowchart TB
     Workspace --> State
     Compare --> State
     Compare --> Sync["PDFScrollSyncCoordinator · 정규화 스크롤"]
+    BuilderUI --> Assembly["ImagePDFAssemblyModel · 순차 조립·진행·취소"]
+    Assembly --> ImageConvert["ImagePDFConverter · bounded image decode"]
+    Assembly --> HTMLConvert["HTMLPDFConverter · local-only WebKit A4 capture"]
+    Assembly --> OCR
+    Assembly --> Writer
 
     Workspace --> PDFView["PDFKitViewer · InteractivePDFView"]
     Workspace --> Grid["1~12페이지 LazyVGrid · 썸네일 캐시"]
@@ -66,6 +76,7 @@ flowchart TB
     State --> Search["PDFSearchEngine · 취소 가능한 Unicode page scan"]
     State --> ModePolicy
     State --> AISession["탭별 AIAssistantSessionModel"]
+    State --> Office["PDFOfficeExporter · 페이지 PNG 기반 DOCX/PPTX"]
     AIUI --> Context["PDFAIContextExtractor · bounded text + S1 markers"]
     AIUI --> Related["LocalRelatedPDFSearchService · transient serial read"]
     AIUI --> Provider["AIService · provider adapters + response cap"]
@@ -83,6 +94,7 @@ flowchart TB
     SessionStore --> AppSupport
     PluginManager --> AppSupport
     Exporter --> Files
+    Office --> Files
 ```
 
 ## 3. 소스 구성과 책임
@@ -92,6 +104,8 @@ flowchart TB
 | 앱 진입점 | `App/VibePDFApp.swift`, `App/AppEditCommandRouter.swift`, `App/UnsavedChangesGuard.swift` | 주 창과 UUID `WindowGroup`, focused command routing, 텍스트 편집기 우선 실행 취소, 창·앱 종료 시 모든 탭의 미저장 상태 확인과 최종 세션 flush/freeze |
 | 다중 문서 상태 | `Models/MultiDocumentWorkspaceState.swift`, `Models/PDFTabGroup.swift`, `Models/RecentDocumentsStore.swift`, `Models/WorkspaceSessionStore.swift` | 탭·워크스페이스·그룹 정규화, 최근 PDF와 전체 세션의 security-scoped bookmark 기록·복원, 비활성 lazy restore |
 | 탭 작업공간 | `Views/TabbedWorkspaceView.swift`, `Views/PDFTabBar.swift`, `Views/WelcomeView.swift` | 전체 이름 툴팁, 좌/중앙/우 drop에 따른 재정렬·스택 생성, 스택 접기·이름·멤버 관리, PDF 본문과 사이드바를 모두 덮는 단일 Finder fileURL drop 경계, 최근 PDF 7개, 비교 모드 진입·종료 |
+| 변환 작업대 | `Views/ImagePDFBuilderView.swift`, `Models/ImagePDFAssemblyModel.swift`, `Models/PDFConversionPlanning.swift` | 이미지·HTML·선택 PDF 페이지·A4 공백의 순서 편집, 안정성/속도 방식과 휴리스틱 예상치, 선택적 OCR, 진행·취소와 실제 결과 표시 |
+| 문서 변환 | `Services/ImagePDFConverter.swift`, `HTMLPDFConverter.swift`, `PDFOfficeExporter.swift`, `OpenXMLArchiveWriter.swift` | bounded 이미지 decode와 1페이지 PDF 미리보기, local-only HTML의 페이지별 벡터 A4 캡처, PDF 페이지 PNG 기반 DOCX/PPTX Open XML 생성 |
 | 리소스·수명 | `Models/ResourceMonitorModels.swift`, `Services/ProcessResourceMonitor.swift`, `Services/PDFTabMemoryManager.swift`, `Views/ResourceMonitorView.swift` | 앱 프로세스 CPU·RSS 계측, 탭별 예상 부담, resident 문서 예산·LRU 휴면·Darwin memory-pressure 대응 |
 | 문서 화면 | `Views/WorkspaceView.swift`, `WorkspaceToolbar.swift`, `StudyModePalette.swift`, `PDFShareNoteSheet.swift`, `PageSidebarView.swift`, `SearchNavigatorSidebarView.swift`, `PageJumpControl.swift`, `WorkspaceFileDrop.swift` | 활성 문서의 열기/저장/병합/추출/OCR/서명 흐름, 모드 선택, 학습 AI·메모·표식 팔레트, Viewer/Study bounded 메모 공유, 전체 문서 검색과 페이지별 문맥 navigator, Finder drop, 페이지 이동·패널·선택·드래그 재정렬 |
 | 작업 모드 정책 | `Models/PDFWorkspaceMode.swift` | 뷰어·에디팅·학습의 capability·입력 도구·툴바 section을 한 표에서 결정하고 annotation kind별 편집 권한과 mode 전환 시 도구 정규화 제공 |
@@ -369,6 +383,25 @@ timeout·취소·동시성·메모리/CPU budget과 crash circuit breaker를 먼
 - 감지된 두 버전의 비교·병합 UI와 업로드 진행/오프라인 재시도
 
 Apple은 공유·iCloud 위치의 충돌 방지를 위해 [file coordination](https://developer.apple.com/documentation/technologyoverviews/shared-data)을 사용하도록 안내한다. 현재의 열기·원본 덮어쓰기 transaction은 `NSFileCoordinator`로 감싸지만, 세션 이전형 다중 창을 지속적 변경 알림·버전 병합·범용 문서 창 관리까지 확장하려면 [`NSDocument`](https://developer.apple.com/documentation/appkit/nsdocument)와 `NSFilePresenter` 평가가 우선이다.
+
+### 6.4 미출시 파생 문서 변환 작업대
+
+`ImagePDFAssemblyModel`은 원본 PDF 편집 세션과 분리된 일회성 조립 상태다. 이미지, 로컬 HTML/HTM, 기존 PDF의 선택 페이지와 A4 공백을 값 목록으로 보관하고, 저장을 시작할 때 목록을 snapshot으로 고정한다. 처리 중에는 항목 변경과 중복 실행을 막고 취소를 전달한다. 외부 URL은 각 입력과 목적지의 `SecurityScopedAccess` 수명 안에서만 읽거나 쓴다.
+
+조립은 다음 순서를 지킨다.
+
+1. `ImagePDFConverter`가 ImageIO header와 `BoundedImageLoader` 예산 안에서 첫 프레임을 decode해 한 페이지로 만든다. 파일당 64 MiB·원본 1억 2천만 픽셀을 hard cap으로 두고, 속도 우선은 최대 600만 픽셀, 안정성 우선은 최대 1,200만 픽셀 경로를 사용한다.
+2. `HTMLPDFConverter`는 원본 폴더만 읽을 수 있는 비영구 `WKWebView`로 로컬 HTML을 연다. 현재 UI는 HTTP·HTTPS content rule과 navigation delegate를 함께 사용해 원격 자원을 차단하도록 구성하고, DOM text range와 CSS break 후보로 안전한 세로 경계를 찾은 뒤 A4 한 페이지씩 벡터 PDF를 캡처한다. 소스 64 MiB, 최대 500페이지, 유한한 content size와 단계별/전체 timeout을 적용한다.
+3. 기존 PDF는 추출 권한을 확인하고 선택한 각 페이지를 분리 복사한다. 공백은 595.28×841.89 point의 흰 A4 페이지다.
+4. 모든 source는 `PDFDocument` 동시 변경을 피하려고 입력 순서대로 처리한다. HTML 하나가 여러 페이지로 확장되어도 다음 항목보다 앞에 모두 삽입된다.
+5. OCR을 선택하면 조립본의 임시 PDF를 Apple Vision과 기존 `SearchablePDFExporter` 경로로 처리한다. 처리 방식이 240/160 DPI, 정확/빠른 인식과 언어 교정 여부를 중앙에서 결정한다.
+6. `AtomicPDFWriter` 또는 OCR exporter가 목적지를 쓴 뒤 다시 열어 최종 페이지 수를 확인해야 완료 상태와 실제 시간·용량을 공개한다.
+
+`PDFConversionEstimator`는 파일 크기, 이미지 header의 픽셀 수, PDF 페이지 수와 HTML byte 크기에서 추론한 페이지 수를 사용한다. 이는 benchmark나 예약 시간이 아니라 상·하한과 신뢰도를 가진 계획용 휴리스틱이다. 현재 HTML에 연결된 로컬 자원의 전체 byte 수를 사전 순회하지 않으며, 두 HTML 방식은 같은 벡터 출력 경로를 사용하므로 예상 출력 용량도 같다. PDF 페이지와 공백만 있는 작업에서는 방식별 실행 경로가 실질적으로 같다.
+
+`PDFOfficeExporter`는 PDF 페이지를 최대 2,400픽셀·800만 픽셀 예산의 PNG로 렌더링하고 직접 만든 ZIP/Open XML 컨테이너에 넣는다. DOCX는 페이지별 그림과 page break, PPTX는 페이지별 slide 그림을 사용한다. PDF 보안 정책의 rasterize 허용 여부를 먼저 확인하지만, 결과의 텍스트·표·도형은 Office 편집 객체가 아니며 실제 Microsoft Office 버전별 레이아웃 호환성은 수동 검증 대상이다.
+
+이 WebKit 경로는 process sandbox가 아니다. 원격 HTTP·HTTPS를 차단하도록 구성하고 영구 website data store를 쓰지 않더라도 로컬 HTML의 JavaScript는 실행되고, `allowingReadAccessTo`로 원본 폴더 아래 파일을 읽을 수 있다. HTML 본문에는 64 MiB 제한이 있지만 연결된 로컬 CSS·이미지·글꼴·스크립트의 합산 크기와 픽셀 수를 사전 검사하지 않는다. 신뢰할 수 없는 HTML을 정화·무해화하는 기능으로 취급하지 않으며 향후에는 page script 비활성화, 별도 worker/XPC 또는 더 강한 scheme/network 차단을 평가한다.
 
 ## 7. 주석, 이미지와 서명
 
@@ -682,6 +715,10 @@ VibePDFOCRProviders
 - 전송 동의와 중복 요청 차단, MCP `require_approval: always` 및 server label/URL 일치, 응답 크기 상한과 취소
 - 플러그인 schema 1 호환과 schema 2 전용 token/output/capability 정확 일치, 번들 기본 패널 3종의 identifier+manifest digest trust gate와 tamper 뒤 격리·복구
 - 번역의 revision-bound 불변 snapshot, 패널별 별도 동의, 일반 브라우저가 기본 브라우저를 우회해 앱 소유 request만 만드는지와 문서 교체·close·hibernate 시 request 폐기
+- 이미지·공백·선택 PDF 페이지와 다중 페이지 HTML의 조립 순서, A4 크기와 출력 재개방
+- 로컬 HTML의 CSS·PNG·검색 가능한 벡터 글자, DOM 경계에서 글줄 중복/유실 방지와 최대 페이지 추론
+- 안정성/속도 방식의 이미지·HTML·OCR 설정 연결, 유한한 시간/용량 범위와 저장 후 실제 지표
+- DOCX/PPTX의 ZIP signature, 필수 Open XML part·relationship과 페이지별 PNG 수
 
 ### 12.2 다음 테스트 층
 
@@ -695,6 +732,7 @@ VibePDFOCRProviders
 8. **UI 테스트**: 트랙패드 입력은 point sequence를 주입 가능한 pipeline으로 분리해 결정적으로 검증
 9. **다중 탭 성능 테스트**: 큰 PDF 여러 개를 열고 전환·비교할 때 resident memory, PDFView 유지 비용과 탭 휴면 정책 검증
 10. **WebKit 수동/통합 테스트**: 실제 redirect·popup·download·upload·media capture·file drag·TLS challenge 차단, YouTube `youtube-nocookie.com` 재생, provider 로그인, 패널 폐기 뒤 비영구 data store와 subresource 잔여 동작을 실제 macOS WebKit에서 확인
+11. **변환 상호운용 테스트**: 지원 이미지 형식과 다중 프레임 입력, 외부 CSS·글꼴·복잡한 로컬 HTML, 원격 요청 차단을 fixture로 검증하고 DOCX/PPTX를 실제 Word·PowerPoint에서 열어 방향·크기·여백을 확인
 
 ## 13. 알려진 위험과 우선 조치
 
@@ -706,6 +744,8 @@ VibePDFOCRProviders
 | OCR 엔진/모델 버전이 checkpoint key에 없음 | 엔진 업데이트 후 오래된 결과 혼용 | provider·model checksum을 포함한 schema 3 job fingerprint |
 | OCR 원문 checkpoint가 평문으로 무기한 남음 | 공용 Mac·백업·다른 로컬 프로세스에서 민감한 인식문이 오래 잔존 | 자동 보존 기한, 문서별/전체 삭제 UI, 필요 시 보호 수준 강화와 명시적 고지 |
 | OCR exporter가 새 PDF를 재구성 | 주석·링크·양식·메타데이터·서명 손실 가능 | 보존 fixture, 구조 복사 또는 전문 엔진 평가 |
+| 로컬 HTML에서 JavaScript 실행 | HTML 폴더 아래 파일을 읽는 신뢰하지 않는 script 또는 예상하지 못한 WebKit 자원 사용 | 신뢰 파일 안내, page script 비활성화 검토, scheme별 network 통합 테스트와 필요 시 별도 프로세스 격리 |
+| DOCX/PPTX가 페이지 PNG 기반 | 텍스트 접근성·재편집이 없고 Office 버전별 배치가 달라질 수 있음 | UI 용어 고정, 실제 Word/PowerPoint 상호운용 fixture, 의미 기반 변환은 별도 엔진으로 분리 |
 | 출력 검증이 page count 중심 | 검색 레이어/구조 손상을 놓칠 수 있음 | parser 기반 무결성·텍스트·object 검증 |
 | 사용자 정의 이미지 annotation | 다른 뷰어에서 이미지 지속성 불확실 | appearance stream 생성 및 교차 뷰어 테스트 |
 | 덮어쓰기 시 metadata 버전만 확인하고 지속적 file presentation·merge UI 없음 | 동일 metadata를 보존한 비협조 writer 또는 File Provider 서버 충돌을 놓치거나 사용자가 두 버전을 수동 정리 | 선택적 content fingerprint, NSFilePresenter/NSDocument, 버전 비교·병합 UI |

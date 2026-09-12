@@ -61,11 +61,14 @@ enum WorkspaceSaveCoordinator {
             workspace.save()
             return false
         }
-        guard workspace.isDirty else {
+        guard workspace.isDirty || workspace.requiresSaveDestination else {
             workspace.statusMessage = L10n.string("status.no_changes_to_save")
             return true
         }
 
+        if workspace.requiresSaveDestination {
+            return apply(.saveCopy, to: workspace) == .saved
+        }
         let choice = decision(for: workspace, purpose: .explicitSave)
         return apply(choice, to: workspace) == .saved
     }
@@ -91,7 +94,8 @@ enum WorkspaceSaveCoordinator {
     ) -> Outcome {
         switch choice {
         case .overwriteOriginal:
-            guard workspace.documentURL != nil else { return .cancelled }
+            guard workspace.documentURL != nil, !workspace.requiresSaveDestination else { return .cancelled }
+            guard workspace.resumeIfNeeded() else { return .cancelled }
             return workspace.saveSynchronously() ? .saved : .cancelled
         case .saveCopy:
             let destination: URL?
@@ -113,6 +117,9 @@ enum WorkspaceSaveCoordinator {
                 workspace.presentedError = L10n.string("error.save_copy_same_as_original")
                 return .cancelled
             }
+            // Lazy recovery tabs still own unsaved content on disk. Load only
+            // when Save was chosen; Cancel/Discard must not prompt to reopen.
+            guard workspace.resumeIfNeeded() else { return .cancelled }
             return workspace.saveSynchronously(as: destination) ? .saved : .cancelled
         case .dontSave:
             return .discarded
@@ -130,7 +137,7 @@ enum WorkspaceSaveCoordinator {
             : L10n.string("alert.save_options.message")
 
         var choices: [Choice] = []
-        if workspace.documentURL != nil {
+        if workspace.documentURL != nil && !workspace.requiresSaveDestination {
             add(
                 .overwriteOriginal,
                 title: L10n.string("action.overwrite_original"),
@@ -255,7 +262,9 @@ enum UnsavedChangesGuard {
         var pendingActions: [PendingAction] = []
         pendingActions.reserveCapacity(uniqueWorkspaces.count)
 
-        for workspace in uniqueWorkspaces where workspace.document != nil {
+        // Document identity outlives the resident PDFKit graph. Include lazy
+        // recovery tabs in decisions and clean hibernated tabs in cleanup.
+        for workspace in uniqueWorkspaces where workspace.hasOpenDocument || workspace.document != nil {
             guard workspace.isDirty else {
                 pendingActions.append(.discard(workspace))
                 continue

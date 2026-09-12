@@ -203,7 +203,7 @@ struct TabbedWorkspaceView: View {
             pendingExternalOpenAccesses.removeAll()
             workspace.cancelPendingBatchOpen()
         }
-        .onOpenURL(perform: enqueueExternalPDFOpen)
+        .onOpenURL(perform: enqueueExternalFileOpen)
         .onAppear {
             memoryManager.workspaceContentsDidChange()
             normalizeComparisonForAvailableDocuments(
@@ -392,18 +392,15 @@ struct TabbedWorkspaceView: View {
     }
 
     private func openPDFsInTabs() {
-        let urls = WorkspaceFilePanels.choosePDFs(
-            allowsMultipleSelection: true,
-            purpose: .openInTabs
-        )
-        workspace.beginOpeningPDFsInTabs(urls: urls)
+        let urls = WorkspaceFilePanels.chooseViewableFiles()
+        workspace.beginOpeningViewableFilesInTabs(urls: urls)
     }
 
     /// Finder/Dock can deliver a multi-selection as a burst of individual
     /// open-URL events. Start each security scope immediately, then briefly
     /// coalesce the burst into the same bounded-concurrency lazy batch used by
     /// the in-app open panel instead of parsing every large PDF on main.
-    private func enqueueExternalPDFOpen(_ url: URL) {
+    private func enqueueExternalFileOpen(_ url: URL) {
         pendingExternalOpenAccesses.append(SecurityScopedAccess(url: url))
         externalOpenCoalescingTask?.cancel()
         externalOpenCoalescingTask = Task { @MainActor in
@@ -416,7 +413,7 @@ struct TabbedWorkspaceView: View {
             let capturedAccesses = pendingExternalOpenAccesses
             pendingExternalOpenAccesses.removeAll()
             externalOpenCoalescingTask = nil
-            workspace.beginOpeningPDFsInTabs(
+            workspace.beginOpeningViewableFilesInTabs(
                 urls: capturedAccesses.map(\.url)
             )
             // beginOpeningPDFsInTabs synchronously acquires the request's own
@@ -431,10 +428,13 @@ struct TabbedWorkspaceView: View {
         launchArgumentsHandled = true
 
         let urls = ProcessInfo.processInfo.arguments.dropFirst().compactMap { path -> URL? in
-            guard path.lowercased().hasSuffix(".pdf") else { return nil }
+            let fileExtension = URL(fileURLWithPath: path).pathExtension.lowercased()
+            guard fileExtension == "pdf"
+                || ImagePDFConverter.supportedExtensions.contains(fileExtension)
+            else { return nil }
             return URL(fileURLWithPath: path)
         }
-        workspace.beginOpeningPDFsInTabs(urls: urls)
+        workspace.beginOpeningViewableFilesInTabs(urls: urls)
     }
 
     private func clearTabDragState() {

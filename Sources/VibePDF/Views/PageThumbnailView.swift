@@ -83,26 +83,34 @@ struct PageThumbnailView: View {
     let width: CGFloat
     let revision: UUID
     var showPageNumber = true
+    @State private var renderedImage: NSImage?
+    @State private var renderedRequestID: String?
+
+    private var requestID: String {
+        "\(revision)-\(pageIndex)-\(width)-\(page.rotation)-\(efficientRenderingEnabled)"
+    }
+
+    private var pageAspectRatio: CGFloat {
+        let size = page.bounds(for: .cropBox).size
+        guard size.width > 0, size.height > 0 else { return 1 }
+        return abs(page.rotation % 180) == 90 ? size.height / size.width : size.width / size.height
+    }
 
     @Environment(\.colorScheme) private var colorScheme
     @AppStorage(AppPerformanceSettings.efficientRenderingEnabledKey)
     private var efficientRenderingEnabled = AppPerformanceSettings.defaultEfficientRenderingEnabled
 
     var body: some View {
-        let image = PageImageCache.shared.image(
-            for: page,
-            pageIndex: pageIndex,
-            width: width,
-            revision: revision,
-            efficientRenderingEnabled: efficientRenderingEnabled
-        )
-
         let theme = VibePDFTheme(colorScheme: colorScheme)
 
         return VStack(spacing: 9) {
-            Image(nsImage: image)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
+            Group {
+                if renderedRequestID == requestID, let renderedImage {
+                    Image(nsImage: renderedImage).resizable().aspectRatio(contentMode: .fit)
+                } else {
+                    Rectangle().fill(Color.white).aspectRatio(pageAspectRatio, contentMode: .fit)
+                }
+            }
                 .background(Color.white)
                 .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                 .overlay {
@@ -117,6 +125,20 @@ struct PageThumbnailView: View {
                     .font(.caption2.weight(.medium).monospacedDigit())
                     .foregroundStyle(theme.secondaryText)
             }
+        }
+        .task(id: requestID) { @MainActor in
+            // Let visible controls paint first. Fast scrolling cancels transient
+            // cells before expensive PDFKit rendering, which stays on its owner actor.
+            do { try await Task.sleep(nanoseconds: 35_000_000) } catch { return }
+            guard !Task.isCancelled else { return }
+            let image = PageImageCache.shared.image(for: page, pageIndex: pageIndex,
+                width: width, revision: revision, efficientRenderingEnabled: efficientRenderingEnabled)
+            renderedImage = image
+            renderedRequestID = requestID
+        }
+        .onDisappear {
+            renderedImage = nil
+            renderedRequestID = nil
         }
     }
 }

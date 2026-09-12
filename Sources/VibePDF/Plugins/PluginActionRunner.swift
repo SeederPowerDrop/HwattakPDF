@@ -31,6 +31,7 @@ struct PluginExternalURLDisclosure: Equatable {
 }
 
 enum PluginActionEffect: Equatable {
+    case executedDocumentCommand(PluginDocumentCommand.Kind)
     case showedText
     case copiedText
     case openedURL(URL)
@@ -450,6 +451,44 @@ struct PluginRuntimeEnvironment {
 }
 
 @MainActor
+enum PluginDocumentTextAccess {
+    /// Plug-in permissions authorize the action, not access to a protected PDF.
+    /// Keep this check free of text extraction so menus and execution can share
+    /// it without reading the document during view updates.
+    static func validate(
+        for action: PluginActionManifest,
+        workspace: PDFWorkspaceState
+    ) throws {
+        let readsSelection = action.requiredCapabilities.contains(.selectedText)
+        guard readsSelection || action.needsCurrentPageText else { return }
+        guard workspace.allows(.copyAndPaste) else {
+            throw PluginSystemError.actionUnavailable(
+                L10n.string(
+                    "plugins.error.pdf_copying_not_allowed",
+                    defaultValue: "이 PDF의 현재 권한으로는 플러그인에 텍스트를 전달할 수 없습니다."
+                )
+            )
+        }
+        if readsSelection {
+            guard let document = workspace.document,
+                  let selection = workspace.currentSelection,
+                  !selection.pages.isEmpty,
+                  selection.pages.allSatisfy({ page in
+                      let index = document.index(for: page)
+                      return index != NSNotFound && document.page(at: index) === page
+                  }) else {
+                throw PluginSystemError.actionUnavailable(
+                    L10n.string(
+                        "plugins.error.selection_required",
+                        defaultValue: "먼저 PDF에서 텍스트를 선택하세요."
+                    )
+                )
+            }
+        }
+    }
+}
+
+@MainActor
 struct PluginActionRunner {
     let renderer: PluginActionRenderer
     let environment: PluginRuntimeEnvironment
@@ -498,6 +537,13 @@ struct PluginActionRunner {
             }
         }
 
+        if action.output == .documentCommand {
+            guard plugin.manifest.schemaVersion >= 3, let command = action.command, let workspace else {
+                throw PluginSystemError.actionUnavailable("document command requires schema 3 and an open PDF")
+            }
+            try command.apply(to: workspace)
+            return .executedDocumentCommand(command.kind)
+        }
         let context = try snapshotContext(for: action, workspace: workspace)
         let rendered = try renderer.render(action: action, context: context)
         let localizedPluginName = BundledPluginPresentation.displayName(
@@ -509,6 +555,8 @@ struct PluginActionRunner {
         )
         let effect: PluginActionEffect
         switch action.output {
+        case .documentCommand:
+            throw PluginSystemError.actionUnavailable("missing document command")
         case .showText:
             environment.showText(localizedActionTitle, rendered)
             effect = .showedText
@@ -617,6 +665,7 @@ struct PluginActionRunner {
                 )
             )
         }
+        try PluginDocumentTextAccess.validate(for: action, workspace: workspace)
         let selectedText: String?
         if action.needsSelection {
             let bounded = PDFShareNote.boundedExcerpt(from: workspace.currentSelection)

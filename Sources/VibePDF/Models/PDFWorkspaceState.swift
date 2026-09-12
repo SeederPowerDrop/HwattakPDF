@@ -178,6 +178,87 @@ final class PDFWorkspaceState: ObservableObject {
 
     /// 파일을 연 탭이 살아 있는 동안 샌드박스 URL 권한도 함께 유지한다.
     private var scopedAccess: SecurityScopedAccess?
+    @Published private(set) var imageSourceURL: URL?
+    private var imageSourceAccess: SecurityScopedAccess?
+    private var managedImagePreviewURL: URL?
+    @Published private(set) var isRecoveryCopy = false
+    @Published private(set) var recoveryWarning: String?
+    private var recoveryStore: PDFRecoveryStore?
+    private var managedRecoveryWorkingURL: URL?
+    private let recoveryID = UUID()
+    private var recoveryTask: Task<Void, Never>?
+
+    func configureRecovery(store: PDFRecoveryStore) {
+        recoveryStore = store
+        // Restored recovery tabs may have been marked dirty before their
+        // owning window installs this store. Arm loaded copies at that point.
+        if isDirty { scheduleRecoverySnapshot() }
+    }
+
+    func markAsRecoveredCopy() {
+        isRecoveryCopy = true
+        if let documentURL, PDFRecoveryStore().isWorkingCopy(documentURL) {
+            managedRecoveryWorkingURL = documentURL
+        }
+        editHistory.noteUntrackedMutation()
+        synchronizeHistoryPresentation()
+        scheduleRecoverySnapshot()
+    }
+
+    private func scheduleRecoverySnapshot() {
+        recoveryTask?.cancel()
+        guard let recoveryStore else { return }
+        if !isDirty { recoveryStore.remove(id: recoveryID); return }
+        guard let document, !document.isEncrypted,
+              UserDefaults.standard.object(forKey: PDFRecoveryStore.enabledKey) as? Bool != false else { return }
+        // Serialization runs only after an editing pause. Large textbooks use
+        // a longer debounce so pointer input and continuous editing stay fast.
+        let delay: UInt64 = pageCount > 500 ? 60_000_000_000 : 5_000_000_000
+        recoveryTask = Task { @MainActor [weak self, weak document] in
+            do {
+                try await Task.sleep(nanoseconds: delay)
+                try Task.checkCancellation()
+                guard let self, let document, self.document === document, self.isDirty,
+                      !document.isEncrypted, !self.ocrState.isActivelyProcessing,
+                      self.officeExportTask == nil,
+                      UserDefaults.standard.object(forKey: PDFRecoveryStore.enabledKey) as? Bool != false else { return }
+                try recoveryStore.save(document: document, id: self.recoveryID, displayName: self.displayName)
+                self.recoveryWarning = nil
+            } catch is CancellationError {
+            } catch { self?.recoveryWarning = error.localizedDescription }
+        }
+    }
+    @Published private(set) var officeExportProgress: Double?
+    @Published var pluginCommandPaletteVisible = false
+    private var officeExportTask: Task<Void, Never>?
+
+    func cancelOfficeExport() { officeExportTask?.cancel() }
+    func waitForOfficeExport() async { await officeExportTask?.value }
+
+    /// User-owned source identity is independent of disposable rendering storage.
+    var sessionDocumentURL: URL? { imageSourceURL ?? documentURL }
+    var requiresSaveDestination: Bool {
+        isRecoveryCopy || imageSourceURL != nil || documentURL.map {
+            ImagePDFConverter.previewDisplayName(for: $0) != nil
+        } == true
+    }
+
+    func associateImageSource(_ url: URL) {
+        imageSourceAccess = SecurityScopedAccess(url: url)
+        imageSourceURL = url
+        if documentURL != url { managedImagePreviewURL = documentURL }
+    }
+
+    private func releaseImagePreview() {
+        if let managedRecoveryWorkingURL {
+            PDFRecoveryStore().removeWorkingCopy(at: managedRecoveryWorkingURL)
+        }
+        managedRecoveryWorkingURL = nil
+        if let managedImagePreviewURL { ImagePDFConverter.removePreview(at: managedImagePreviewURL) }
+        managedImagePreviewURL = nil
+        imageSourceURL = nil
+        imageSourceAccess = nil
+    }
     /// Metadata of the exact on-disk version represented by `document`.
     /// Saving over the original is allowed only while this still matches.
     private var sourceFileVersion: PDFSourceFileVersion?
@@ -267,11 +348,15 @@ final class PDFWorkspaceState: ObservableObject {
             && pendingTextEdit == nil
             && pendingInlineTextEdit == nil
             && ocrTask == nil
+            && officeExportTask == nil
             && !ocrState.isActivelyProcessing
     }
 
     var displayName: String {
-        documentURL?.lastPathComponent ?? L10n.string("document.untitled")
+        if let imageSourceURL { return imageSourceURL.lastPathComponent }
+        guard let documentURL else { return L10n.string("document.untitled") }
+        return ImagePDFConverter.previewDisplayName(for: documentURL)
+            ?? documentURL.lastPathComponent
     }
 
     /// Stable capability boundary used by overlays and future plug-ins.
@@ -564,6 +649,12 @@ final class PDFWorkspaceState: ObservableObject {
         pendingProtectedExport = nil
         cancelSearchAndInvalidate(clearResults: true)
         runtimeTrustedAnnotations.removeAll(keepingCapacity: false)
+        recoveryTask?.cancel()
+        recoveryStore?.remove(id: recoveryID)
+        isRecoveryCopy = false
+        recoveryWarning = nil
+        cancelOfficeExport()
+        releaseImagePreview()
         scopedAccess = access
         document = loaded.document
         documentURL = url
@@ -616,6 +707,13 @@ final class PDFWorkspaceState: ObservableObject {
     }
 
     private func resetDocumentState() {
+        recoveryTask?.cancel()
+        recoveryTask = nil
+        recoveryStore?.remove(id: recoveryID)
+        isRecoveryCopy = false
+        recoveryWarning = nil
+        cancelOfficeExport()
+        releaseImagePreview()
         // Closing/discarding is also a document identity change. Clear pending
         // consent, active network/tool work and conversation context before the
         // PDF object and URL disappear from the workspace.
@@ -677,6 +775,14 @@ final class PDFWorkspaceState: ObservableObject {
         // from the discarded PDFKit graph may survive into those new objects.
         runtimeTrustedAnnotations.removeAll(keepingCapacity: false)
         self.document = nil
+        if !isRecoveryCopy, let managedRecoveryWorkingURL {
+            PDFRecoveryStore().removeWorkingCopy(at: managedRecoveryWorkingURL)
+            self.managedRecoveryWorkingURL = nil
+        }
+        if imageSourceURL == nil, let managedImagePreviewURL {
+            ImagePDFConverter.removePreview(at: managedImagePreviewURL)
+            self.managedImagePreviewURL = nil
+        }
         revision = UUID()
         return true
     }
@@ -686,6 +792,16 @@ final class PDFWorkspaceState: ObservableObject {
     @discardableResult
     func resumeIfNeeded() -> Bool {
         guard isHibernated else { return document != nil || !hasOpenDocument }
+        if let imageSourceURL,
+           documentURL == imageSourceURL || documentURL.map({ !FileManager.default.fileExists(atPath: $0.path) }) == true {
+            do {
+                documentURL = try ImagePDFConverter.makePreviewPDF(from: imageSourceURL)
+                managedImagePreviewURL = documentURL
+            } catch {
+                presentedError = error.localizedDescription
+                return false
+            }
+        }
         guard let documentURL else { return false }
         let loaded: PDFSourceFileAccess.LoadedDocument
         do {
@@ -718,6 +834,9 @@ final class PDFWorkspaceState: ObservableObject {
         }
         presentedError = nil
         revision = UUID()
+        // A recovered copy can be dirty while restored lazily. Once its PDF
+        // graph is available it needs the same recovery protection as edits.
+        if isDirty { scheduleRecoverySnapshot() }
         return true
     }
 
@@ -916,6 +1035,15 @@ final class PDFWorkspaceState: ObservableObject {
             presentedError = error.localizedDescription
             return false
         }
+        guard !requiresSaveDestination || requestedURL != nil else {
+            presentedError = L10n.string("error.choose_save_location")
+            return false
+        }
+        if let requestedURL, let imageSourceURL,
+           PDFSourceFileVersion.refersToSameLocation(requestedURL, imageSourceURL) {
+            presentedError = L10n.string("error.save_copy_same_as_original")
+            return false
+        }
         guard let url = requestedURL ?? documentURL else {
             presentedError = L10n.string("error.choose_save_location")
             return false
@@ -957,6 +1085,10 @@ final class PDFWorkspaceState: ObservableObject {
                 // confirmed, when needed) by NSSavePanel, so they do not share
                 // the original file's baseline.
                 let resultingURL = try pdfWriter(document, url) {
+                    if let imageSourceURL = self.imageSourceURL,
+                       PDFSourceFileVersion.refersToSameLocation(imageSourceURL, url) {
+                        throw WorkspaceError.operationFailed(L10n.string("error.save_copy_same_as_original"))
+                    }
                     // A destination that was harmless at panel confirmation can
                     // be replaced by a symlink/hard link while a 200 MB PDF is
                     // serializing. Re-check at the writer's final commit point.
@@ -975,6 +1107,14 @@ final class PDFWorkspaceState: ObservableObject {
                 )
             }
             let resultingURL = saved.url
+            // Keep the old backing file until PDFKit no longer depends on it.
+            // On successful Save As, future hibernation resumes the durable PDF.
+            imageSourceURL = nil
+            imageSourceAccess = nil
+            isRecoveryCopy = false
+            recoveryTask?.cancel()
+            recoveryStore?.remove(id: recoveryID)
+            recoveryWarning = nil
             scopedAccess = resultingURL == url ? access : SecurityScopedAccess(url: resultingURL)
             documentURL = resultingURL
             sourceFileVersion = saved.version
@@ -1404,6 +1544,54 @@ final class PDFWorkspaceState: ObservableObject {
             statusMessage = L10n.string("status.exported_png")
         } catch {
             presentedError = error.localizedDescription
+        }
+    }
+
+    func exportAsOfficeDocument(
+        to url: URL,
+        format: PDFOfficeExportFormat
+    ) {
+        prepareForDeactivation()
+        guard pendingInlineTextEdit == nil, let document else {
+            presentedError = pendingInlineTextEdit == nil
+                ? WorkspaceError.noDocument.localizedDescription
+                : L10n.string("error.finish_inline_text_before_export")
+            return
+        }
+
+        guard officeExportTask == nil else { return }
+        let expectedRevision = revision
+        let source = documentURL
+        officeExportProgress = 0
+        officeExportTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            defer {
+                self.officeExportTask = nil
+                self.officeExportProgress = nil
+                if self.isDirty { self.scheduleRecoverySnapshot() }
+            }
+            do {
+                try await PDFOfficeExporter.exportResponsive(document, to: url, format: format, validateDocument: {
+                    guard self.document === document, self.revision == expectedRevision else {
+                        throw WorkspaceError.operationFailed(L10n.string("security.export.document_changed"))
+                    }
+                    if let source, PDFSourceFileVersion.refersToSameLocation(source, url) {
+                        throw WorkspaceError.operationFailed(L10n.string("error.save_copy_same_as_original"))
+                    }
+                }, progress: { self.officeExportProgress = $0 })
+                self.statusMessage = L10n.format(
+                format == .word
+                    ? "conversion.word.saved"
+                    : "conversion.powerpoint.saved",
+                url.lastPathComponent
+                )
+            } catch is CancellationError {
+                guard self.document === document else { return }
+                self.statusMessage = L10n.string("builder.status.cancelled")
+            } catch {
+                guard self.document === document else { return }
+                self.presentedError = error.localizedDescription
+            }
         }
     }
 
@@ -2153,6 +2341,22 @@ final class PDFWorkspaceState: ObservableObject {
             thickness: style.thickness,
             opacity: style.opacity
         )
+    }
+
+    /// Plug-in edits use exactly the same permission and Undo boundary as UI marks.
+    func applyPluginMarkup(kind: StudyMarkupKind, color: NSColor, width: CGFloat?, opacity: CGFloat?) throws {
+        guard allows(.markup), let document, let selection = currentSelection,
+              !selection.pages.isEmpty,
+              selection.pages.allSatisfy({ document.index(for: $0) != NSNotFound }) else {
+            throw PluginSystemError.actionUnavailable(L10n.string("plugins.command.unavailable"))
+        }
+        let previousRevision = revision
+        addMarkupToCurrentSelection(kind: kind, color: color,
+            thickness: kind == .underline ? (width ?? 1.5) : width,
+            opacity: opacity ?? (kind == .highlight && width != nil ? 0.42 : 1))
+        guard revision != previousRevision else {
+            throw PluginSystemError.actionFailed(presentedError ?? L10n.string("plugins.command.unavailable"))
+        }
     }
 
     private func addMarkupToCurrentSelection(
@@ -3279,7 +3483,17 @@ final class PDFWorkspaceState: ObservableObject {
         let ocrRecognizer = self.ocrRecognizer
         ocrRunID = runID
         ocrTask = Task { [weak self] in
-            defer { try? FileManager.default.removeItem(at: snapshotURL) }
+            defer {
+                try? FileManager.default.removeItem(at: snapshotURL)
+                // A recovery timer can expire while OCR owns the snapshot.
+                // Rearm after every terminal result, but never let an old run
+                // clear or schedule work for a replacement document/run.
+                if let self, self.ocrRunID == runID {
+                    self.ocrRunID = nil
+                    self.ocrTask = nil
+                    if self.isDirty { self.scheduleRecoverySnapshot() }
+                }
+            }
             do {
                 let stableFingerprint: String?
                 if let expectedSourceVersion, let sourceURL {
@@ -3326,20 +3540,14 @@ final class PDFWorkspaceState: ObservableObject {
                 self?.ocrCheckpoint = checkpoint
                 self?.ocrState = .finished(recognizedPages: recognized, skippedPages: skipped)
                 self?.statusMessage = L10n.string("status.ocr_finished")
-                self?.ocrRunID = nil
-                self?.ocrTask = nil
             } catch is CancellationError {
                 guard self?.ocrRunID == runID else { return }
                 self?.ocrState = .idle
                 self?.statusMessage = L10n.string("status.ocr_cancelled")
-                self?.ocrRunID = nil
-                self?.ocrTask = nil
             } catch {
                 guard self?.ocrRunID == runID else { return }
                 self?.ocrState = .failed(error.localizedDescription)
                 self?.presentedError = error.localizedDescription
-                self?.ocrRunID = nil
-                self?.ocrTask = nil
             }
         }
     }
@@ -3672,6 +3880,7 @@ final class PDFWorkspaceState: ObservableObject {
         ocrCheckpoint = nil
         synchronizeHistoryPresentation()
         refresh(message)
+        scheduleRecoverySnapshot()
     }
 
     private func markChanged(

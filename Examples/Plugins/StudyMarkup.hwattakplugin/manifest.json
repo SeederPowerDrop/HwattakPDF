@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 3,
+  "identifier": "dev.hwattakpdf.plugins.study-markup",
+  "displayName": "Study Markup",
+  "version": "1.0.0",
+  "author": "HwattakPDF",
+  "description": "Color presets for highlights and underlines.",
+  "minimumHostVersion": "0.8.0",
+  "capabilities": [
+    "annotationWrite"
+  ],
+  "actions": [
+    {
+      "id": "yellow-highlight",
+      "title": "Yellow highlight",
+      "output": "documentCommand",
+      "template": "",
+      "command": {
+        "kind": "highlight",
+        "color": "#FFD60A"
+      }
+    },
+    {
+      "id": "green-highlight",
+      "title": "Green highlight",
+      "output": "documentCommand",
+      "template": "",
+      "command": {
+        "kind": "highlight",
+        "color": "#30D158"
+      }
+    },
+    {
+      "id": "blue-underline",
+      "title": "Blue underline",
+      "output": "documentCommand",
+      "template": "",
+      "command": {
+        "kind": "underline",
+        "color": "#007AFF",
+        "width": 1.5,
+        "opacity": 1.0
+      }
+    }
+  ]
+}

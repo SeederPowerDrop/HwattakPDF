@@ -64,6 +64,10 @@ enum PDFAnnotationErasePolicy {
         if StudyMarkupAnnotationIdentity.kind(of: annotation) != nil {
             return true
         }
+        if type == "Stamp",
+           annotation.value(forAnnotationKey: .iconName) as? String == PressureInkAnnotation.stampName {
+            return true
+        }
 
         // Viewer/Study typed notes use the FreeText classifier. Images and
         // signatures have different kinds and remain blocked.
@@ -97,6 +101,7 @@ extension PDFWorkspaceState {
         // here so a stale Eraser mouse-down cannot select a deletion target
         // after Select or Text has already become active.
         activeTool == .eraser
+            && allows(.markup)
             && PDFAnnotationErasePolicy.allows(
                 annotation,
                 in: mode,
@@ -116,7 +121,7 @@ extension PDFWorkspaceState {
     ) -> Bool {
         // Check before deactivation: committing a pending editor is itself a
         // document mutation and must not be triggered by a stale Eraser event.
-        guard activeTool == .eraser else { return false }
+        guard allowsEraserRemoval(of: annotation) else { return false }
         prepareForDeactivation()
         guard
             activeTool == .eraser,
@@ -127,6 +132,9 @@ extension PDFWorkspaceState {
         else { return false }
 
         page.removeAnnotation(annotation)
+        // PDFKit may refuse a removal. Only an observable deletion belongs in
+        // history; a no-op must not mark the document dirty or report success.
+        guard !page.annotations.contains(where: { $0 === annotation }) else { return false }
         registerRemovedAnnotation(
             annotation,
             from: page,

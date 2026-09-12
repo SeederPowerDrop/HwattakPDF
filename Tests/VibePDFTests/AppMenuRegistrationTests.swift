@@ -204,6 +204,19 @@ final class AppMenuRegistrationTests: XCTestCase {
         )
     }
 
+    func testImagePDFBuilderHasDedicatedSceneAndMenuEntry() throws {
+        let source = try String(
+            contentsOf: Self.projectRoot
+                .appendingPathComponent("Sources/VibePDF/App/VibePDFApp.swift"),
+            encoding: .utf8
+        )
+
+        XCTAssertTrue(source.contains("id: ImagePDFBuilderContent.sceneID"))
+        XCTAssertTrue(source.contains("ImagePDFBuilderView()"))
+        XCTAssertTrue(source.contains("openWindow(id: ImagePDFBuilderContent.sceneID)"))
+        XCTAssertTrue(source.contains("conversion.images_to_pdf.menu"))
+    }
+
     func testFileAndTabCommandsRequireTheKeyPDFWindowWhileCloseKeepsNativeTargets() throws {
         let source = try String(
             contentsOf: Self.projectRoot
@@ -213,7 +226,7 @@ final class AppMenuRegistrationTests: XCTestCase {
 
         XCTAssertTrue(source.contains("AppFileCommandRouter.documentWorkspace(for: NSApp.keyWindow)"))
         XCTAssertTrue(source.contains("fileCommandWorkspace?.newTab()"))
-        XCTAssertTrue(source.contains("fileCommandWorkspace.beginOpeningPDFsInTabs"))
+        XCTAssertTrue(source.contains("fileCommandWorkspace.beginOpeningViewableFilesInTabs"))
         XCTAssertTrue(source.contains("fileCommandWorkspace?.selectAdjacentTab"))
         XCTAssertTrue(source.contains("window.performClose(nil)"))
         XCTAssertFalse(

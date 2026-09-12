@@ -7,6 +7,33 @@ import XCTest
 
 final class WorkspaceSessionStoreTests: XCTestCase {
     @MainActor
+    func testImageSessionStoresOriginalAndRegeneratesDisposablePreview() async throws {
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent("ImageSession-\(UUID())")
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let image = NSImage(size: CGSize(width: 100, height: 100), flipped: false) { rect in
+            NSColor.blue.setFill(); rect.fill(); return true
+        }
+        let bitmap = try XCTUnwrap(NSBitmapImageRep(data: XCTUnwrap(image.tiffRepresentation)))
+        let original = folder.appendingPathComponent("study.png")
+        try XCTUnwrap(bitmap.representation(using: .png, properties: [:])).write(to: original)
+        let persistence = MemoryWorkspaceSessionPersistence()
+        let coder = FakeWorkspaceSessionBookmarkCoder()
+        let workspace = MultiDocumentWorkspaceState(sessionStore: WorkspaceSessionStore(persistence: persistence, bookmarkCoder: coder))
+        _ = await workspace.beginOpeningViewableFilesInTabs(urls: [original]).value
+        let preview = try XCTUnwrap(workspace.activeWorkspace?.documentURL)
+        XCTAssertTrue(workspace.flushSessionPersistence())
+        ImagePDFConverter.removePreview(at: preview)
+        let restored = MultiDocumentWorkspaceState(sessionStore: WorkspaceSessionStore(persistence: persistence, bookmarkCoder: coder))
+        XCTAssertEqual(restored.activeWorkspace?.imageSourceURL, original)
+        XCTAssertEqual(restored.activeWorkspace?.pageCount, 1)
+        XCTAssertTrue(restored.activeWorkspace?.requiresSaveDestination ?? false)
+        XCTAssertNotEqual(restored.activeWorkspace?.documentURL, preview)
+        workspace.activeWorkspace?.close()
+        restored.activeWorkspace?.close()
+    }
+
+    @MainActor
     func testEmptyTabRestoresItsChosenWorkingMode() throws {
         let persistence = MemoryWorkspaceSessionPersistence()
         let store = WorkspaceSessionStore(

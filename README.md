@@ -4,7 +4,11 @@
 
 현재 공개 버전은 **0.8.0 (build 18)**입니다.
 
+> 현재 다음 릴리스용 소스 트리에는 아래에 설명한 이미지·HTML 기반 PDF 만들기와 Word/PowerPoint 내보내기가 포함되어 있지만, 이 기능은 공개 0.8.0 태그·배포 ZIP에는 들어 있지 않습니다. 다음 릴리스 전에 새 버전·체크섬과 Office 앱 수동 호환성 검증 결과를 확정합니다.
+
 공식 저장소: [github.com/SeederPowerDrop/HwattakPDF](https://github.com/SeederPowerDrop/HwattakPDF)
+
+> 2026-09-05: 이미지 저장·중복 탭·조립 원본 변경 버그를 수정하고, 취소 가능한 Office 내보내기·로컬 작업 복구·필압 획·문서 명령 플러그인을 추가했습니다. 검증 범위와 한계는 [안정화 기록](Documentation/STABILIZATION-2026-09-05.md)에 있습니다.
 
 ## 현재 구현
 
@@ -29,6 +33,7 @@
 - 1·2페이지 PDFKit 보기와 3~12페이지 개요에서 기본 `⌥+스크롤` 확대·축소, `⇧+세로 휠` 가로 이동, 기존 세로·가로 스크롤과 핀치 확대 유지. 확대 키는 설정에서 `⌥`·`⌘`·끔 중 선택하며 PDFKit 본문은 포인터 위치를 중심으로 확대
 - 썸네일 페이지 패널의 왼쪽·오른쪽·상단·하단 배치, 구분선 드래그 폭·높이 조절, 1장·책 펼침 2장·4장 묶음 보기, 트랙패드·슬라이더 썸네일 크기 조절
 - 여러 PDF를 독립된 탭으로 열기, 전체 파일명 호버 표시, 좌우 드래그 재정렬, 중복 파일 탭 방지와 미저장 변경 보호
+- **[미출시 개발 트리]** JPEG·PNG·TIFF·HEIC·HEIF·GIF·BMP·WebP 이미지를 PDF와 같은 탭 뷰어에서 열기. 전용 PDF 만들기 화면에서 여러 이미지·로컬 HTML·다른 PDF의 선택 페이지만 가져와 순서를 바꾸고, A4 공백 페이지를 끼운 뒤 하나의 PDF로 저장하고 페이지 수를 다시 확인
 - 탭을 다른 탭 중앙에 드롭하면 즉시 생성되고 기존 스택에도 합류하는 2단 탭 스택, 가장자리 드롭 재정렬, 이름 변경·접기·펼치기, 상단 탭 분리와 새 창 tear-out
 - 탭이 사용 폭을 넘으면 우측에 고정되는 이전·다음·추가 버튼과, 여유가 있을 때 마지막 탭 뒤에 붙는 추가 버튼
 - 탭·탭 스택·활성 PDF 상태를 주제별로 분리하는 워크스페이스 생성·전환·이름 변경·삭제·탭 이동
@@ -46,8 +51,11 @@
 - 위조 가능한 PDF marker를 편집 권한으로 믿지 않고, 뷰어·학습 모드의 이동·삭제를 현재 실행에서 생성하거나 명시 편집한 주석으로 제한. 저장 후 재개방·휴면한 표식 주석의 넓은 편집은 에디팅 모드에서 수행
 - 이미지 추가, 선택·이동·크기 조절·자르기·삭제와 이미지 간 레이어 순서 변경
 - 선택 페이지 PNG 추출
+- **[미출시 개발 트리]** 현재 PDF의 페이지별 보이는 모양을 우선 보존해 Word(.docx) 또는 PowerPoint(.pptx) 문서로 로컬 변환
 - 버튼으로 시작하는 한 손가락 트랙패드/마우스 서명, 감도·스무딩·굵기·속도 영향 세부 설정, 배치 후 선택·이동·크기 조절, 현재 사용자 Keychain 기반 기본 서명 자동 저장·교체·삭제
 - Apple Vision 기반 한·영·일 로컬 OCR, 페이지별 증분 체크포인트와 중단/재개
+- **[미출시 개발 트리]** PDF 만들기 과정에서 `안정성 우선`(240 DPI 정확 OCR·긴 HTML 준비 대기)과 `속도 우선`(160 DPI 빠른 OCR·이미지 축소·HTML 준비 대기 단축)을 선택하고, 두 방식의 예상 시간 범위와 예상 출력 용량을 미리 비교
+- **[미출시 개발 트리]** 선택한 방식으로 한·영·일 OCR을 실행해 검색 가능한 텍스트 층을 추가하고, 인식 문자열을 클립보드 또는 UTF-8 텍스트 파일로 별도 추출. 완료 후 실제 소요 시간과 파일 크기도 표시
 - 보이지 않는 텍스트 레이어가 포함된 검색 가능 PDF 내보내기
 - OpenAI·Claude·Gemini·DeepSeek·Qwen·사용자 지정 API를 연결하는 탭별 PDF AI 패널, 명시적 전송 미리보기와 Keychain API 키 보관
 - 선택/현재/선택 페이지/대표 문서 문맥의 요약·분석·수학/과학 풀이·채우기 초안, 로컬 관련 PDF 검색, OpenAI 웹 출처와 호출별 승인형 원격 MCP
@@ -62,20 +70,23 @@
 
 ### 기본 웹 패널 플러그인
 
-0.8.0 (build 18) 앱 번들에는 `번역 도우미`, `웹 브라우저` 두 가지 기본 플러그인의 검토본이 들어 있습니다. 자동으로 설치·활성화되지는 않습니다. `플러그인 > 플러그인 관리…`를 열고 `HwattakPDF 기본 플러그인`에서 각 항목의 권한을 확인한 뒤 `검토 및 설치`를 누르세요. 설치 목록은 검색할 수 있고, 각 행의 톱니바퀴에서 활성 상태·권한·제공 작업·정보와 기본 플러그인 전용 옵션을 관리합니다. 설치한 기본 플러그인은 PDF 창 상단의 `플러그인` 버튼에서 이름을 누르면 별도 하위 메뉴 없이 오른쪽 사이드 패널로 열립니다.
+0.8.0 (build 18) 앱 번들에는 `번역 도우미`, `웹 브라우저`, `Study Markup`, `Tablet Tools`, `Reading Navigation` 다섯 가지 기본 플러그인의 검토본이 들어 있습니다. 자동으로 설치·활성화되지는 않습니다. `플러그인 > 플러그인 관리…`를 열고 `HwattakPDF 기본 플러그인`에서 각 항목의 권한을 확인한 뒤 `검토 및 설치`를 누르세요. 설치 목록은 검색할 수 있고, 각 행의 톱니바퀴에서 활성 상태·권한·제공 작업·정보와 기본 플러그인 전용 옵션을 관리합니다. 번역·브라우저는 PDF 오른쪽 패널로 열립니다. 문서 명령 플러그인은 하이라이트·밑줄·펜 설정·페이지 이동을 제공하며 `⇧⌘P` 팔레트에서 검색할 수 있습니다. [직접 플러그인 만들기와 태블릿 필기](Documentation/PLUGIN-HOST-API.md)를 참고하세요.
 
 - `번역 도우미`: 선택문 또는 현재 페이지의 제한된 텍스트를 편집·확인한 뒤 Google 번역, ChatGPT 또는 Claude와 사용합니다. 기본 서비스·대상 언어·원문 펼침 상태를 설정할 수 있습니다.
 - `웹 브라우저`: 공개 HTTPS 사이트를 여는 임시 패널입니다. 기본 검색 엔진과 시작 페이지 자동 로드를 설정할 수 있으며, PDF 텍스트·파일·문서 객체를 페이지에 전달하는 bridge는 없습니다.
 
 `Examples/Plugins/YouTubeStudy.hwattakplugin`은 보안 검토를 위한 소스 전용 예제이며 관련 호스트 지원 코드는 0.8.0 실행 파일에서 활성화할 검토본 없이 대기합니다. YouTube가 요구하는 앱 개인정보처리방침·이용약관·사전 동의와 상시 정책 링크를 완성하기 전에는 해당 manifest를 앱 번들에 넣지 않으며, 공식 기본 플러그인으로 설치할 수 없습니다.
 
-제품 요구사항과 조사 결과는 [Documentation/PRODUCT.md](Documentation/PRODUCT.md), 설계와 한계는 [Documentation/ARCHITECTURE.md](Documentation/ARCHITECTURE.md)에 정리되어 있습니다. 플러그인 설치법·manifest schema 1·2·권한·보안 경계는 [플러그인 가이드](Documentation/PLUGINS.md), 기여 방법·개발 기록·검증 보고서·GitHub 공개 준비 문서는 [Documentation 문서 지도](Documentation/README.md)에서 찾을 수 있습니다.
+
+플러그인 제작자는 [처음 만드는 가이드](Documentation/PLUGIN-DEVELOPMENT.md), [English quick start](Documentation/PLUGIN-DEVELOPMENT.en.md), [호환성·API 확장 제안](Documentation/PLUGIN-COMPATIBILITY.md), [보안 가이드](Documentation/PLUGIN-SECURITY.md)에서 시작할 수 있습니다. 복사 가능한 커뮤니티 예제와 실제 호스트 검사기를 사용하는 `scripts/validate_plugin.sh`를 제공합니다.
+
+제품 요구사항과 조사 결과는 [Documentation/PRODUCT.md](Documentation/PRODUCT.md), 설계와 한계는 [Documentation/ARCHITECTURE.md](Documentation/ARCHITECTURE.md)에 정리되어 있습니다. 플러그인 설치법·manifest schema 1·2·3·권한·보안 경계는 [플러그인 가이드](Documentation/PLUGINS.md), 기여 방법·개발 기록·검증 보고서·GitHub 공개 준비 문서는 [Documentation 문서 지도](Documentation/README.md)에서 찾을 수 있습니다.
 
 ## 오픈소스와 후원
 
 HwattakPDF의 소스 코드, 문서와 권리가 확인된 프로젝트 자산은 [Mozilla Public License 2.0](LICENSE)으로 공개됩니다. 기존 MPL 파일을 수정해 배포할 때는 해당 수정 소스도 MPL-2.0으로 제공해야 합니다. 정확한 저작권·자산·표장 범위는 [NOTICE](NOTICE), [ASSETS.md](ASSETS.md), [TRADEMARKS.md](TRADEMARKS.md)를 함께 확인해 주세요.
 
-공식 HwattakPDF는 구독료와 광고 없이 무료로 제공합니다. 자발적인 후원은 무료 개발과 유지보수를 계속할 수 있는 유일한 지원 수단이며, 후원 여부가 기능·지원·이슈 우선순위를 바꾸지는 않습니다.
+공식 HwattakPDF는 구독료와 광고 없이 무료로 제공합니다. 자발적인 후원은 개발과 유지보수를 이어 가는 데 도움이 되며, 후원 여부가 기능·지원·이슈 우선순위를 바꾸지는 않습니다.
 
 - 후원: [buymeacoffee.com/master_chief](https://buymeacoffee.com/master_chief)
 - 소스: [github.com/SeederPowerDrop/HwattakPDF](https://github.com/SeederPowerDrop/HwattakPDF)
@@ -113,7 +124,15 @@ swift run VibePDF -- /path/to/first.pdf /path/to/second.pdf
 ./scripts/build_app.sh
 ```
 
-결과는 `outputs/HwattakPDF.app`과 Apple Silicon용 `outputs/HwattakPDF-0.8.0-macOS-arm64.zip`입니다. 현재 번들은 개발용 ad-hoc 서명이며 Apple 공증을 받지 않습니다. `LICENSE`, `NOTICE`, 자산·표장 고지는 앱의 `Contents/Resources/Legal`에도 함께 포함됩니다.
+현재 `Info.plist`가 공개 버전 0.8.0 (build 18)을 유지하고 있으므로, 미출시 변경이 있는 다음 릴리스용 소스 트리에서 스크립트를 실행해도 파일명은 `outputs/HwattakPDF-0.8.0-macOS-arm64.zip`으로 생성됩니다. 이 산출물은 기존 공개 0.8.0과 내용·체크섬이 다르므로 릴리스 자산으로 업로드하면 안 됩니다. 다음 배포 전 버전과 build를 먼저 올리고 새 검증 기록을 만드세요.
+
+결과는 `outputs/HwattakPDF.app`과 Apple Silicon용 ZIP입니다. 현재 번들은 개발용 ad-hoc 서명이며 Apple 공증을 받지 않습니다. `LICENSE`, `NOTICE`, 자산·표장 고지는 앱의 `Contents/Resources/Legal`에도 함께 포함됩니다.
+
+## 기본 PDF 앱 연결 (미출시 개발 트리)
+
+설치한 `HwattakPDF.app`을 응용 프로그램 폴더에 두고 실행한 다음, **HwattakPDF > 설정… (⌘,) > 기본 PDF 앱**에서 **Finder에서 연결 설정…**을 누릅니다. Finder에서 선택된 설정용 PDF의 **정보 가져오기 (⌘I) > 다음으로 열기 > HwattakPDF > 모두 변경**으로 연결을 확정합니다. 목록에 앱이 없다면 **기타…**에서 설치한 앱을 선택하세요. 앱으로 돌아오면 실제 기본 연결 상태를 다시 확인합니다.
+
+이 기능은 앱 전용 설정용 PDF를 사용하며 개인 문서를 수정하지 않습니다. 현재 샌드박스 배포 앱은 macOS의 기본 연결을 직접 변경할 수 없어 Finder에서 마무리합니다. 개별 PDF에 별도 연결을 지정했다면 해당 파일의 정보 가져오기에서도 확인하세요. `swift run` 실행 파일에서는 설정 버튼을 사용할 수 없습니다. 구현과 검증 범위는 [연결 설정 개발 기록](Documentation/DEFAULT-PDF-APP-2026-09-13.md)에 정리했습니다.
 
 ## 검증
 
@@ -133,6 +152,12 @@ PDFKit과 AppKit은 테스트 프로세스가 끝날 때 일부 전역 UI 상태
 Mac에서의 펜 입력은 마우스·트랙패드 또는 Sidecar가 전달한 Apple Pencil 포인터 이벤트를 사용합니다. Apple Pencil을 Mac 앱에 직접 연결하거나 압력·기울기를 네이티브 PencilKit으로 받는 기능은 아닙니다.
 
 OCR 출력은 보이는 페이지와 주석을 평탄화한 새 PDF입니다. 링크·폼·댓글·기존 전자서명의 상호작용을 유지하지 않으므로 원본도 보관해야 합니다. iPhone/iPad 원격 서명, 직접 OAuth 클라우드 브라우저, 외부 Local AI 모델 다운로드/선택도 현재 앱이 아닌 다음 단계입니다.
+
+이미지 보기와 PDF 만들기는 파일당 64 MiB·원본 1억 2천만 픽셀을 넘는 입력을 거부하고 첫 번째로 decode 가능한 프레임만 사용합니다. 따라서 애니메이션 GIF나 다중 페이지 TIFF/HEIF의 전체 프레임을 PDF 페이지로 펼치는 기능은 아닙니다.
+
+Word·PowerPoint 변환은 네트워크 전송 없이 각 PDF 페이지를 고해상도 이미지로 문서에 배치해 페이지별 보이는 모양을 담습니다. 실제 Office 앱과 버전별 시각 호환성은 다음 릴리스 전 수동 확인 항목입니다. 변환된 문서에서 원문 문단·표·도형을 개별 객체로 다시 편집하거나 텍스트를 재배치하는 변환은 아닙니다.
+
+HTML 변환은 비영구 WebKit 세션에서 같은 폴더 아래의 CSS·이미지·글꼴과 스크립트를 불러와 A4 페이지로 나눕니다. 현재 PDF 만들기 화면은 HTTP·HTTPS 원격 자원을 차단하도록 구성했지만 완전한 네트워크 방화벽을 보증하지 않으며, 외부 서버에만 있는 스타일이나 이미지는 결과에 포함되지 않을 수 있습니다. 로컬 HTML의 JavaScript는 이 세션 안에서 실행되고 원본 폴더 아래 파일에 접근할 수 있으므로 출처를 신뢰할 수 없는 HTML은 변환하지 마세요. 이는 별도 프로세스 보안 격리나 HTML 무해화 기능이 아닙니다. 예상 시간과 용량은 입력 메타데이터 기반 범위이며 Mac 성능, 이미지 압축률, HTML 레이아웃과 OCR 글자 밀도에 따라 실제 값이 범위를 벗어날 수 있습니다.
 
 PDF AI와 학습 모드의 AI 빠른 작업은 먼저 공급자와 개발자 API 키를 설정해야 합니다. 선택한 범위의 제한된 텍스트·대화·endpoint를 미리 보여 주고 사용자가 요청별로 명시적으로 동의한 뒤에만 외부 공급자로 전송하며, 원본 PDF 파일을 자동 업로드하지 않습니다. API 키는 현재 사용자의 비동기화 Keychain에 저장하고, 공식 공급자 키는 고정된 공식 endpoint에만 전송합니다. AI 답변은 자동으로 PDF를 바꾸지 않으며 채우기 초안도 확인·편집 후 자유 텍스트 주석으로만 추가됩니다. 공급자별 기능, MCP 승인과 개인정보 경계는 [Documentation/AI-INTEGRATION.md](Documentation/AI-INTEGRATION.md)에 있습니다.
 

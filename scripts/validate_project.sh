@@ -18,6 +18,11 @@ EXAMPLE_PLUGIN_NAMES=(
     TranslationCompanion.hwattakplugin
     YouTubeStudy.hwattakplugin
     WebBrowser.hwattakplugin
+    StudyMarkup.hwattakplugin
+    TabletTools.hwattakplugin
+    ReadingNavigation.hwattakplugin
+    CommunityStarter.hwattakplugin
+    OfflineChecklist.hwattakplugin
 )
 CURRENT_VERSION_DOCUMENTS=(
     README.md
@@ -179,6 +184,7 @@ env \
         dump-package >/dev/null
 zsh -n "${PROJECT_DIRECTORY}/scripts/build_app.sh"
 zsh -n "${PROJECT_DIRECTORY}/scripts/run_test_batches.sh"
+zsh -n "${PROJECT_DIRECTORY}/scripts/validate_plugin.sh"
 
 echo "Static validation passed"
 echo "Version ${SHORT_VERSION} (${BUILD_VERSION}), macOS ${MINIMUM_SYSTEM}+"

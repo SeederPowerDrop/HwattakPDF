@@ -105,6 +105,24 @@ struct VibePDFApp: App {
         .defaultSize(width: 820, height: 700)
         .windowResizability(.contentMinSize)
 
+        Window(
+            L10n.string("builder.title"),
+            id: ImagePDFBuilderContent.sceneID
+        ) {
+            ImagePDFBuilderView()
+                .environmentObject(preferences)
+                .environment(\.locale, preferences.language.locale)
+                .environment(\.layoutDirection, preferences.language.layoutDirection)
+        }
+        .defaultSize(width: 1_050, height: 760)
+        .windowResizability(.contentMinSize)
+
+        Window(L10n.string("recovery.title"), id: "recovery-browser") {
+            RecoveryBrowserView(workspace: workspace)
+                .environment(\.locale, preferences.language.locale)
+        }
+        .defaultSize(width: 660, height: 460)
+
         Window(L10n.string("about.title", defaultValue: "HwattakPDF 정보"), id: AboutContent.sceneID) {
             AboutView()
                 .environment(\.locale, preferences.language.locale)
@@ -293,13 +311,10 @@ private struct VibePDFCommands: Commands {
             .keyboardShortcut("t", modifiers: .command)
             .disabled(fileCommandWorkspace == nil)
 
-            Button(L10n.string("menu.open_pdf")) {
+            Button(L10n.string("menu.open_document")) {
                 guard let fileCommandWorkspace else { return }
-                let urls = WorkspaceFilePanels.choosePDFs(
-                    allowsMultipleSelection: true,
-                    purpose: .openInTabs
-                )
-                fileCommandWorkspace.beginOpeningPDFsInTabs(urls: urls)
+                let urls = WorkspaceFilePanels.chooseViewableFiles()
+                fileCommandWorkspace.beginOpeningViewableFilesInTabs(urls: urls)
             }
             .keyboardShortcut("o", modifiers: .command)
             .disabled(fileCommandWorkspace == nil)
@@ -514,6 +529,27 @@ private struct VibePDFCommands: Commands {
         }
 
         CommandMenu(L10n.string("menu.pdf")) {
+            Button(L10n.string("recovery.title")) { openWindow(id: "recovery-browser") }
+            Divider()
+            Menu(L10n.string("conversion.office.menu")) {
+                Button(L10n.string("conversion.word.menu")) {
+                    exportOfficeDocument(.word)
+                }
+                .disabled(exportCommandWorkspace?.canRasterizePages != true)
+
+                Button(L10n.string("conversion.powerpoint.menu")) {
+                    exportOfficeDocument(.powerpoint)
+                }
+                .disabled(exportCommandWorkspace?.canRasterizePages != true)
+            }
+
+            Button(L10n.string("conversion.images_to_pdf.menu")) {
+                openWindow(id: ImagePDFBuilderContent.sceneID)
+            }
+            .disabled(fileCommandWorkspace == nil)
+
+            Divider()
+
             Button(L10n.string("menu.merge")) {
                 guard let activeWorkspace = mutationCommandWorkspace else { return }
                 guard activeWorkspace.allows(.pageEditing) else { return }
@@ -649,6 +685,19 @@ private struct VibePDFCommands: Commands {
                 }
             }
         }
+    }
+
+    private func exportOfficeDocument(_ format: PDFOfficeExportFormat) {
+        guard let activeWorkspace = exportCommandWorkspace else { return }
+        let suggestedName = PDFOfficeExporter.suggestedFileName(
+            for: activeWorkspace.documentURL,
+            format: format
+        )
+        guard let destination = WorkspaceFilePanels.chooseSaveOfficeFile(
+            suggestedName: suggestedName,
+            format: format
+        ) else { return }
+        activeWorkspace.exportAsOfficeDocument(to: destination, format: format)
     }
 
     private var canCloseActiveTarget: Bool {

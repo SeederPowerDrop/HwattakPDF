@@ -86,6 +86,7 @@ enum VisionOCRService {
         progress: @escaping (Progress) -> Void
     ) async throws -> OCRCheckpoint {
         let worker = Task.detached(priority: .utility) {
+            try checkpointStore.withProcessingLease {
             guard let document = PDFDocument(url: pdfURL) else {
                 throw WorkspaceError.operationFailed(L10n.string("error.ocr_pdf_data"))
             }
@@ -157,6 +158,7 @@ enum VisionOCRService {
                 progress(Progress(completed: checkpoint.pages.count, total: total, currentPage: index + 1))
             }
             return checkpoint
+            }
         }
 
         return try await withTaskCancellationHandler {
@@ -200,7 +202,9 @@ enum VisionOCRService {
         configuration: OCRConfiguration
     ) throws -> [OCRWordBox] {
         let request = VNRecognizeTextRequest()
-        request.recognitionLevel = .accurate
+        request.recognitionLevel = configuration.recognitionQuality == .fast
+            ? .fast
+            : .accurate
         request.usesLanguageCorrection = configuration.useLanguageCorrection
         request.automaticallyDetectsLanguage = true
 

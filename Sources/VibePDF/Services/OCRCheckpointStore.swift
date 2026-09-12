@@ -3,6 +3,33 @@
 import Foundation
 
 struct OCRCheckpointStore {
+    private static let activityLock = NSLock()
+    private static var activeOperations = 0
+
+    func withProcessingLease<T>(_ operation: () throws -> T) rethrows -> T {
+        Self.activityLock.lock()
+        Self.activeOperations += 1
+        Self.activityLock.unlock()
+        defer {
+            Self.activityLock.lock()
+            Self.activeOperations -= 1
+            Self.activityLock.unlock()
+        }
+        return try operation()
+    }
+
+    func removeAllIfIdle() throws {
+        Self.activityLock.lock()
+        defer { Self.activityLock.unlock() }
+        guard Self.activeOperations == 0 else {
+            throw WorkspaceError.operationFailed(L10n.string("ocr.cache.busy"))
+        }
+        for root in [directory, legacyDirectory].compactMap({ $0 }) {
+            if FileManager.default.fileExists(atPath: root.path) {
+                try FileManager.default.removeItem(at: root)
+            }
+        }
+    }
     let directory: URL
     private let legacyDirectory: URL?
 

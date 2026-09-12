@@ -5,7 +5,7 @@ set -euo pipefail
 SCRIPT_DIRECTORY="${0:A:h}"
 PROJECT_DIRECTORY="${SCRIPT_DIRECTORY:h}"
 BUILD_DIRECTORY="${PROJECT_DIRECTORY}/.build"
-OUTPUT_DIRECTORY="${PROJECT_DIRECTORY}/outputs"
+OUTPUT_DIRECTORY="${HWATTAK_OUTPUT_DIRECTORY:-${PROJECT_DIRECTORY}/outputs}"
 APP_NAME="HwattakPDF"
 BUILD_EXECUTABLE_NAME="VibePDF"
 BUNDLE_EXECUTABLE_NAME="HwattakPDF"
@@ -85,6 +85,9 @@ ABOUT_IMAGE="AboutAuthor-SeederPowerDrop-UserProvided.jpg"
 BUNDLED_PLUGIN_NAMES=(
     "TranslationCompanion.hwattakplugin"
     "WebBrowser.hwattakplugin"
+    "StudyMarkup.hwattakplugin"
+    "TabletTools.hwattakplugin"
+    "ReadingNavigation.hwattakplugin"
 )
 SOURCE_ONLY_PLUGIN_NAMES=(
     "YouTubeStudy.hwattakplugin"

@@ -199,6 +199,8 @@ struct WorkspaceSessionArchive: Codable, Equatable {
         /// Sandbox authorization.
         var lastKnownPath: String
         var pageCount: Int
+        var isImageSource: Bool? = nil
+        var isRecoveryCopy: Bool? = nil
     }
 
     struct GroupRecord: Codable, Equatable {
@@ -452,7 +454,17 @@ final class WorkspaceSessionStore {
                     let workspace = PDFWorkspaceState()
                     let isLaunchActiveTab = record.id == archive.activeWorkspaceID
                         && tabRecord.id == record.activeTabID
-                    if isLaunchActiveTab {
+                    if documentRecord.isImageSource == true {
+                        workspace.restoreHibernated(
+                            url: resolution.url, pageCount: 1,
+                            currentPageIndex: 0, selectedPages: [0]
+                        )
+                        workspace.associateImageSource(resolution.url)
+                        if isLaunchActiveTab && !workspace.resumeIfNeeded() {
+                            unavailableDocumentCount += 1
+                            continue
+                        }
+                    } else if isLaunchActiveTab {
                         let didOpen = withExtendedLifetime(scopedAccess) {
                             workspace.open(url: resolution.url)
                         }
@@ -481,6 +493,7 @@ final class WorkspaceSessionStore {
                             )
                         }
                     }
+                    if documentRecord.isRecoveryCopy == true { workspace.markAsRecoveredCopy() }
                     workspace.pageColumns = min(12, max(1, tabRecord.pageColumns))
                     workspace.overviewScale = min(1.6, max(0.7, tabRecord.overviewScale))
                     workspace.sidebarVisible = tabRecord.sidebarVisible ?? true
@@ -821,7 +834,7 @@ final class WorkspaceSessionStore {
                     )
                     let documentRecord: WorkspaceSessionArchive.DocumentRecord?
                     if session.workspace.hasOpenDocument,
-                       let url = session.workspace.documentURL {
+                       let url = session.workspace.sessionDocumentURL {
                         let key = canonicalFileKey(for: url)
                         let bookmark: Data
                         if let cached = bookmarkCache[key] {
@@ -833,7 +846,9 @@ final class WorkspaceSessionStore {
                         documentRecord = .init(
                             bookmark: bookmark,
                             lastKnownPath: url.path,
-                            pageCount: session.workspace.pageCount
+                            pageCount: session.workspace.pageCount,
+                            isImageSource: session.workspace.imageSourceURL != nil ? true : nil,
+                            isRecoveryCopy: session.workspace.isRecoveryCopy ? true : nil
                         )
                     } else {
                         documentRecord = nil

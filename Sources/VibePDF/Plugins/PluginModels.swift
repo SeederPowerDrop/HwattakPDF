@@ -12,9 +12,10 @@ enum HwattakPluginLimits {
     /// working. Schema 2 adds only host-owned companion panels; plug-ins still
     /// cannot ship or execute code.
     static let legacyManifestSchemaVersion = 1
-    static let manifestSchemaVersion = 2
+    static let manifestSchemaVersion = 3
     static let supportedManifestSchemaVersions: Set<Int> = [
         legacyManifestSchemaVersion,
+        2,
         manifestSchemaVersion
     ]
     static let installationRecordSchemaVersion = 1
@@ -37,6 +38,9 @@ enum HwattakPluginLimits {
 }
 
 enum PluginCapability: String, CaseIterable, Codable, Hashable, Identifiable {
+    case annotationWrite
+    case toolControl
+    case workspaceNavigation
     case documentMetadata
     case selectedText
     case currentPageText
@@ -50,6 +54,9 @@ enum PluginCapability: String, CaseIterable, Codable, Hashable, Identifiable {
 
     var title: String {
         switch self {
+        case .annotationWrite: L10n.string("plugins.permission.annotation_write")
+        case .toolControl: L10n.string("plugins.permission.tool_control")
+        case .workspaceNavigation: L10n.string("plugins.permission.workspace_navigation")
         case .documentMetadata:
             L10n.string(
                 "plugins.permission.document_metadata",
@@ -95,6 +102,7 @@ enum PluginCapability: String, CaseIterable, Codable, Hashable, Identifiable {
 }
 
 enum PluginActionOutput: String, Codable, Equatable {
+    case documentCommand
     /// Shows bounded, host-rendered text in a standard dialog.
     case showText
     /// Writes bounded plain text to the general pasteboard.
@@ -174,6 +182,7 @@ struct PluginActionManifest: Codable, Equatable, Identifiable {
     let description: String?
     let output: PluginActionOutput
     let template: String
+    var command: PluginDocumentCommand? = nil
 }
 
 struct PluginManifest: Codable, Equatable {
@@ -291,7 +300,7 @@ enum BundledPluginPresentation {
         for manifest: PluginManifest
     ) -> OfficialPluginKind? {
         guard
-            manifest.schemaVersion == HwattakPluginLimits.manifestSchemaVersion,
+            manifest.schemaVersion == 2,
             manifest.version == "1.0.0",
             manifest.minimumHostVersion == "0.8.0",
             manifest.author == "HwattakPDF"
@@ -516,6 +525,8 @@ extension PluginActionManifest {
             result.insert(.currentPageText)
         }
         switch output {
+        case .documentCommand:
+            if let command { result.insert(command.capability) }
         case .showText:
             break
         case .copyText:
@@ -536,7 +547,7 @@ extension PluginActionManifest {
 
     var needsOpenDocument: Bool {
         switch output {
-        case .translatePanel, .youtubePanel, .browserPanel:
+        case .documentCommand, .translatePanel, .youtubePanel, .browserPanel:
             return true
         case .showText, .copyText, .openURL:
             return !requiredCapabilities.isDisjoint(
@@ -546,7 +557,7 @@ extension PluginActionManifest {
     }
 
     var needsSelection: Bool {
-        requiredCapabilities.contains(.selectedText)
+        requiredCapabilities.contains(.selectedText) || command?.needsSelection == true
     }
 
     var needsCurrentPageText: Bool {

@@ -1361,3 +1361,159 @@
 "security.user_session_read_only" = "此加密 PDF 是使用用户密码打开的。请使用所有者密码重新打开，才能编辑并保存更改。";
 "security.save_protected_copy_required" = "加密 PDF 不能使用普通存储。请改用“导出受密码保护的 PDF”。";
 "security.export.document_changed" = "文档已更改，导出已停止。请重试。";
+"menu.open_document" = "打开 PDF 或图像…";
+"panel.title.open_documents" = "打开 PDF 或图像";
+"panel.open_documents" = "在单独的标签页中打开 PDF 和图像。";
+"conversion.office.menu" = "转换当前 PDF";
+"conversion.word.menu" = "Word 文档 (.docx)…";
+"conversion.word.title" = "转换为 Word 文档";
+"conversion.word.saved" = "已保存 Word 文档“%@”。";
+"conversion.powerpoint.menu" = "PowerPoint 演示文稿 (.pptx)…";
+"conversion.powerpoint.title" = "转换为 PowerPoint";
+"conversion.powerpoint.saved" = "已保存 PowerPoint 文档“%@”。";
+"conversion.images_to_pdf.menu" = "从文件和页面创建 PDF…";
+"conversion.images_to_pdf.title" = "将图像转换为 PDF";
+"conversion.images.default_name" = "图像.pdf";
+"conversion.error.no_images" = "请选择至少一张图像。";
+"conversion.error.image_read" = "无法读取图像“%@”。";
+"conversion.error.open_files" = "无法打开以下文件：%@";
+"conversion.error.package_too_large" = "Office 文档过大。";
+"conversion.error.package_invalid" = "无法创建 Office 文档。";
+"builder.title" = "创建 PDF";
+"builder.subtitle" = "按任意顺序排列图像、HTML 文件、选定的 PDF 页面和空白页。";
+"builder.local_badge" = "本地处理";
+"builder.add_images" = "添加图像";
+"builder.add_html" = "添加 HTML";
+"builder.add_pdf" = "导入 PDF 页面";
+"builder.add_blank" = "空白页";
+"builder.empty.title" = "尚无页面";
+"builder.empty.detail" = "添加图像、HTML 文件、选定的 PDF 页面或空白页。";
+"builder.ocr.toggle" = "添加可搜索 OCR 文本";
+"builder.ocr.detail" = "Apple Vision 逐页识别并添加用于搜索和选择的隐藏文本层。";
+"builder.ocr.languages" = "识别语言";
+"builder.ocr.stability" = "以准确性优先的 240 DPI 逐页处理，较长文档可能需要一些时间。";
+"builder.ocr.result" = "提取的文本";
+"builder.ocr.copy" = "复制文本";
+"builder.ocr.save_text" = "保存文本文件…";
+"builder.export" = "保存 PDF";
+"builder.export_title" = "保存组装的 PDF";
+"builder.default_name" = "新建 PDF 文档.pdf";
+"builder.text_default_name" = "OCR 文本.txt";
+"builder.item.image" = "图像页面";
+"builder.item.html" = "HTML 文档";
+"builder.item.imported_pdf" = "导入的 PDF 页面";
+"builder.item.blank" = "空白页";
+"builder.item.blank_size" = "A4 空白 · %d × %d pt";
+"builder.item.pdf_page" = "%@ · 第 %d 页";
+"builder.pdf_picker.title" = "选择要导入的页面";
+"builder.pdf_picker.selected" = "已选择 %d / %d 页";
+"builder.pdf_picker.page" = "第 %d 页";
+"builder.pdf_picker.all" = "全选";
+"builder.pdf_picker.none" = "清除选择";
+"builder.pdf_picker.add" = "添加选定页面";
+"builder.status.ready" = "添加图像、HTML 文件或 PDF 页面以开始。";
+"builder.status.pages" = "已准备 %d 个项目";
+"builder.status.html" = "正在渲染“%@”…";
+"builder.status.assembling" = "正在安全组装页面…";
+"builder.status.ocr" = "正在启动本地 OCR…";
+"builder.status.ocr_page" = "OCR 第 %d / %d 页";
+"builder.status.validating" = "正在重新打开完成的 PDF 以验证…";
+"builder.status.saved" = "已保存并验证“%@”。";
+"builder.status.cancelled" = "操作已取消。";
+"builder.status.cancelling" = "将在当前页完成后取消…";
+"builder.status.failed" = "无法创建 PDF。";
+"builder.status.text_copied" = "已复制 OCR 文本。";
+"builder.status.text_saved" = "已保存文本文件“%@”。";
+"builder.error.title" = "PDF 创建错误";
+"builder.error.validation" = "无法验证已保存 PDF 的页数。";
+"builder.error.pdf_page" = "无法读取导入 PDF 的第 %d 页。";
+"builder.error.blank_page" = "无法创建空白页。";
+"builder.profile.title" = "处理模式";
+"builder.profile.stability" = "稳定优先";
+"builder.profile.stability_detail" = "为 HTML 和本地资源预留更长的加载时间，并保留更多图像细节。启用 OCR 时，使用 240 DPI 精确识别。";
+"builder.profile.speed" = "速度优先";
+"builder.profile.speed_detail" = "减少等待 HTML 稳定的时间，并对大型图像进行降采样。启用 OCR 时，使用 160 DPI 快速识别。";
+"builder.estimate.title" = "预计导出";
+"builder.estimate.input" = "输入";
+"builder.estimate.time" = "预计用时";
+"builder.estimate.output" = "预计大小";
+"builder.estimate.pages" = "预计 %d 页";
+"builder.estimate.note" = "估算值以范围显示，并可能随文档复杂度和系统负载而变化。";
+"builder.estimate.confidence.high" = "置信度高";
+"builder.estimate.confidence.medium" = "置信度中";
+"builder.estimate.confidence.low" = "置信度低";
+"builder.html.network_note" = "可以使用同一文件夹中的本地资源；为保护隐私，远程资源将被阻止。";
+"builder.result.actual" = "实际导出结果";
+"builder.result.time" = "实际用时";
+"builder.result.size" = "文件大小";
+"builder.error.html.unsupported" = "不支持 HTML 文件“%@”。";
+"builder.error.html.unreadable" = "无法读取 HTML 文件“%@”。";
+"builder.error.html.too_large" = "HTML 文件大小为 %lld 字节；上限为 %lld 字节。";
+"builder.error.html.unsafe_navigation" = "HTML 尝试打开已阻止的资源：%@";
+"builder.error.html.timeout" = "HTML 渲染超时。";
+"builder.error.html.process_terminated" = "HTML 渲染进程意外终止。";
+"builder.error.html.rendering" = "无法渲染 HTML：%@";
+"builder.error.html.invalid_size" = "渲染后的 HTML 页面尺寸无效。";
+"builder.error.html.too_many_pages" = "HTML 生成了 %d 页；上限为 %d 页。";
+"builder.error.html.invalid_pdf" = "无法验证由 HTML 生成的 PDF。";
+
+"plugins.permission.annotation_write" = "添加 PDF 注释（支持撤销）";
+
+"plugins.permission.tool_control" = "设置画笔、橡皮擦和选择工具";
+
+"plugins.permission.workspace_navigation" = "切换查看模式并翻页";
+
+"plugins.command.unavailable" = "此命令不适用于当前模式或选区。";
+
+"plugins.command.review" = "执行应用内文档命令。注释操作可以撤销；文件不会自动保存。";
+
+"plugins.palette.title" = "插件命令…";
+
+"plugins.palette.search" = "搜索命令或插件";
+
+"plugins.palette.help" = "Enter：首个可用命令 · Esc：关闭";
+
+"pen.pressure.enabled" = "使用数位板压感";
+
+"pen.pressure.help" = "使用 Sidecar 或数位板传来的压感。压感笔迹保存为 PDF 图章；鼠标笔迹使用固定宽度。";
+
+"recovery.title" = "恢复工作…";
+
+"recovery.enabled" = "保留本地自动恢复副本";
+
+"recovery.help" = "编辑确认后暂停5秒即复制（超过500页时为60秒）。不包含加密PDF。最近的编辑可能尚未保存。恢复后请另存为PDF。";
+
+"recovery.open" = "打开恢复副本";
+
+"recovery.empty" = "没有可用的恢复副本。";
+
+"recovery.limit" = "恢复存储已达上限（每份256 MB，总计1 GB和32份）。请保存工作并删除旧副本。";
+
+"recovery.delete_confirm" = "删除此恢复副本？原始 PDF 将保留。";
+
+"ocr.cache.busy" = "OCR 正在运行，完成后才能删除检查点。";
+
+"ocr.cache.help" = "OCR 检查点以明文在本地保存识别文字。删除后将无法继续之前的识别任务。";
+
+"ocr.cache.clear" = "删除 OCR 检查点…";
+
+"ocr.cache.cleared" = "已删除 OCR 检查点。";
+
+"action.refresh" = "刷新";
+"plugins.error.pdf_copying_not_allowed" = "此 PDF 的当前权限不允许向插件提供文本。";
+
+// Default PDF app association
+"settings.default_pdf.title" = "默认 PDF App";
+"settings.default_pdf.description" = "设置为在“访达”中连按 PDF 时使用 HwattakPDF 打开。";
+"settings.default_pdf.current" = "当前默认 App：%@";
+"settings.default_pdf.unknown" = "无法确定";
+"settings.default_pdf.active" = "此 HwattakPDF 已是默认 PDF App。";
+"settings.default_pdf.set" = "在“访达”中设置关联…";
+"settings.default_pdf.refresh" = "刷新关联状态";
+"settings.default_pdf.failed" = "无法准备文件关联设置：%@";
+"settings.default_pdf.requires_app" = "此功能可在已安装的 HwattakPDF.app 中使用。请将 App 放入“应用程序”文件夹后启动。";
+"settings.default_pdf.location_hint" = "建议先将 App 放入“应用程序”文件夹，再将其设为默认 App。如果之后移动或删除 App，可能需要重新设置文件关联。";
+"settings.default_pdf.manual_title" = "如何设置默认 PDF App";
+"settings.default_pdf.manual_help" = "点按下方按钮后，“访达”会选中用于设置的 PDF。请打开“显示简介”（⌘I）→ 在“打开方式”中选择 HwattakPDF → 点按“全部更改”。返回 App 时会再次检查文件关联。";
+"settings.default_pdf.manual_note" = "macOS 文件关联在“访达”中确认。如果某个文件单独设置了打开方式，请同时检查该文件的“显示简介”窗口。";
+"settings.default_pdf.revealed" = "为“访达”中选中的 PDF 打开“显示简介”（⌘I），在“打开方式”中选择 HwattakPDF，然后点按“全部更改”。";

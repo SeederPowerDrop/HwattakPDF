@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 3,
+  "identifier": "dev.hwattakpdf.plugins.tablet-tools",
+  "displayName": "Tablet Tools",
+  "version": "1.0.0",
+  "author": "HwattakPDF",
+  "description": "Switch to Study mode, then use Apple Pencil via Sidecar or a tablet.",
+  "minimumHostVersion": "0.8.0",
+  "capabilities": [
+    "toolControl",
+    "workspaceNavigation"
+  ],
+  "actions": [
+    {
+      "id": "study-mode",
+      "title": "Study mode",
+      "output": "documentCommand",
+      "template": "",
+      "command": {
+        "kind": "studyMode"
+      }
+    },
+    {
+      "id": "fine-pen",
+      "title": "Fine blue pen",
+      "output": "documentCommand",
+      "template": "",
+      "command": {
+        "kind": "pen",
+        "color": "#007AFF",
+        "width": 1.5
+      }
+    },
+    {
+      "id": "bold-pen",
+      "title": "Bold red pen",
+      "output": "documentCommand",
+      "template": "",
+      "command": {
+        "kind": "pen",
+        "color": "#FF3B30",
+        "width": 4.0
+      }
+    },
+    {
+      "id": "eraser",
+      "title": "Eraser",
+      "output": "documentCommand",
+      "template": "",
+      "command": {
+        "kind": "eraser"
+      }
+    },
+    {
+      "id": "selection",
+      "title": "Text selection",
+      "output": "documentCommand",
+      "template": "",
+      "command": {
+        "kind": "selection"
+      }
+    }
+  ]
+}

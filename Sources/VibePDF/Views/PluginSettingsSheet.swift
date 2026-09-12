@@ -540,6 +540,9 @@ struct PluginSettingsSheet: View {
 
     private func capabilitySystemImage(_ capability: PluginCapability) -> String {
         switch capability {
+        case .annotationWrite: "highlighter"
+        case .toolControl: "pencil.tip"
+        case .workspaceNavigation: "arrow.left.arrow.right"
         case .documentMetadata: "doc.text.magnifyingglass"
         case .selectedText: "text.cursor"
         case .currentPageText: "doc.text"
@@ -559,6 +562,7 @@ struct PluginSettingsSheet: View {
         case .translatePanel: "character.bubble"
         case .youtubePanel: "play.rectangle"
         case .browserPanel: "globe"
+        case .documentCommand: "pencil.and.outline"
         }
     }
 

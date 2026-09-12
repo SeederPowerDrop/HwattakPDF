@@ -100,10 +100,21 @@ final class AboutContentTests: XCTestCase {
             )
             hostingView.cacheDisplay(in: hostingView.bounds, to: representation)
             let png = try XCTUnwrap(representation.representation(using: .png, properties: [:]))
+            let backingBounds = hostingView.convertToBacking(hostingView.bounds)
 
             XCTAssertGreaterThan(png.count, 10_000, language.rawValue)
-            XCTAssertEqual(representation.pixelsWide, 840)
-            XCTAssertEqual(representation.pixelsHigh, 690)
+            XCTAssertEqual(
+                representation.pixelsWide,
+                Int(backingBounds.width.rounded()),
+                language.rawValue
+            )
+            XCTAssertEqual(
+                representation.pixelsHigh,
+                Int(backingBounds.height.rounded()),
+                language.rawValue
+            )
+            XCTAssertEqual(hostingView.bounds.width, 840, accuracy: 0.01, language.rawValue)
+            XCTAssertEqual(hostingView.bounds.height, 690, accuracy: 0.01, language.rawValue)
 
             if let previewDirectory {
                 try png.write(

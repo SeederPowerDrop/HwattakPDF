@@ -92,6 +92,9 @@ struct WorkspaceView: View {
 
     var body: some View {
         presentedWorkspace
+            .sheet(isPresented: $workspace.pluginCommandPaletteVisible) {
+                PluginCommandPalette(manager: pluginManager, workspace: workspace)
+            }
     }
 
     private var workspaceSurface: some View {
@@ -109,6 +112,23 @@ struct WorkspaceView: View {
             }
         }
         .background(theme.canvas)
+        .safeAreaInset(edge: .bottom) {
+            if let warning = workspace.recoveryWarning {
+                Label(warning, systemImage: "exclamationmark.triangle")
+                    .font(.caption).padding(8).background(.regularMaterial)
+            }
+            if let progress = workspace.officeExportProgress {
+                HStack {
+                    ProgressView(value: progress).frame(maxWidth: 180)
+                    Text(L10n.string("conversion.office.menu"))
+                    Text(progress, format: .percent.precision(.fractionLength(0)))
+                    Spacer()
+                    Button(L10n.string("action.cancel")) { workspace.cancelOfficeExport() }
+                }
+                .padding(10)
+                .background(.regularMaterial)
+            }
+        }
         .tint(theme.accent)
         .contentShape(Rectangle())
     }

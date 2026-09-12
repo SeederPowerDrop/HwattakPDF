@@ -12,6 +12,7 @@ typeset -a presentation_tests=(
     AppFileCommandRouterTests
     AppMenuRegistrationTests
     AIAssistantWindowPresentationTests
+    DefaultPDFApplicationTests
     HelpTutorialContentTests
     LocalizationAndIconSettingsTests
     PDFComparisonConfigurationTests
@@ -31,12 +32,19 @@ typeset -a presentation_tests=(
 )
 
 typeset -a document_tests=(
+    DocumentConversionTests
+    DocumentStabilizationTests
+    AdvancedStabilizationTests
+    HTMLPDFConversionTests
     InlineTextEditingTests
     PDFAnnotationPrivacyTests
     PDFDocumentSearchTests
     PDFEditHistoryTests
     PDFExternalModificationConflictTests
     PDFPageOperationsTests
+    PDFOfficeBoundsTests
+    PressureInkCopyTests
+    RecoverySchedulingTests
     PDFSecurityTests
     PDFWorkspaceSafetyTests
     SecureSignatureStoreTests
@@ -67,6 +75,7 @@ typeset -a workspace_tests=(
     PDFWorkspaceModeTests
     RecentDocumentsStoreTests
     WorkspaceSessionStoreTests
+    RecoveryLifecycleTests
 )
 
 typeset -a assistant_tests=(
@@ -80,7 +89,9 @@ typeset -a assistant_tests=(
 
 typeset -a plugin_tests=(
     PluginSystemTests
+    PluginAuthoringTests
     PluginWebURLPolicyTests
+    PDFPermissionBoundaryTests
 )
 
 typeset -A listed_classes

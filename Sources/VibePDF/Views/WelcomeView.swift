@@ -113,7 +113,7 @@ struct WelcomeView: View {
             Button(action: openDocument) {
                 HStack(spacing: 10) {
                     Image(systemName: "folder.badge.plus")
-                    Text("여러 PDF 열기")
+                    Text(L10n.string("menu.open_document"))
                     Spacer(minLength: 8)
                     Image(systemName: "arrow.forward")
                         .font(.caption.weight(.bold))
@@ -329,7 +329,7 @@ struct WelcomeView: View {
     private var recentDocumentsFooter: some View {
         HStack(spacing: 10) {
             Button(action: openDocument) {
-                Label("PDF 열기", systemImage: "folder.badge.plus")
+                Label(L10n.string("menu.open_document"), systemImage: "folder.badge.plus")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(theme.brandNavy)
                     .padding(.horizontal, 13)
@@ -337,7 +337,7 @@ struct WelcomeView: View {
                     .background(theme.paperIvory, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
             }
             .buttonStyle(.plain)
-            .help("PDF 열기 (⌘O)")
+            .help(L10n.string("menu.open_document") + " (⌘O)")
 
             Spacer()
 

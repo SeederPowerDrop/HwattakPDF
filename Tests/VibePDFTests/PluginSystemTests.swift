@@ -2015,6 +2015,102 @@ final class PluginSystemTests: XCTestCase {
         XCTAssertNil(workspace.pluginPanelRequest)
     }
 
+    func testSchemaThreeHostCommandsInstallWithMinimalPermissions() throws {
+        let examples = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
+            .deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("Examples/Plugins")
+        let manager = PluginManager(pluginsDirectory: pluginsDirectory, defaults: defaults,
+            hostVersion: "0.8.0", bundledPluginsDirectory: examples)
+        for name in ["StudyMarkup", "TabletTools", "ReadingNavigation"] {
+            let inspection = try manager.inspectPackage(at: examples.appendingPathComponent("\(name).hwattakplugin"))
+            XCTAssertEqual(inspection.manifest.schemaVersion, 3)
+            XCTAssertTrue(inspection.manifest.actions.allSatisfy { $0.output == .documentCommand })
+            XCTAssertEqual(Set(inspection.manifest.capabilities),
+                Set(inspection.manifest.actions.flatMap { $0.requiredCapabilities }))
+            try manager.install(inspection, replacingExisting: false)
+            XCTAssertTrue(manager.isInstalled(identifier: inspection.manifest.identifier))
+            try manager.setEnabled(false, identifier: inspection.manifest.identifier)
+            manager.refresh()
+            XCTAssertFalse(try XCTUnwrap(manager.installedPlugins.first { $0.id == inspection.manifest.identifier }).isEnabled)
+        }
+        // Community commands are installable under the author's own identifier.
+        let action = PluginActionManifest(id: "pen", title: "My pen", description: nil, output: .documentCommand,
+            template: "", command: PluginDocumentCommand(kind: .pen, color: "#007AFF", width: 3))
+        let manifest = makeManifest(identifier: "org.example.my-pen", capabilities: [.toolControl], actions: [action])
+        let package = try writeSourcePackage(manifestData: encodedManifest(manifest))
+        try manager.install(manager.inspectPackage(at: package), replacingExisting: false)
+        XCTAssertTrue(manager.isInstalled(identifier: manifest.identifier))
+    }
+
+    func testHostMarkupUsesUndoAndRechecksSelectionOwnershipAndDisable() throws {
+        let workspace = PDFWorkspaceState()
+        XCTAssertTrue(workspace.open(url: try writeTextPDF("Highlight this study sentence.")))
+        workspace.setMode(.study)
+        let page = try XCTUnwrap(workspace.document?.page(at: 0))
+        let selection = try XCTUnwrap(page.selection(for: NSRange(location: 0, length: 9)))
+        let runner = PluginActionRunner(environment: PluginRuntimeEnvironment(
+            showText: { _, _ in XCTFail("Host command must not extract text") },
+            writeClipboard: { _ in XCTFail("Host command must not copy text"); return false },
+            approveExternalURL: { _, _, _ in XCTFail("Host command must not send data"); return false },
+            openExternalURL: { _ in XCTFail("Host command must not browse"); return false }))
+        for kind in [PluginDocumentCommand.Kind.highlight, .underline] {
+            workspace.currentSelection = selection
+            let action = PluginActionManifest(id: "mark", title: "Mark", description: nil, output: .documentCommand,
+                template: "", command: PluginDocumentCommand(kind: kind, color: "#007AFF"))
+            let manifest = makeManifest(capabilities: [.annotationWrite], actions: [action])
+            let plugin = installedPlugin(manifest: manifest)
+            XCTAssertEqual(try runner.run(plugin: plugin, action: action, workspace: workspace), .executedDocumentCommand(kind))
+            XCTAssertEqual(page.annotations.count, 1)
+            XCTAssertTrue(workspace.isDirty)
+            workspace.undo()
+            XCTAssertTrue(page.annotations.isEmpty)
+            workspace.redo()
+            XCTAssertEqual(page.annotations.count, 1)
+            workspace.undo()
+            XCTAssertThrowsError(try runner.run(plugin: installedPlugin(manifest: manifest, isEnabled: false),
+                action: action, workspace: workspace))
+            let foreign = try XCTUnwrap(PDFDocument(url: writeTextPDF("Foreign selection."))?.page(at: 0))
+            workspace.currentSelection = foreign.selection(for: NSRange(location: 0, length: 7))
+            XCTAssertThrowsError(try runner.run(plugin: plugin, action: action, workspace: workspace))
+            XCTAssertTrue(page.annotations.isEmpty)
+        }
+    }
+
+    func testHostCommandRejectsUnknownFieldsInvalidStylesAndOldSchema() throws {
+        let valid = makeManifest(capabilities: [.toolControl], actions: [PluginActionManifest(
+            id: "pen", title: "Pen", description: nil, output: .documentCommand, template: "",
+            command: PluginDocumentCommand(kind: .pen, color: "#007AFF", width: 2))])
+        let data = try encodedManifest(valid)
+        XCTAssertEqual(try PluginManifestValidator().decodeAndValidate(data), valid)
+        for (key, value) in [("width", 0 as Any), ("width", 33), ("color", "javascript:bad"), ("opacity", 0.5), ("script", "bad")] {
+            var object = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+            var actions = try XCTUnwrap(object["actions"] as? [[String: Any]])
+            var command = try XCTUnwrap(actions[0]["command"] as? [String: Any])
+            command[key] = value
+            actions[0]["command"] = command
+            object["actions"] = actions
+            XCTAssertThrowsError(try PluginManifestValidator().decodeAndValidate(JSONSerialization.data(withJSONObject: object)))
+        }
+        let old = makeManifest(schemaVersion: 2, capabilities: [.toolControl], actions: valid.actions)
+        XCTAssertThrowsError(try PluginManifestValidator().decodeAndValidate(encodedManifest(old)))
+        let missingPermission = makeManifest(capabilities: [], actions: valid.actions)
+        XCTAssertThrowsError(try PluginManifestValidator().decodeAndValidate(encodedManifest(missingPermission)))
+    }
+
+    func testHostPenAndNavigationRespectLiveModeAndPageBoundary() throws {
+        let workspace = PDFWorkspaceState()
+        XCTAssertTrue(workspace.open(url: try writeTextPDF("Study.")))
+        workspace.setMode(.viewer)
+        let pen = PluginDocumentCommand(kind: .pen, color: "#007AFF", width: 4)
+        XCTAssertThrowsError(try pen.apply(to: workspace))
+        try PluginDocumentCommand(kind: .studyMode).apply(to: workspace)
+        try pen.apply(to: workspace)
+        XCTAssertEqual(workspace.activeTool, .pen)
+        XCTAssertEqual(workspace.inkSettings.width, 4)
+        XCTAssertThrowsError(try PluginDocumentCommand(kind: .nextPage).apply(to: workspace))
+        XCTAssertThrowsError(try PluginDocumentCommand(kind: .previousPage).apply(to: workspace))
+        XCTAssertFalse(workspace.isDirty)
+    }
+
     private func makeManifest(
         schemaVersion: Int = HwattakPluginLimits.manifestSchemaVersion,
         identifier: String = "com.example.fixture",

@@ -421,7 +421,7 @@ final class PluginManager: ObservableObject {
             switch $0.output {
             case .translatePanel, .youtubePanel, .browserPanel:
                 true
-            case .showText, .copyText, .openURL:
+            case .documentCommand, .showText, .copyText, .openURL:
                 false
             }
         }

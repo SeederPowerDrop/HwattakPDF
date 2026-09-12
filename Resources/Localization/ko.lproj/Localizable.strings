@@ -1388,3 +1388,159 @@
 "security.user_session_read_only" = "이 암호화 PDF는 사용자 암호로 열려 있어 읽기 전용입니다. 편집하고 저장하려면 소유자 암호로 다시 여세요.";
 "security.save_protected_copy_required" = "암호화 PDF는 일반 저장을 사용할 수 없습니다. ‘암호로 보호된 PDF 내보내기’를 사용해 주세요.";
 "security.export.document_changed" = "문서가 변경되어 내보내기를 중단했습니다. 다시 시도해 주세요.";
+"menu.open_document" = "PDF 또는 이미지 열기…";
+"panel.title.open_documents" = "PDF 또는 이미지 열기";
+"panel.open_documents" = "PDF, JPEG, PNG 등의 파일을 각각 새 탭에서 엽니다.";
+"conversion.office.menu" = "현재 PDF 변환";
+"conversion.word.menu" = "Word 문서(.docx)…";
+"conversion.word.title" = "Word 문서로 변환";
+"conversion.word.saved" = "“%@” Word 문서를 저장했습니다.";
+"conversion.powerpoint.menu" = "PowerPoint(.pptx)…";
+"conversion.powerpoint.title" = "PowerPoint로 변환";
+"conversion.powerpoint.saved" = "“%@” PowerPoint 문서를 저장했습니다.";
+"conversion.images_to_pdf.menu" = "파일·PDF 페이지로 PDF 만들기…";
+"conversion.images_to_pdf.title" = "이미지를 PDF로 변환";
+"conversion.images.default_name" = "이미지 모음.pdf";
+"conversion.error.no_images" = "변환할 이미지를 선택해 주세요.";
+"conversion.error.image_read" = "“%@” 이미지를 읽을 수 없습니다.";
+"conversion.error.open_files" = "다음 파일을 열 수 없습니다: %@";
+"conversion.error.package_too_large" = "Office 문서가 지원되는 패키지 크기를 초과했습니다.";
+"conversion.error.package_invalid" = "Office 문서 패키지를 만들 수 없습니다.";
+"builder.title" = "PDF 만들기";
+"builder.subtitle" = "이미지, HTML 파일, 선택한 PDF 페이지와 공백 페이지를 원하는 순서로 묶습니다.";
+"builder.local_badge" = "로컬 처리";
+"builder.add_images" = "이미지 추가";
+"builder.add_html" = "HTML 추가";
+"builder.add_pdf" = "PDF 페이지 가져오기";
+"builder.add_blank" = "공백 페이지";
+"builder.empty.title" = "아직 페이지가 없습니다";
+"builder.empty.detail" = "이미지, HTML 파일, 다른 PDF의 특정 페이지 또는 공백 페이지를 추가하세요.";
+"builder.ocr.toggle" = "OCR 검색 텍스트 추가";
+"builder.ocr.detail" = "Apple Vision이 페이지를 순서대로 인식해 검색·선택 가능한 보이지 않는 텍스트 층을 만듭니다.";
+"builder.ocr.languages" = "인식 언어";
+"builder.ocr.stability" = "정확도 우선 240 DPI로 한 페이지씩 처리합니다. 긴 문서는 시간이 걸릴 수 있습니다.";
+"builder.ocr.result" = "추출한 텍스트";
+"builder.ocr.copy" = "텍스트 복사";
+"builder.ocr.save_text" = "텍스트 파일 저장…";
+"builder.export" = "PDF 저장";
+"builder.export_title" = "조립한 PDF 저장";
+"builder.default_name" = "새 PDF 문서.pdf";
+"builder.text_default_name" = "OCR 텍스트.txt";
+"builder.item.image" = "이미지 페이지";
+"builder.item.html" = "HTML 문서";
+"builder.item.imported_pdf" = "가져온 PDF 페이지";
+"builder.item.blank" = "공백 페이지";
+"builder.item.blank_size" = "A4 공백 · %d × %d pt";
+"builder.item.pdf_page" = "%@ · %d페이지";
+"builder.pdf_picker.title" = "가져올 페이지 선택";
+"builder.pdf_picker.selected" = "%d / %d페이지 선택";
+"builder.pdf_picker.page" = "%d페이지";
+"builder.pdf_picker.all" = "전체 선택";
+"builder.pdf_picker.none" = "전체 해제";
+"builder.pdf_picker.add" = "선택 페이지 추가";
+"builder.status.ready" = "이미지, HTML 파일 또는 PDF 페이지를 추가해 시작하세요.";
+"builder.status.pages" = "%d개 항목 준비됨";
+"builder.status.html" = "“%@” HTML을 렌더링하는 중…";
+"builder.status.assembling" = "페이지를 안전하게 조립하는 중…";
+"builder.status.ocr" = "로컬 OCR을 시작하는 중…";
+"builder.status.ocr_page" = "OCR %d / %d페이지";
+"builder.status.validating" = "완성된 PDF를 다시 열어 확인하는 중…";
+"builder.status.saved" = "“%@” 파일을 저장하고 검증했습니다.";
+"builder.status.cancelled" = "작업을 취소했습니다.";
+"builder.status.cancelling" = "현재 페이지를 마친 뒤 취소하는 중…";
+"builder.status.failed" = "PDF 만들기에 실패했습니다.";
+"builder.status.text_copied" = "OCR 텍스트를 복사했습니다.";
+"builder.status.text_saved" = "“%@” 텍스트 파일을 저장했습니다.";
+"builder.error.title" = "PDF 만들기 오류";
+"builder.error.validation" = "저장한 PDF의 페이지 수를 확인하지 못했습니다.";
+"builder.error.pdf_page" = "가져온 PDF의 %d페이지를 읽을 수 없습니다.";
+"builder.error.blank_page" = "공백 페이지를 만들 수 없습니다.";
+"builder.profile.title" = "처리 방식";
+"builder.profile.stability" = "안정성 우선";
+"builder.profile.stability_detail" = "HTML과 로컬 리소스가 로드될 때까지 더 오래 기다리고 이미지 디테일을 더 많이 유지합니다. OCR을 켜면 240 DPI 고정밀 인식을 사용합니다.";
+"builder.profile.speed" = "속도 우선";
+"builder.profile.speed_detail" = "HTML 안정화 대기 시간을 줄이고 큰 이미지를 다운샘플링합니다. OCR을 켜면 160 DPI 고속 인식을 사용합니다.";
+"builder.estimate.title" = "예상 내보내기";
+"builder.estimate.input" = "입력";
+"builder.estimate.time" = "예상 시간";
+"builder.estimate.output" = "예상 용량";
+"builder.estimate.pages" = "예상 %d페이지";
+"builder.estimate.note" = "예상값은 범위로 표시되며 문서 복잡도와 시스템 부하에 따라 달라질 수 있습니다.";
+"builder.estimate.confidence.high" = "예측 신뢰도 높음";
+"builder.estimate.confidence.medium" = "예측 신뢰도 보통";
+"builder.estimate.confidence.low" = "예측 신뢰도 낮음";
+"builder.html.network_note" = "같은 폴더의 로컬 자산은 사용하며 원격 자원은 개인정보 보호를 위해 차단합니다.";
+"builder.result.actual" = "실제 결과";
+"builder.result.time" = "소요 시간";
+"builder.result.size" = "파일 용량";
+"builder.error.html.unsupported" = "“%@” HTML 파일은 지원하지 않습니다.";
+"builder.error.html.unreadable" = "“%@” HTML 파일을 읽을 수 없습니다.";
+"builder.error.html.too_large" = "HTML 파일 크기는 %lld바이트이며 제한은 %lld바이트입니다.";
+"builder.error.html.unsafe_navigation" = "HTML이 차단된 자원을 열려고 했습니다: %@";
+"builder.error.html.timeout" = "HTML 렌더링 시간이 초과되었습니다.";
+"builder.error.html.process_terminated" = "HTML 렌더링 프로세스가 예기치 않게 종료되었습니다.";
+"builder.error.html.rendering" = "HTML을 렌더링할 수 없습니다: %@";
+"builder.error.html.invalid_size" = "렌더링한 HTML의 페이지 크기가 올바르지 않습니다.";
+"builder.error.html.too_many_pages" = "HTML에서 %d페이지가 생성되었으며 제한은 %d페이지입니다.";
+"builder.error.html.invalid_pdf" = "HTML에서 만든 PDF를 검증할 수 없습니다.";
+
+"plugins.permission.annotation_write" = "선택한 PDF에 주석 추가 (실행 취소 가능)";
+
+"plugins.permission.tool_control" = "펜·지우개·선택 도구 설정";
+
+"plugins.permission.workspace_navigation" = "보기 모드와 페이지 이동";
+
+"plugins.command.unavailable" = "현재 모드 또는 선택 상태에서는 이 명령을 실행할 수 없습니다.";
+
+"plugins.command.review" = "앱의 문서 명령을 실행합니다. 주석은 실행 취소할 수 있으며 파일은 자동 저장하지 않습니다.";
+
+"plugins.palette.title" = "플러그인 명령 검색…";
+
+"plugins.palette.search" = "명령 또는 플러그인 이름 검색";
+
+"plugins.palette.help" = "Enter: 첫 실행 가능 명령 · Esc: 닫기";
+
+"pen.pressure.enabled" = "태블릿 필압 사용";
+
+"pen.pressure.help" = "Sidecar의 Apple Pencil이나 태블릿이 보내는 필압으로 획 굵기를 조절합니다. 필압 획은 PDF 스탬프로 저장되며 마우스는 고정 굵기를 사용합니다.";
+
+"recovery.title" = "작업 복구…";
+
+"recovery.enabled" = "로컬 자동 복구 사본 만들기";
+
+"recovery.help" = "편집을 멈추면 5초 후(500페이지 초과는 60초 후) 확정된 변경을 로컬에 보관합니다. 암호 PDF는 제외되며, 마지막 저장 전 변경 전체를 보장하지는 않습니다. 복구 사본은 별도 PDF로 저장하세요.";
+
+"recovery.open" = "복구 사본 열기";
+
+"recovery.empty" = "보관된 복구 사본이 없습니다.";
+
+"recovery.limit" = "복구 저장 한도에 도달했습니다(사본당 256MB, 전체 1GB·32개). 작업을 직접 저장하고 복구 창에서 오래된 사본을 정리하세요.";
+
+"recovery.delete_confirm" = "이 복구 사본을 삭제할까요? 원본 PDF에는 영향이 없습니다.";
+
+"ocr.cache.busy" = "OCR 실행 중에는 체크포인트를 삭제할 수 없습니다. 작업을 마친 뒤 다시 시도하세요.";
+
+"ocr.cache.help" = "OCR 체크포인트에는 인식한 텍스트가 로컬 평문으로 남습니다. 삭제하면 이전 작업을 이어서 처리할 수 없습니다.";
+
+"ocr.cache.clear" = "OCR 체크포인트 삭제…";
+
+"ocr.cache.cleared" = "OCR 체크포인트를 삭제했습니다.";
+
+"action.refresh" = "새로고침";
+"plugins.error.pdf_copying_not_allowed" = "이 PDF의 현재 권한으로는 플러그인에 텍스트를 전달할 수 없습니다.";
+
+// Default PDF app association
+"settings.default_pdf.title" = "기본 PDF 앱";
+"settings.default_pdf.description" = "Finder에서 PDF를 이중 클릭할 때 HwattakPDF로 열도록 설정합니다.";
+"settings.default_pdf.current" = "현재 기본 앱: %@";
+"settings.default_pdf.unknown" = "확인할 수 없음";
+"settings.default_pdf.active" = "이 HwattakPDF가 기본 PDF 앱입니다.";
+"settings.default_pdf.set" = "Finder에서 연결 설정…";
+"settings.default_pdf.refresh" = "연결 상태 새로고침";
+"settings.default_pdf.failed" = "연결 설정을 준비하지 못했습니다: %@";
+"settings.default_pdf.requires_app" = "설치된 HwattakPDF.app에서 사용할 수 있습니다. 앱을 응용 프로그램 폴더에 두고 실행하세요.";
+"settings.default_pdf.location_hint" = "앱을 응용 프로그램 폴더에 둔 뒤 설정하는 것을 권장합니다. 이후 앱을 이동하거나 삭제하면 다시 연결해야 할 수 있습니다.";
+"settings.default_pdf.manual_title" = "기본 PDF 앱으로 연결하는 방법";
+"settings.default_pdf.manual_help" = "아래 버튼을 누르면 Finder에서 설정용 PDF가 선택됩니다. 정보 가져오기(⌘I) → 다음으로 열기에서 HwattakPDF 선택 → 모두 변경을 누르세요. 앱으로 돌아오면 연결 상태를 다시 확인합니다.";
+"settings.default_pdf.manual_note" = "macOS의 파일 연결은 Finder에서 확정합니다. 개별 파일에 별도 연결이 지정되어 있다면 해당 파일의 정보 가져오기에서도 확인하세요.";
+"settings.default_pdf.revealed" = "Finder에서 선택된 PDF의 정보 가져오기(⌘I)를 열고, 다음으로 열기에서 HwattakPDF를 선택한 뒤 모두 변경을 누르세요.";

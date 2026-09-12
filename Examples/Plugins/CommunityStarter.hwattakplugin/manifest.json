@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 3,
+  "identifier": "org.example.community-study",
+  "displayName": "Community Study",
+  "version": "1.0.0",
+  "author": "Your name",
+  "description": "Local study presets: highlights, underline, pen, and page navigation.",
+  "minimumHostVersion": "0.8.0",
+  "capabilities": [
+    "annotationWrite",
+    "toolControl",
+    "workspaceNavigation"
+  ],
+  "actions": [
+    {
+      "id": "study-mode",
+      "title": "학습 모드 / Study mode",
+      "output": "documentCommand",
+      "template": "",
+      "command": {
+        "kind": "studyMode"
+      }
+    },
+    {
+      "id": "yellow-highlight",
+      "title": "노란 하이라이트 / Yellow highlight",
+      "output": "documentCommand",
+      "template": "",
+      "command": {
+        "kind": "highlight",
+        "color": "#FFD60A"
+      }
+    },
+    {
+      "id": "blue-underline",
+      "title": "파란 밑줄 / Blue underline",
+      "output": "documentCommand",
+      "template": "",
+      "command": {
+        "kind": "underline",
+        "color": "#007AFF",
+        "width": 1.5,
+        "opacity": 1
+      }
+    },
+    {
+      "id": "fine-blue-pen",
+      "title": "가는 파란 펜 / Fine blue pen",
+      "output": "documentCommand",
+      "template": "",
+      "command": {
+        "kind": "pen",
+        "color": "#007AFF",
+        "width": 1.2
+      }
+    },
+    {
+      "id": "select",
+      "title": "선택 도구 / Selection",
+      "output": "documentCommand",
+      "template": "",
+      "command": {
+        "kind": "selection"
+      }
+    },
+    {
+      "id": "next-page",
+      "title": "다음 페이지 / Next page",
+      "output": "documentCommand",
+      "template": "",
+      "command": {
+        "kind": "nextPage"
+      }
+    }
+  ]
+}

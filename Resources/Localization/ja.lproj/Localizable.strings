@@ -1361,3 +1361,159 @@
 "security.user_session_read_only" = "この暗号化PDFはユーザーパスワードで開かれています。編集して変更を保存するには、所有者パスワードで開き直してください。";
 "security.save_protected_copy_required" = "暗号化PDFでは通常の保存を使用できません。「パスワード保護PDFを書き出す」を使用してください。";
 "security.export.document_changed" = "文書が変更されたため、書き出しを中止しました。もう一度お試しください。";
+"menu.open_document" = "PDFまたは画像を開く…";
+"panel.title.open_documents" = "PDFまたは画像を開く";
+"panel.open_documents" = "PDFや画像を別々のタブで開きます。";
+"conversion.office.menu" = "現在のPDFを変換";
+"conversion.word.menu" = "Word文書（.docx）…";
+"conversion.word.title" = "Word文書に変換";
+"conversion.word.saved" = "Word文書「%@」を保存しました。";
+"conversion.powerpoint.menu" = "PowerPoint（.pptx）…";
+"conversion.powerpoint.title" = "PowerPointに変換";
+"conversion.powerpoint.saved" = "PowerPoint文書「%@」を保存しました。";
+"conversion.images_to_pdf.menu" = "ファイルやページからPDFを作成…";
+"conversion.images_to_pdf.title" = "画像をPDFに変換";
+"conversion.images.default_name" = "画像.pdf";
+"conversion.error.no_images" = "画像を1つ以上選択してください。";
+"conversion.error.image_read" = "画像「%@」を読み込めませんでした。";
+"conversion.error.open_files" = "次のファイルを開けませんでした：%@";
+"conversion.error.package_too_large" = "Office文書が大きすぎます。";
+"conversion.error.package_invalid" = "Office文書を作成できませんでした。";
+"builder.title" = "PDFを作成";
+"builder.subtitle" = "画像、HTMLファイル、選択したPDFページ、空白ページを自由な順序で並べます。";
+"builder.local_badge" = "ローカル処理";
+"builder.add_images" = "画像を追加";
+"builder.add_html" = "HTMLを追加";
+"builder.add_pdf" = "PDFページを読み込む";
+"builder.add_blank" = "空白ページ";
+"builder.empty.title" = "ページがありません";
+"builder.empty.detail" = "画像、HTMLファイル、選択したPDFページ、または空白ページを追加してください。";
+"builder.ocr.toggle" = "検索可能なOCRテキストを追加";
+"builder.ocr.detail" = "Apple Visionがページを順番に認識し、検索・選択用の非表示テキスト層を追加します。";
+"builder.ocr.languages" = "認識言語";
+"builder.ocr.stability" = "精度を優先し、各ページを240 DPIで順番に処理します。";
+"builder.ocr.result" = "抽出したテキスト";
+"builder.ocr.copy" = "テキストをコピー";
+"builder.ocr.save_text" = "テキストファイルを保存…";
+"builder.export" = "PDFを保存";
+"builder.export_title" = "組み立てたPDFを保存";
+"builder.default_name" = "新規PDF文書.pdf";
+"builder.text_default_name" = "OCRテキスト.txt";
+"builder.item.image" = "画像ページ";
+"builder.item.html" = "HTML文書";
+"builder.item.imported_pdf" = "読み込んだPDFページ";
+"builder.item.blank" = "空白ページ";
+"builder.item.blank_size" = "A4空白 · %d × %d pt";
+"builder.item.pdf_page" = "%@ · %dページ";
+"builder.pdf_picker.title" = "読み込むページを選択";
+"builder.pdf_picker.selected" = "%d / %dページを選択";
+"builder.pdf_picker.page" = "%dページ";
+"builder.pdf_picker.all" = "すべて選択";
+"builder.pdf_picker.none" = "選択を解除";
+"builder.pdf_picker.add" = "選択ページを追加";
+"builder.status.ready" = "画像、HTMLファイル、またはPDFページを追加してください。";
+"builder.status.pages" = "%d項目を準備済み";
+"builder.status.html" = "「%@」をレンダリング中…";
+"builder.status.assembling" = "ページを安全に組み立てています…";
+"builder.status.ocr" = "ローカルOCRを開始しています…";
+"builder.status.ocr_page" = "OCR %d / %dページ";
+"builder.status.validating" = "完成したPDFを再度開いて確認しています…";
+"builder.status.saved" = "「%@」を保存して確認しました。";
+"builder.status.cancelled" = "処理をキャンセルしました。";
+"builder.status.cancelling" = "現在のページ後にキャンセルします…";
+"builder.status.failed" = "PDFを作成できませんでした。";
+"builder.status.text_copied" = "OCRテキストをコピーしました。";
+"builder.status.text_saved" = "テキストファイル「%@」を保存しました。";
+"builder.error.title" = "PDF作成エラー";
+"builder.error.validation" = "保存したPDFのページ数を確認できませんでした。";
+"builder.error.pdf_page" = "読み込んだPDFの%dページを読めませんでした。";
+"builder.error.blank_page" = "空白ページを作成できませんでした。";
+"builder.profile.title" = "処理プロファイル";
+"builder.profile.stability" = "安定性優先";
+"builder.profile.stability_detail" = "HTMLとローカルリソースの読み込みを長めに待ち、画像のディテールをより多く保持します。OCRを有効にすると、240 DPIの高精度認識を使用します。";
+"builder.profile.speed" = "速度優先";
+"builder.profile.speed_detail" = "HTMLの描画が安定するまでの待ち時間を短縮し、大きな画像をダウンサンプリングします。OCRを有効にすると、160 DPIの高速認識を使用します。";
+"builder.estimate.title" = "書き出し予測";
+"builder.estimate.input" = "入力";
+"builder.estimate.time" = "予想時間";
+"builder.estimate.output" = "予想容量";
+"builder.estimate.pages" = "%dページ（推定）";
+"builder.estimate.note" = "予測値は範囲で示され、文書の複雑さやシステム負荷によって変わる場合があります。";
+"builder.estimate.confidence.high" = "信頼度：高";
+"builder.estimate.confidence.medium" = "信頼度：中";
+"builder.estimate.confidence.low" = "信頼度：低";
+"builder.html.network_note" = "同じフォルダ内のローカル素材は使用できますが、プライバシー保護のためリモート素材はブロックされます。";
+"builder.result.actual" = "実際の結果";
+"builder.result.time" = "処理時間";
+"builder.result.size" = "ファイルサイズ";
+"builder.error.html.unsupported" = "HTMLファイル「%@」は対応していません。";
+"builder.error.html.unreadable" = "HTMLファイル「%@」を読み込めませんでした。";
+"builder.error.html.too_large" = "HTMLファイルは%lldバイトです。上限は%lldバイトです。";
+"builder.error.html.unsafe_navigation" = "HTMLがブロック対象のリソースを開こうとしました：%@";
+"builder.error.html.timeout" = "HTMLのレンダリングが時間切れになりました。";
+"builder.error.html.process_terminated" = "HTMLのレンダリング処理が予期せず終了しました。";
+"builder.error.html.rendering" = "HTMLをレンダリングできませんでした：%@";
+"builder.error.html.invalid_size" = "レンダリングしたHTMLのページサイズが無効です。";
+"builder.error.html.too_many_pages" = "HTMLから%dページが生成されました。上限は%dページです。";
+"builder.error.html.invalid_pdf" = "HTMLから生成したPDFを検証できませんでした。";
+
+"plugins.permission.annotation_write" = "PDFに注釈を追加（取り消し対応）";
+
+"plugins.permission.tool_control" = "ペン・消しゴム・選択ツールを設定";
+
+"plugins.permission.workspace_navigation" = "表示モードの変更とページ移動";
+
+"plugins.command.unavailable" = "現在のモードまたは選択範囲では実行できません。";
+
+"plugins.command.review" = "アプリの文書コマンドを実行します。注釈は取り消せます。ファイルは自動保存されません。";
+
+"plugins.palette.title" = "プラグインのコマンド…";
+
+"plugins.palette.search" = "コマンドやプラグインを検索";
+
+"plugins.palette.help" = "Enter：最初の実行可能なコマンド · Esc：閉じる";
+
+"pen.pressure.enabled" = "タブレットの筆圧を使用";
+
+"pen.pressure.help" = "Sidecarやタブレットの筆圧を使用します。筆圧付きの線はPDFスタンプとして保存され、マウスの線幅は固定です。";
+
+"recovery.title" = "作業を復元…";
+
+"recovery.enabled" = "ローカルに自動復元用コピーを保持";
+
+"recovery.help" = "編集確定後、5秒間操作がないとコピーします（500ページ超は60秒）。暗号化PDFは対象外です。直近の編集は未保存の場合があります。復元後は別のPDFとして保存してください。";
+
+"recovery.open" = "復元用コピーを開く";
+
+"recovery.empty" = "復元用コピーはありません。";
+
+"recovery.limit" = "保存上限に達しました（1件256MB、合計1GB・32件）。作業を保存し、古いコピーを削除してください。";
+
+"recovery.delete_confirm" = "このコピーを削除しますか？元のPDFは残ります。";
+
+"ocr.cache.busy" = "OCR処理中は削除できません。完了後に再試行してください。";
+
+"ocr.cache.help" = "OCRチェックポイントには認識したテキストが平文でローカル保存されます。削除すると過去の処理を再開できなくなります。";
+
+"ocr.cache.clear" = "OCRチェックポイントを削除…";
+
+"ocr.cache.cleared" = "OCRチェックポイントを削除しました。";
+
+"action.refresh" = "更新";
+"plugins.error.pdf_copying_not_allowed" = "このPDFの現在の権限では、プラグインにテキストを渡すことはできません。";
+
+// Default PDF app association
+"settings.default_pdf.title" = "デフォルトのPDFアプリ";
+"settings.default_pdf.description" = "FinderでPDFをダブルクリックするとHwattakPDFで開くように設定します。";
+"settings.default_pdf.current" = "現在のデフォルトアプリ: %@";
+"settings.default_pdf.unknown" = "確認できません";
+"settings.default_pdf.active" = "このHwattakPDFがデフォルトのPDFアプリです。";
+"settings.default_pdf.set" = "Finderで関連付けを設定…";
+"settings.default_pdf.refresh" = "関連付けの状態を更新";
+"settings.default_pdf.failed" = "関連付け設定の準備ができませんでした: %@";
+"settings.default_pdf.requires_app" = "インストールされたHwattakPDF.appで利用できます。アプリを「アプリケーション」フォルダに置いて起動してください。";
+"settings.default_pdf.location_hint" = "アプリを「アプリケーション」フォルダに置いてからデフォルトに設定することをおすすめします。その後アプリを移動または削除すると、関連付けの再設定が必要になる場合があります。";
+"settings.default_pdf.manual_title" = "デフォルトのPDFアプリに設定する方法";
+"settings.default_pdf.manual_help" = "下のボタンを押すと、Finderで設定用PDFが選択されます。「情報を見る」（⌘I）→「このアプリケーションで開く」でHwattakPDFを選択 →「すべてを変更」をクリックしてください。アプリに戻ると関連付けを再確認します。";
+"settings.default_pdf.manual_note" = "macOSのファイルの関連付けはFinderで確定します。個別のファイルに別の関連付けがある場合は、そのファイルの「情報を見る」でも確認してください。";
+"settings.default_pdf.revealed" = "Finderで選択されたPDFの「情報を見る」（⌘I）を開き、「このアプリケーションで開く」でHwattakPDFを選択してから、「すべてを変更」をクリックしてください。";

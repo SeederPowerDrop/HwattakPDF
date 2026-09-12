@@ -10,13 +10,16 @@ enum PluginCommandAvailability {
         workspace: PDFWorkspaceState?
     ) -> Bool {
         guard action.needsOpenDocument else { return true }
-        guard let workspace, workspace.document != nil else { return false }
+        guard let workspace, workspace.document != nil, workspace.pageCount > 0 else { return false }
+        if let command = action.command { return command.isAvailable(in: workspace) }
         if action.output == .translatePanel,
            !workspace.allows(.translation) {
             return false
         }
-        if action.needsSelection {
-            return workspace.currentSelection != nil
+        do {
+            try PluginDocumentTextAccess.validate(for: action, workspace: workspace)
+        } catch {
+            return false
         }
         return true
     }
@@ -38,6 +41,12 @@ struct PluginCommands: Commands {
 
     var body: some Commands {
         CommandMenu(L10n.string("menu.plugins", defaultValue: "플러그인")) {
+            Button(L10n.string("plugins.palette.title")) {
+                documentWorkspace?.pluginCommandPaletteVisible = true
+            }
+            .keyboardShortcut("p", modifiers: [.command, .shift])
+            .disabled(documentWorkspace?.document == nil)
+            Divider()
             if manager.enabledPlugins.isEmpty {
                 Button(
                     L10n.string(

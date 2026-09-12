@@ -1361,3 +1361,159 @@
 "security.user_session_read_only" = "PDF được mã hóa này đã được mở bằng mật khẩu người dùng. Hãy mở lại bằng mật khẩu chủ sở hữu để chỉnh sửa và lưu thay đổi.";
 "security.save_protected_copy_required" = "PDF được mã hóa không thể dùng lệnh Lưu thông thường. Hãy dùng Xuất PDF được bảo vệ bằng mật khẩu.";
 "security.export.document_changed" = "Tài liệu đã thay đổi nên quá trình xuất đã dừng. Hãy thử lại.";
+"menu.open_document" = "Mở PDF hoặc hình ảnh…";
+"panel.title.open_documents" = "Mở PDF hoặc hình ảnh";
+"panel.open_documents" = "Mở PDF và hình ảnh trong các thẻ riêng.";
+"conversion.office.menu" = "Chuyển đổi PDF hiện tại";
+"conversion.word.menu" = "Tài liệu Word (.docx)…";
+"conversion.word.title" = "Chuyển đổi sang tài liệu Word";
+"conversion.word.saved" = "Đã lưu tài liệu Word “%@”.";
+"conversion.powerpoint.menu" = "Bản trình bày PowerPoint (.pptx)…";
+"conversion.powerpoint.title" = "Chuyển đổi sang PowerPoint";
+"conversion.powerpoint.saved" = "Đã lưu tài liệu PowerPoint “%@”.";
+"conversion.images_to_pdf.menu" = "Tạo PDF từ tệp và trang…";
+"conversion.images_to_pdf.title" = "Chuyển hình ảnh thành PDF";
+"conversion.images.default_name" = "Hình ảnh.pdf";
+"conversion.error.no_images" = "Chọn ít nhất một hình ảnh.";
+"conversion.error.image_read" = "Không thể đọc hình ảnh “%@”.";
+"conversion.error.open_files" = "Không thể mở các tệp sau: %@";
+"conversion.error.package_too_large" = "Tài liệu Office quá lớn.";
+"conversion.error.package_invalid" = "Không thể tạo tài liệu Office.";
+"builder.title" = "Tạo PDF";
+"builder.subtitle" = "Sắp xếp hình ảnh, tệp HTML, trang PDF đã chọn và trang trắng theo thứ tự tùy ý.";
+"builder.local_badge" = "Xử lý cục bộ";
+"builder.add_images" = "Thêm hình ảnh";
+"builder.add_html" = "Thêm HTML";
+"builder.add_pdf" = "Nhập trang PDF";
+"builder.add_blank" = "Trang trắng";
+"builder.empty.title" = "Chưa có trang";
+"builder.empty.detail" = "Thêm hình ảnh, tệp HTML, trang PDF đã chọn hoặc trang trắng.";
+"builder.ocr.toggle" = "Thêm văn bản OCR có thể tìm kiếm";
+"builder.ocr.detail" = "Apple Vision nhận dạng từng trang và thêm lớp văn bản ẩn để tìm kiếm và chọn.";
+"builder.ocr.languages" = "Ngôn ngữ nhận dạng";
+"builder.ocr.stability" = "Các trang được xử lý lần lượt ở 240 DPI để ưu tiên độ chính xác.";
+"builder.ocr.result" = "Văn bản đã trích xuất";
+"builder.ocr.copy" = "Sao chép văn bản";
+"builder.ocr.save_text" = "Lưu tệp văn bản…";
+"builder.export" = "Lưu PDF";
+"builder.export_title" = "Lưu PDF đã ghép";
+"builder.default_name" = "Tài liệu mới.pdf";
+"builder.text_default_name" = "Văn bản OCR.txt";
+"builder.item.image" = "Trang hình ảnh";
+"builder.item.html" = "Tài liệu HTML";
+"builder.item.imported_pdf" = "Trang PDF đã nhập";
+"builder.item.blank" = "Trang trắng";
+"builder.item.blank_size" = "A4 trắng · %d × %d pt";
+"builder.item.pdf_page" = "%@ · trang %d";
+"builder.pdf_picker.title" = "Chọn trang để nhập";
+"builder.pdf_picker.selected" = "Đã chọn %d / %d trang";
+"builder.pdf_picker.page" = "Trang %d";
+"builder.pdf_picker.all" = "Chọn tất cả";
+"builder.pdf_picker.none" = "Bỏ lựa chọn";
+"builder.pdf_picker.add" = "Thêm các trang đã chọn";
+"builder.status.ready" = "Thêm hình ảnh, tệp HTML hoặc trang PDF để bắt đầu.";
+"builder.status.pages" = "%d mục đã sẵn sàng";
+"builder.status.html" = "Đang kết xuất %@…";
+"builder.status.assembling" = "Đang ghép các trang an toàn…";
+"builder.status.ocr" = "Đang bắt đầu OCR cục bộ…";
+"builder.status.ocr_page" = "OCR trang %d / %d";
+"builder.status.validating" = "Đang mở lại PDF hoàn chỉnh để xác thực…";
+"builder.status.saved" = "Đã lưu và xác thực “%@”.";
+"builder.status.cancelled" = "Đã hủy thao tác.";
+"builder.status.cancelling" = "Đang hủy sau trang hiện tại…";
+"builder.status.failed" = "Không thể tạo PDF.";
+"builder.status.text_copied" = "Đã sao chép văn bản OCR.";
+"builder.status.text_saved" = "Đã lưu tệp văn bản “%@”.";
+"builder.error.title" = "Lỗi trình tạo PDF";
+"builder.error.validation" = "Không thể xác thực số trang của PDF đã lưu.";
+"builder.error.pdf_page" = "Không thể đọc trang %d của PDF đã nhập.";
+"builder.error.blank_page" = "Không thể tạo trang trắng.";
+"builder.profile.title" = "Chế độ xử lý";
+"builder.profile.stability" = "Ưu tiên độ ổn định";
+"builder.profile.stability_detail" = "Chờ lâu hơn để HTML và tài nguyên cục bộ tải xong, đồng thời giữ lại nhiều chi tiết hình ảnh hơn. Khi bật OCR, sử dụng nhận dạng chính xác ở 240 DPI.";
+"builder.profile.speed" = "Ưu tiên tốc độ";
+"builder.profile.speed_detail" = "Rút ngắn thời gian chờ HTML ổn định và giảm độ phân giải của hình ảnh lớn. Khi bật OCR, sử dụng nhận dạng nhanh ở 160 DPI.";
+"builder.estimate.title" = "Ước tính xuất tệp";
+"builder.estimate.input" = "Đầu vào";
+"builder.estimate.time" = "Thời gian ước tính";
+"builder.estimate.output" = "Dung lượng ước tính";
+"builder.estimate.pages" = "Ước tính %d trang";
+"builder.estimate.note" = "Ước tính được hiển thị theo khoảng và có thể thay đổi tùy độ phức tạp của tài liệu và tải hệ thống.";
+"builder.estimate.confidence.high" = "Độ tin cậy cao";
+"builder.estimate.confidence.medium" = "Độ tin cậy trung bình";
+"builder.estimate.confidence.low" = "Độ tin cậy thấp";
+"builder.html.network_note" = "Tài nguyên cục bộ trong cùng thư mục được sử dụng; tài nguyên từ xa bị chặn để bảo vệ quyền riêng tư.";
+"builder.result.actual" = "Kết quả thực tế";
+"builder.result.time" = "Thời gian đã dùng";
+"builder.result.size" = "Kích thước tệp";
+"builder.error.html.unsupported" = "Tệp HTML “%@” không được hỗ trợ.";
+"builder.error.html.unreadable" = "Không thể đọc tệp HTML “%@”.";
+"builder.error.html.too_large" = "Tệp HTML có dung lượng %lld byte; giới hạn là %lld byte.";
+"builder.error.html.unsafe_navigation" = "HTML đã cố mở tài nguyên bị chặn: %@";
+"builder.error.html.timeout" = "Quá thời gian kết xuất HTML.";
+"builder.error.html.process_terminated" = "Tiến trình kết xuất HTML đã kết thúc ngoài dự kiến.";
+"builder.error.html.rendering" = "Không thể kết xuất HTML: %@";
+"builder.error.html.invalid_size" = "HTML đã kết xuất có kích thước trang không hợp lệ.";
+"builder.error.html.too_many_pages" = "HTML tạo ra %d trang; giới hạn là %d trang.";
+"builder.error.html.invalid_pdf" = "Không thể xác thực PDF được tạo từ HTML.";
+
+"plugins.permission.annotation_write" = "Thêm chú thích PDF (có thể hoàn tác)";
+
+"plugins.permission.tool_control" = "Thiết lập bút, tẩy và công cụ chọn";
+
+"plugins.permission.workspace_navigation" = "Đổi chế độ xem và chuyển trang";
+
+"plugins.command.unavailable" = "Lệnh này không khả dụng với chế độ hoặc vùng chọn hiện tại.";
+
+"plugins.command.review" = "Chạy lệnh tài liệu của ứng dụng. Có thể hoàn tác chú thích; tệp không được lưu tự động.";
+
+"plugins.palette.title" = "Lệnh plugin…";
+
+"plugins.palette.search" = "Tìm lệnh hoặc plugin";
+
+"plugins.palette.help" = "Enter: lệnh khả dụng đầu tiên · Esc: đóng";
+
+"pen.pressure.enabled" = "Dùng lực nhấn của bút";
+
+"pen.pressure.help" = "Dùng lực nhấn qua Sidecar hoặc bảng vẽ. Nét có lực nhấn được lưu dưới dạng dấu PDF; nét chuột có độ rộng cố định.";
+
+"recovery.title" = "Khôi phục công việc…";
+
+"recovery.enabled" = "Giữ bản sao khôi phục tự động trên máy";
+
+"recovery.help" = "Sao chép chỉnh sửa đã xác nhận sau 5 giây tạm dừng (60 giây nếu hơn 500 trang). Không áp dụng cho PDF mã hóa. Chỉnh sửa mới nhất có thể chưa được sao chép. Lưu bản khôi phục thành PDF riêng.";
+
+"recovery.open" = "Mở bản sao khôi phục";
+
+"recovery.empty" = "Không có bản sao khôi phục.";
+
+"recovery.limit" = "Đã đạt giới hạn: 256 MB mỗi bản, tổng 1 GB và 32 bản. Hãy lưu công việc và xóa bản sao cũ.";
+
+"recovery.delete_confirm" = "Xóa bản sao này? PDF gốc vẫn được giữ.";
+
+"ocr.cache.busy" = "OCR đang chạy. Vui lòng thử lại khi hoàn tất.";
+
+"ocr.cache.help" = "Điểm khôi phục OCR lưu văn bản nhận dạng không mã hóa trên máy. Xóa chúng sẽ mất khả năng tiếp tục các tác vụ đó.";
+
+"ocr.cache.clear" = "Xóa điểm khôi phục OCR…";
+
+"ocr.cache.cleared" = "Đã xóa điểm khôi phục OCR.";
+
+"action.refresh" = "Làm mới";
+"plugins.error.pdf_copying_not_allowed" = "Quyền hiện tại của PDF này không cho phép chia sẻ văn bản với plugin.";
+
+// Default PDF app association
+"settings.default_pdf.title" = "Ứng dụng PDF mặc định";
+"settings.default_pdf.description" = "Mở PDF bằng HwattakPDF khi bạn bấm hai lần vào tệp trong Finder.";
+"settings.default_pdf.current" = "Ứng dụng mặc định hiện tại: %@";
+"settings.default_pdf.unknown" = "Không thể xác định";
+"settings.default_pdf.active" = "Bản HwattakPDF này là ứng dụng PDF mặc định của bạn.";
+"settings.default_pdf.set" = "Thiết lập trong Finder…";
+"settings.default_pdf.refresh" = "Làm mới trạng thái liên kết";
+"settings.default_pdf.failed" = "Không thể chuẩn bị thiết lập liên kết: %@";
+"settings.default_pdf.requires_app" = "Có sẵn trong HwattakPDF.app đã cài đặt. Hãy đặt ứng dụng trong thư mục Ứng dụng rồi mở ứng dụng.";
+"settings.default_pdf.location_hint" = "Bạn nên đặt ứng dụng trong thư mục Ứng dụng trước khi đặt làm mặc định. Nếu di chuyển hoặc xóa ứng dụng sau đó, bạn có thể cần thiết lập lại liên kết.";
+"settings.default_pdf.manual_title" = "Cách đặt ứng dụng PDF mặc định";
+"settings.default_pdf.manual_help" = "Nút bên dưới chọn một PDF dùng để thiết lập trong Finder. Chọn Lấy thông tin (⌘I) → chọn HwattakPDF trong Mở bằng → bấm Thay đổi tất cả. Liên kết được kiểm tra lại khi bạn quay về ứng dụng.";
+"settings.default_pdf.manual_note" = "Liên kết tệp của macOS được xác nhận trong Finder. Nếu một tệp có liên kết riêng, hãy kiểm tra cả cửa sổ Lấy thông tin của tệp đó.";
+"settings.default_pdf.revealed" = "Mở Lấy thông tin (⌘I) cho PDF được chọn trong Finder, chọn HwattakPDF trong Mở bằng, rồi bấm Thay đổi tất cả.";

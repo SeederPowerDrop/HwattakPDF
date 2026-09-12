@@ -136,3 +136,9 @@ PR은 가능한 한 작게 유지하고 다음 내용을 포함합니다.
 - **다음 단계**: 설계 또는 아이디어이며 아직 동작하지 않음
 
 감사합니다. 작은 재현 사례와 정직한 한계 기록이 HwattakPDF를 오래 유지할 수 있게 만듭니다.
+
+## 플러그인으로 기여하기
+
+앱 전체를 수정하지 않고 명령·템플릿 패키지부터 만들 수 있습니다. [플러그인 제작 가이드](Documentation/PLUGIN-DEVELOPMENT.md), [English](Documentation/PLUGIN-DEVELOPMENT.en.md), [커뮤니티 예제](Examples/Plugins/README.md)를 참고하세요. 지원하지 않는 기능은 [호환성 문서의 API 제안 절차](Documentation/PLUGIN-COMPATIBILITY.md)에 따라 구체적인 입력·결과·권한·취소·Undo·자원 예산을 설명합니다. 일반 이슈 선택 화면의 플러그인 API 제안 양식을 사용할 수 있습니다.
+
+제작 문서의 전체 JSON manifest와 커뮤니티 예제는 `PluginAuthoringTests`에서 앱 검사기로 확인합니다. 지원 계약을 바꾸는 기여는 예제와 문서도 함께 갱신해 주세요. 보안 제보는 기존 비공개 절차를 따릅니다.

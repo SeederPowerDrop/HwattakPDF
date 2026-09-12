@@ -34,6 +34,8 @@ struct PenSettingsPopover: View {
             }
 
             preview
+            Toggle(L10n.string("pen.pressure.enabled"), isOn: $settings.pressureEnabled)
+            Text(L10n.string("pen.pressure.help")).font(.caption2).foregroundStyle(theme.secondaryText)
 
             Text(
                 L10n.string(

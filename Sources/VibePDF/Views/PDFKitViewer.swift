@@ -1039,6 +1039,8 @@ final class InteractivePDFView: PDFView {
     fileprivate var currentInkSettings = InkSettings()
     fileprivate var inkPage: PDFPage?
     fileprivate var inkPoints: [CGPoint] = []
+    fileprivate var inkPressures: [CGFloat] = []
+    fileprivate var inkUsesPressure = false
 
     private let inkOverlay = PDFInkPreviewView(frame: .zero)
     private var modifiedScrollGesture = PDFViewportModifiedScrollGestureLatch()
@@ -1240,6 +1242,8 @@ final class InteractivePDFView: PDFView {
         let hadPreview = inkPage != nil || !inkPoints.isEmpty
         inkPage = nil
         inkPoints.removeAll(keepingCapacity: true)
+        inkPressures.removeAll(keepingCapacity: true)
+        inkUsesPressure = false
         inkOverlay.isHidden = true
         if hadPreview {
             inkOverlay.needsDisplay = true
@@ -1646,11 +1650,24 @@ final class InteractivePDFView: PDFView {
         window?.makeFirstResponder(self)
         inkPage = page
         inkPoints = []
+        inkPressures = []
+        inkUsesPressure = currentInkSettings.pressureEnabled && (event.subtype == .tabletPoint || event.type == .tabletPoint)
         appendInkPoint(from: event, acceptingDuplicate: true)
+    }
+
+    override func tabletPoint(with event: NSEvent) {
+        guard inkPage != nil else { super.tabletPoint(with: event); return }
+        appendInkPoint(from: event)
     }
 
     private func appendInkPoint(from event: NSEvent, acceptingDuplicate: Bool = false) {
         guard let page = inkPage else { return }
+        if !inkUsesPressure, currentInkSettings.pressureEnabled,
+           event.subtype == .tabletPoint || event.type == .tabletPoint {
+            inkUsesPressure = true
+            let pressure = CGFloat(event.pressure)
+            inkPressures = inkPressures.map { _ in pressure.isFinite ? min(1, max(0, pressure)) : 1 }
+        }
         let viewPoint = convert(event.locationInWindow, from: nil)
         let pagePoint = convert(viewPoint, to: page)
         let pageBounds = page.bounds(for: displayBox)
@@ -1662,7 +1679,14 @@ final class InteractivePDFView: PDFView {
             guard distance >= 0.35 else { return }
         }
 
+        if inkPoints.count >= PressureInkAnnotation.maximumPoints {
+            let indexes = Array(stride(from: 0, to: inkPoints.count, by: 2))
+            inkPoints = indexes.map { inkPoints[$0] }
+            inkPressures = indexes.map { inkPressures[$0] }
+        }
         inkPoints.append(pagePoint)
+        let raw = CGFloat(event.pressure)
+        inkPressures.append(inkUsesPressure && raw.isFinite ? min(1, max(0, raw)) : 1)
         inkOverlay.isHidden = false
         inkOverlay.needsDisplay = true
     }
@@ -1673,7 +1697,7 @@ final class InteractivePDFView: PDFView {
             return
         }
         let points = inkPoints
-        let committed = commitInkStroke(points, on: page)
+        let committed = commitInkStroke(points, on: page, pressures: inkUsesPressure ? inkPressures : nil)
         cancelInkStroke()
         if committed {
             needsDisplay = true
@@ -1687,7 +1711,7 @@ final class InteractivePDFView: PDFView {
     /// become unavailable. The page identity check also prevents a pending
     /// stroke from being attached to a PDF that has since been replaced.
     @discardableResult
-    func commitInkStroke(_ capturedPoints: [CGPoint], on page: PDFPage) -> Bool {
+    func commitInkStroke(_ capturedPoints: [CGPoint], on page: PDFPage, pressures: [CGFloat]? = nil) -> Bool {
         guard
             viewportContext == .normal,
             let state = workspaceState,
@@ -1698,6 +1722,13 @@ final class InteractivePDFView: PDFView {
             let first = capturedPoints.first
         else { return false }
 
+        if let pressures {
+            guard let annotation = PressureInkAnnotation(points: capturedPoints, pressures: pressures,
+                width: currentInkSettings.width, color: currentInkSettings.pdfInkColor) else { return false }
+            page.addAnnotation(annotation)
+            state.registerAddedAnnotation(annotation, on: page, message: L10n.string("펜 주석을 추가했습니다."))
+            return true
+        }
         var points = capturedPoints
         if points.count == 1 {
             points.append(CGPoint(x: first.x + max(0.2, currentInkSettings.width * 0.08), y: first.y))
@@ -1782,6 +1813,26 @@ private final class PDFInkPreviewView: NSView {
             let first = owner.inkPoints.first
         else { return }
 
+        if owner.inkUsesPressure, owner.inkPressures.count == owner.inkPoints.count {
+            owner.currentInkSettings.pdfInkColor.setStroke()
+            if owner.inkPoints.count == 1 {
+                let center = convert(owner.convert(first, from: page), from: owner)
+                let width = owner.currentInkSettings.width * owner.scaleFactor * (0.2 + 0.8 * owner.inkPressures[0])
+                owner.currentInkSettings.pdfInkColor.setFill()
+                NSBezierPath(ovalIn: CGRect(x: center.x - width / 2, y: center.y - width / 2,
+                    width: width, height: width)).fill()
+            }
+            for index in 1..<owner.inkPoints.count {
+                let path = NSBezierPath()
+                path.move(to: convert(owner.convert(owner.inkPoints[index - 1], from: page), from: owner))
+                path.line(to: convert(owner.convert(owner.inkPoints[index], from: page), from: owner))
+                let pressure = (owner.inkPressures[index - 1] + owner.inkPressures[index]) / 2
+                path.lineWidth = owner.currentInkSettings.width * owner.scaleFactor * (0.2 + 0.8 * pressure)
+                path.lineCapStyle = .round
+                path.stroke()
+            }
+            return
+        }
         let path = NSBezierPath()
         let firstInView = owner.convert(first, from: page)
         path.move(to: convert(firstInView, from: owner))

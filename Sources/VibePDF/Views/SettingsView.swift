@@ -12,6 +12,7 @@ struct SettingsView: View {
     @ObservedObject var iconManager: AppIconManager
     @ObservedObject var pluginManager: PluginManager
     @EnvironmentObject private var aiSettings: AIProviderSettingsStore
+    @StateObject private var defaultPDFApplication = DefaultPDFApplicationModel()
 
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.openWindow) private var openWindow
@@ -22,6 +23,9 @@ struct SettingsView: View {
     @AppStorage(AppPerformanceSettings.efficientRenderingEnabledKey)
     private var efficientRenderingEnabled = AppPerformanceSettings.defaultEfficientRenderingEnabled
     /// TextField 편집 중인 secret은 영속 model에 실시간 반영하지 않는다.
+    @AppStorage(PDFRecoveryStore.enabledKey) private var automaticRecovery = true
+    @State private var cacheMessage: String?
+    @State private var confirmsCacheCleanup = false
     @State private var apiKeyDraft = ""
     @State private var baseURLDraft = ""
     @State private var mcpLabelDraft = ""
@@ -37,10 +41,12 @@ struct SettingsView: View {
             VStack(alignment: .leading, spacing: 24) {
                 header
                 languageSection
+                defaultPDFApplicationSection
                 pdfInputSection
                 aiSection
                 pluginSection
                 performanceSection
+                recoverySection
                 iconSection
             }
             .padding(28)
@@ -52,6 +58,10 @@ struct SettingsView: View {
         .tint(theme.accent)
         .navigationTitle(L10n.string("settings.title"))
         .onAppear(perform: refreshAIFieldDrafts)
+        .onAppear { defaultPDFApplication.refresh() }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+            defaultPDFApplication.refresh()
+        }
         .onChange(of: aiSettings.selectedProvider) { _, _ in
             refreshAIFieldDrafts()
         }
@@ -70,6 +80,106 @@ struct SettingsView: View {
                     .font(.title2.weight(.bold))
                 Text(L10n.string("settings.general"))
                     .font(.callout)
+                    .foregroundStyle(theme.secondaryText)
+            }
+        }
+    }
+
+    private var recoverySection: some View {
+        settingsCard {
+            VStack(alignment: .leading, spacing: 12) {
+                Toggle(L10n.string("recovery.enabled"), isOn: $automaticRecovery)
+                Text(L10n.string("recovery.help")).font(.caption).foregroundStyle(.secondary)
+                Button(L10n.string("recovery.title")) { openWindow(id: "recovery-browser") }
+                Divider()
+                Text(L10n.string("ocr.cache.help")).font(.caption).foregroundStyle(.secondary)
+                Button(L10n.string("ocr.cache.clear"), role: .destructive) { confirmsCacheCleanup = true }
+                if let cacheMessage { Text(cacheMessage).font(.caption) }
+            }
+        }
+        .confirmationDialog(L10n.string("ocr.cache.clear"), isPresented: $confirmsCacheCleanup) {
+            Button(L10n.string("action.delete"), role: .destructive) {
+                Task {
+                    do {
+                        try await Task.detached(priority: .utility) {
+                            try OCRCheckpointStore().removeAllIfIdle()
+                        }.value
+                        cacheMessage = L10n.string("ocr.cache.cleared")
+                    } catch { cacheMessage = error.localizedDescription }
+                }
+            }
+        }
+    }
+
+    private var defaultPDFApplicationSection: some View {
+        settingsCard {
+            VStack(alignment: .leading, spacing: 14) {
+                sectionHeader(
+                    title: L10n.string("settings.default_pdf.title"),
+                    description: L10n.string("settings.default_pdf.description"),
+                    systemImage: "doc.badge.gearshape"
+                )
+
+                Label(
+                    L10n.format(
+                        "settings.default_pdf.current",
+                        defaultPDFApplication.currentApplicationName
+                            ?? L10n.string("settings.default_pdf.unknown")
+                    ),
+                    systemImage: defaultPDFApplication.isDefault ? "checkmark.circle.fill" : "doc"
+                )
+                .help(defaultPDFApplication.currentApplicationURL?.path ?? "")
+
+                if defaultPDFApplication.isDefault {
+                    Text(L10n.string("settings.default_pdf.active"))
+                        .foregroundStyle(theme.accent)
+                }
+
+                if defaultPDFApplication.applicationURL == nil {
+                    Text(L10n.string("settings.default_pdf.requires_app"))
+                        .font(.callout)
+                } else {
+                    Text(L10n.string("settings.default_pdf.manual_title"))
+                        .font(.callout.weight(.semibold))
+                    Text(L10n.string("settings.default_pdf.manual_help"))
+                        .font(.callout)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                HStack(spacing: 12) {
+                    Button {
+                        defaultPDFApplication.showSetupInFinder()
+                    } label: {
+                        Label(
+                            L10n.string("settings.default_pdf.set"),
+                            systemImage: "folder"
+                        )
+                    }
+                    .disabled(defaultPDFApplication.applicationURL == nil || defaultPDFApplication.isPreparing)
+
+                    Button(L10n.string("settings.default_pdf.refresh")) {
+                        defaultPDFApplication.refresh()
+                    }
+                    .disabled(defaultPDFApplication.isPreparing)
+                }
+
+                if let feedback = defaultPDFApplication.feedback {
+                    switch feedback {
+                    case .finderInstructions:
+                        Text(L10n.string("settings.default_pdf.revealed"))
+                            .font(.callout)
+                    case .failure(let message):
+                        Text(L10n.format("settings.default_pdf.failed", message))
+                            .font(.callout)
+                            .foregroundStyle(.red)
+                    }
+                }
+
+                Text(L10n.string("settings.default_pdf.location_hint"))
+                    .font(.caption)
+                    .foregroundStyle(theme.secondaryText)
+                Text(L10n.string("settings.default_pdf.manual_note"))
+                    .font(.caption)
                     .foregroundStyle(theme.secondaryText)
             }
         }

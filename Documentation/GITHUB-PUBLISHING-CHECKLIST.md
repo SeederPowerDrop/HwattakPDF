@@ -10,7 +10,8 @@
 - [x] 앱 아이콘·프롬프트 등 모든 프로젝트 자산의 공개 권리와 MPL-2.0 적용 확인
 - [x] GitHub 저장소 이름과 최종 URL 결정
 - [x] README와 앱 정보 화면의 프로필 링크를 실제 저장소 링크로 교체
-- [ ] GitHub Private vulnerability reporting을 활성화하고 보안 정책의 신고 링크 확인
+- [x] GitHub Private vulnerability reporting 활성화(2026-09-03 GitHub API 확인)
+- [ ] 관리자 권한이 없는 별도 GitHub 계정으로 로그인한 환경에서 `SECURITY.md`의 직접 신고 링크가 실제 제출 화면까지 열리는지 확인
 - [x] 공개 저장소에 올리는 무료 지원 약속과 자발적 후원 문구를 소유자가 최종 확인
 
 이 항목은 코드 테스트가 통과해도 대신 결정할 수 없습니다.
@@ -38,12 +39,12 @@ git status --short --ignored
 find . -type f -size +10M -not -path './.git/*' -not -path './.build/*' -not -path './outputs/*' -not -path './work/*'
 ```
 
-비밀 탐지 전용 도구를 사용한다면 설치·출처를 검토한 뒤 전체 Git history와 현재 파일을 모두 검사합니다. 현재는 history가 없지만 첫 커밋 이후 잘못 들어간 비밀을 삭제하는 것보다 commit 전에 막는 편이 안전합니다.
+비밀 탐지 전용 도구를 사용한다면 설치·출처를 검토한 뒤 전체 Git history와 현재 파일을 모두 검사합니다. 이미 공개된 history에서 비밀을 지우는 것보다 각 commit 전에 유입을 막는 편이 안전합니다.
 
 ## 3. 검증 기준선
 
 - [x] `./scripts/validate_project.sh` 성공
-- [x] `./scripts/run_test_batches.sh` 전체 성공 — 48개 클래스, 641개 테스트, 실패 0, 예상 skip 2
+- [x] 공개 0.8.0 기준 `./scripts/run_test_batches.sh` 전체 성공 — 48개 클래스, 641개 테스트, 실패 0, 예상 skip 2
 - [x] Release configuration 빌드와 ZIP 재개방 검증 성공
 - [ ] [릴리스 체크리스트](RELEASE-CHECKLIST.md)의 해당 수동 시나리오 성공
 - [ ] 저장 실패, 미저장 종료, `⌘Z`/`⇧⌘Z`, 세션 복원을 실제 파일로 확인
@@ -52,42 +53,51 @@ find . -type f -size +10M -not -path './.git/*' -not -path './.build/*' -not -pa
 
 테스트 개수는 코드가 늘 때 바뀌므로 README에 고정 숫자를 약속하기보다 각 commit의 GitHub Actions 결과를 기준으로 삼습니다.
 
+### 0.8.0 공개 뒤 미출시 개발 트리
+
+- [x] 이미지·HTML·Office 변환 구현 뒤 50개 클래스·659개 테스트 메서드를 7개 격리 배치로 실행 — 실패 0, 예상 skip 2
+- [x] 마지막 처리 방식 적용 경로 중앙화 뒤 변환 관련 17개 테스트 재실행, Debug·Release SwiftPM 빌드와 10개 언어별 1,405키 정적 검사 통과
+- [ ] 새 버전·build 번호 확정과 `./scripts/build_app.sh` 기반 앱 번들·ZIP·체크섬 재검증
+- [ ] 지원 이미지 형식별 실파일, 원격 자원 차단 HTML, 실제 Word·PowerPoint와 Preview에서 수동 상호운용 확인
+
+2026-09-13 누적 소스 반영 전에는 59개 클래스·7개 배치·732건을 다시 실행해 **730 통과·기존 조건부 제외 2·실패 0**을 확인했다. 새 코드와 지금까지의 검토·수정 기록은 [소스 통합 기록](SOURCE-UPDATE-2026-09-13.md)에 모았다. 이 소스 반영은 새 버전 릴리스나 기존 0.8.0 ZIP 교체와 구분한다.
+
 ## 4. GitHub 저장소 설정
 
-- [ ] 기본 브랜치를 `main`으로 지정
+- [x] 기본 브랜치를 `main`으로 지정(2026-09-03 GitHub API 확인)
 - [x] Actions CI workflow에 최소 `contents: read` 권한만 부여됐는지 확인
 - [ ] `main` branch protection 또는 ruleset에서 CI 통과와 review 요구
 - [x] CODEOWNERS가 전체 파일의 `@SeederPowerDrop` 검토를 요청하도록 설정
 - [ ] force push와 branch deletion 제한
-- [ ] Private vulnerability reporting 활성화
+- [x] Private vulnerability reporting 활성화
 - [ ] Issue와 Discussion 사용 범위 결정
 - [ ] `bug`, `enhancement`, `documentation`, `security`, `good first issue`, `help wanted` label 정리
 - [ ] 저장소 설명, 주제(`swift`, `macos`, `pdf`, `pdfkit`, `ocr`)와 홈페이지 설정
 - [ ] 라이선스가 감지되는지, 보안 정책과 행동 강령이 Community Standards에 잡히는지 확인
 
-## 5. 첫 커밋과 push
+## 5. 다음 변경의 commit과 push
 
-라이선스·자산 권리가 해결된 뒤에만 아래 명령의 URL을 실제 저장소로 바꾸어 실행합니다. 이 문서는 명령 예시이며 자동으로 push하지 않습니다.
+첫 공개 commit과 remote 설정은 완료했다. 이후 변경도 검증 결과와 미출시/공개 범위를 확인한 뒤 아래와 같은 흐름으로 반영한다. 이 문서는 명령 예시이며 자동으로 commit하거나 push하지 않는다.
 
 ```bash
 git add .
 git status --short
-git commit -m "Prepare HwattakPDF 0.8.0 open-source milestone"
-git remote add origin https://github.com/SeederPowerDrop/HwattakPDF.git
-git push -u origin main
+git commit -m "Describe the verified change"
+git push origin main
 ```
 
-첫 push 후 GitHub에서 빠진 파일, 무시되지 않은 산출물, 렌더링되지 않는 Mermaid·상대 링크를 웹 UI로 다시 확인합니다.
+push 후 GitHub에서 빠진 파일, 무시되지 않은 산출물, 렌더링되지 않는 Mermaid·상대 링크를 웹 UI로 다시 확인합니다.
 
 ## 6. 첫 공개 릴리스
 
 - [x] 버전과 build 번호가 `Info.plist`, README, 제품·아키텍처 문서에서 일치
 - [x] Developer ID 미서명·미공증 ad-hoc 개발자 프리릴리스임을 README와 릴리스 노트에 명시
 - [x] 첫 공개 배포 대상을 Apple Silicon `arm64`, macOS 14 이상으로 결정
-- [ ] ZIP을 Git에 commit하지 않고 GitHub Release asset으로 업로드
+- [x] ZIP과 `.sha256`을 Git에 commit하지 않고 GitHub 0.8.0 prerelease asset으로 업로드
 - [x] 빌드가 `.sha256` 자산을 생성하며 최소 macOS, Gatekeeper 안내와 알려진 한계를 릴리스 노트에 포함
 - [x] 0.8.0 릴리스 노트에 보안·개인정보·편집 경계 포함
 - [ ] 깨끗한 별도 사용자 계정 또는 Mac에서 다운로드→압축 해제→실행→저장 smoke test
+- [ ] GitHub 0.8.0 릴리스 본문의 과도한 “후원이 유일한 지원 수단” 문구를 로컬 릴리스 노트와 같은 중립 문구로 교정
 
 ## 7. 공개 후 운영
 

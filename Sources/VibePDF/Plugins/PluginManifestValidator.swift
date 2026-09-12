@@ -20,7 +20,7 @@ struct PluginManifestValidator {
         "actions"
     ]
     private static let actionKeys: Set<String> = [
-        "id", "title", "description", "output", "template"
+        "id", "title", "description", "output", "template", "command"
     ]
     private static let allowedTokens = [
         "{{selection}}",
@@ -77,6 +77,11 @@ struct PluginManifestValidator {
             )
         }
 
+        for value in rawActions {
+            if let action = value as? [String: Any], let command = action["command"] as? [String: Any] {
+                try rejectUnknownKeys(in: command, allowed: ["kind", "color", "width", "opacity"], context: "command")
+            }
+        }
         let manifest: PluginManifest
         do {
             manifest = try JSONDecoder().decode(PluginManifest.self, from: data)
@@ -197,6 +202,16 @@ struct PluginManifestValidator {
                 allowsLineBreaks: true
             )
         }
+        if action.output == .documentCommand {
+            guard schemaVersion >= 3, action.template.isEmpty, let command = action.command else {
+                throw PluginSystemError.invalidManifest("documentCommand requires schema 3, an empty template and command")
+            }
+            try command.validate()
+            return
+        }
+        guard action.command == nil else {
+            throw PluginSystemError.invalidManifest("command is only valid for documentCommand")
+        }
         guard
             !action.template.isEmpty,
             action.template.utf8.count <= HwattakPluginLimits.maximumTemplateUTF8Bytes,
@@ -250,6 +265,8 @@ struct PluginManifestValidator {
         }
 
         switch action.output {
+        case .documentCommand:
+            break
         case .showText, .copyText, .openURL:
             guard
                 !action.template.contains("{{page.text}}"),

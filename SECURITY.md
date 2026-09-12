@@ -1,6 +1,6 @@
 # HwattakPDF 보안 정책
 
-PDF와 플러그인 패키지는 복잡한 외부 입력이고, HwattakPDF는 파일 쓰기·Keychain·security-scoped bookmark·외부 AI API를 다룹니다. 보안 문제는 일반 버그와 분리해 제보해 주세요.
+PDF·이미지·로컬 HTML과 플러그인 패키지는 복잡한 외부 입력이고, HwattakPDF는 파일 쓰기·WebKit·Keychain·security-scoped bookmark·외부 AI API를 다룹니다. 보안 문제는 일반 버그와 분리해 제보해 주세요.
 
 ## 지원 범위
 
@@ -17,9 +17,9 @@ PDF와 플러그인 패키지는 복잡한 외부 입력이고, HwattakPDF는 �
 
 1. GitHub의 **Private vulnerability reporting**을 사용합니다.
 2. 저장소의 [`Report a vulnerability`](https://github.com/SeederPowerDrop/HwattakPDF/security/advisories/new)를 사용합니다.
-3. 아직 해당 버튼이 없다면 [프로젝트 소유자의 GitHub 프로필](https://github.com/SeederPowerDrop)로 최소한의 내용만 전달해 비공개 연락 경로를 요청합니다. 취약점 세부 정보, API 키, PDF 원문은 공개 프로필·이슈에 남기지 않습니다.
+3. 직접 링크가 열리지 않으면 GitHub 로그인 상태를 확인하고 저장소의 `Security` 화면에서 `Report a vulnerability`를 다시 선택합니다. 현재 별도의 공개 보안 이메일은 제공하지 않습니다.
 
-Private vulnerability reporting이 일시적으로 보이지 않으면 취약점 세부 내용을 공개 Issue에 쓰지 말고 프로젝트 소유자에게 비공개 연락 방법만 요청해 주세요.
+Private vulnerability reporting이 일시적으로 보이지 않으면 취약점 세부 내용을 공개 Issue·Discussion·프로필에 남기지 말고, 신고 화면이 복구될 때까지 세부 공개를 보류해 주세요.
 
 ## 제보에 포함할 내용
 
@@ -45,6 +45,7 @@ Private vulnerability reporting이 일시적으로 보이지 않으면 취약점
 - 플러그인 package의 symlink·경로·검토/설치 경쟁으로 허용 범위 밖 파일을 읽거나 쓰는 문제
 - 플러그인 action이 선언하지 않은 문서 metadata·선택문·현재 페이지 텍스트·클립보드·번역·YouTube·웹 브라우저 권한을 사용하거나, 사용자 확인 없이 외부 URL 또는 앱 내 원격 페이지를 여는 문제
 - 악성 문서·응답으로 인한 통제되지 않는 메모리 또는 디스크 사용
+- 로컬 HTML 변환 중 원격 요청 차단 우회, 허용 폴더 밖 파일 읽기 또는 과도한 WebKit CPU·메모리 사용
 - 작은 플러그인 package나 bounded action으로 재현되는 통제되지 않는 CPU·GPU·메모리·디스크 사용
 
 단순 앱 종료, 렌더링 오류, 번역 오류는 일반적으로 버그 이슈입니다. 다만 작은 파일로도 반복 가능한 서비스 거부, 데이터 손실, 비밀 노출과 결합되면 보안 문제로 제보해 주세요.
@@ -109,6 +110,12 @@ crash 격리를 갖추기 전에는 지원 범위로 간주하지 않는다.
 
 현재 버전에는 체크포인트 자동 보존 기한, 전체 삭제 버튼, 문서별 정리 UI가 없습니다. 활성 세대 안의 이전 generation은 정리하지만 다른 문서·설정의 체크포인트와 이전 형식 파일은 사용자가 앱 데이터를 지우기 전까지 남을 수 있습니다. 공용 Mac이나 민감한 문서에서는 이 잔존 데이터를 고려해야 하며, 정리 기능을 구현하기 전 수동 삭제는 진행 중 OCR의 재개 정보도 함께 잃는다는 점을 먼저 확인해야 합니다.
 
+## 미출시 로컬 HTML 변환의 신뢰 경계
+
+PDF 만들기 화면의 HTML/HTM 가져오기는 원본 파일과 같은 폴더 아래를 `WKWebView.loadFileURL`의 읽기 범위로 열어 상대 CSS·이미지·글꼴과 스크립트를 렌더링합니다. 비영구 website data store를 사용하고 HTTP·HTTPS content rule과 상위 navigation 검사를 적용하지만, 이는 별도 프로세스 sandbox나 신뢰하지 않는 HTML sanitizer가 아닙니다.
+
+HTML 안의 JavaScript는 실행되며 허용 폴더 안의 로컬 자원을 읽을 수 있습니다. 원격 HTTP·HTTPS 자원은 현재 UI 경로에서 차단하지만 다른 scheme, WebKit 구현 차이와 자원별 네트워크 동작을 모두 막는다고 보증하지 않습니다. 따라서 출처를 신뢰할 수 있는 로컬 HTML만 변환하고, 민감한 파일과 같은 폴더에 신뢰하지 않는 HTML을 두지 마세요. 관련 우회나 폴더 밖 접근은 일반 렌더링 오류가 아니라 보안 문제로 비공개 제보해 주세요.
+
 ## 사용자가 지켜야 할 기본 수칙
 
 - 신뢰할 수 없는 PDF는 최신 macOS와 최신 HwattakPDF에서 엽니다.
@@ -116,5 +123,15 @@ crash 격리를 갖추기 전에는 지원 범위로 간주하지 않는다.
 - 민감한 PDF를 AI에 보낼 때 전송 미리보기와 공급자 정책을 확인합니다.
 - OCR 내보내기와 편집 저장 전 원본을 별도로 보관합니다.
 - 민감한 문서를 OCR한 뒤에는 위 Application Support 경로에 남는 평문 체크포인트를 조직의 보존 정책에 맞게 처리합니다.
+- 로컬 HTML은 출처를 신뢰할 때만 변환하고, 같은 폴더 아래에 HTML이 읽어서는 안 되는 민감한 파일을 함께 두지 않습니다.
 - 플러그인은 작성자 표기나 SHA-256만 믿지 말고 출처와 요청 권한을 확인하며, 외부 URL·앱 내 웹 패널 확인창의 대상 host와 전송 데이터가 예상과 다르면 취소합니다. 앱 내 웹 화면은 비영구 세션이지만 무추적·무저장 또는 완전한 네트워크 격리를 뜻하지 않습니다.
 - 현재 배포 번들은 개발용 ad-hoc 서명이므로 정식 배포 전 Developer ID 서명과 공증 상태를 확인합니다.
+
+
+## 2026-09-05 문서 명령과 로컬 복구
+
+schema 3 `documentCommand`는 `annotationWrite`, `toolControl`, `workspaceNavigation` 권한을 분리한다. 다운로드한 코드를 실행하지 않으며, 실행 시 활성 설치본·소유 action·문서 권한·선택 페이지 소유권을 다시 확인한다. 주석 추가는 기존 Undo를 사용하고 파일을 자동 저장하지 않는다. 모드 전환은 암호화 문서 권한을 확대하지 않는다.
+
+복구 사본은 사용자 Application Support의 `HwattakPDF/Recovery`에 로컬 PDF로 저장한다. 기본 활성 상태이며 설정에서 끌 수 있다. 암호화된 문서는 owner로 열어도 자동 복구에서 제외한다. 기록별 PDF 세대를 먼저 쓰고 작은 manifest를 원자 교체하며, 정상 저장·명시적 버리기 뒤 해당 작업 사본을 정리한다. 복구 목록에서 연 원래 복구 기록은 사용자가 삭제하기 전까지 보관한다. OCR 체크포인트의 평문 텍스트는 설정에서 삭제할 수 있고 실행 중인 OCR 작업이 있으면 삭제를 거부한다. 이 데이터는 앱 컨테이너의 로컬 자료이며 별도 암호화나 기기 간 동기화를 제공하지 않는다.
+
+필압 획은 Stamp appearance다. 공개된 stamp 이름만으로 학습 모드 편집 권한을 부여하지 않으며 기존 runtime 객체 신뢰 정책을 유지한다. 자세한 제한은 [안정화 기록](Documentation/STABILIZATION-2026-09-05.md)에 있다.

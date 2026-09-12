@@ -752,11 +752,13 @@ private struct PluginInstallReviewSheet: View {
         case .translatePanel: "character.bubble"
         case .youtubePanel: "play.rectangle"
         case .browserPanel: "globe"
+        case .documentCommand: "pencil.and.outline"
         }
     }
 
     private func actionDisclosure(_ action: PluginActionManifest) -> String {
         switch action.output {
+        case .documentCommand: return L10n.string("plugins.command.review")
         case .showText:
             return L10n.string(
                 "plugins.review.action.show_text",
