@@ -8,6 +8,23 @@
 
 공식 저장소: [github.com/SeederPowerDrop/HwattakPDF](https://github.com/SeederPowerDrop/HwattakPDF)
 
+![HwattakPDF 보기 모드 — 왼쪽 페이지 썸네일과 본문, 상단 읽기 도구](Documentation/Images/reading-workspace.jpg)
+
+*PDF를 열고 왼쪽 썸네일로 페이지를 이동합니다. 상단에서 보기·편집·학습 모드를 전환할 수 있습니다.*
+
+## 화면으로 둘러보기
+
+0.8.0 앱에서 직접 만든 예제 PDF를 열어 촬영한 실제 화면입니다. 이미지를 누르면 크게 볼 수 있습니다.
+
+| 학습하며 표시하기 | 두 문서 나란히 읽기 |
+| --- | --- |
+| [![학습 모드에서 예제 문장에 노란색 하이라이트를 적용한 화면](Documentation/Images/study-highlights.jpg)](Documentation/Images/study-highlights.jpg) | [![원문과 학습 노트를 좌우로 배치하고 스크롤 동기화를 켠 PDF 비교 화면](Documentation/Images/document-comparison.jpg)](Documentation/Images/document-comparison.jpg) |
+| **학습 모드**에서 문장을 선택해 하이라이트를 적용합니다. 메모·펜·밑줄 도구도 같은 줄에서 찾을 수 있습니다. | **PDF 비교**에서 원문과 요약을 함께 읽습니다. 스크롤 동기화와 문서별 잠금으로 이동 방식을 조절합니다. |
+
+![편집 모드의 2×2 페이지 개요 — 네 페이지와 선택한 페이지를 한눈에 확인](Documentation/Images/page-overview.jpg)
+
+*여러 페이지의 구성을 한눈에 확인하는 2×2 개요입니다. 편집 모드에서 페이지를 선택하거나 드래그해 순서를 바꿀 수 있습니다.*
+
 > 2026-09-05: 이미지 저장·중복 탭·조립 원본 변경 버그를 수정하고, 취소 가능한 Office 내보내기·로컬 작업 복구·필압 획·문서 명령 플러그인을 추가했습니다. 검증 범위와 한계는 [안정화 기록](Documentation/STABILIZATION-2026-09-05.md)에 있습니다.
 
 ## 현재 구현

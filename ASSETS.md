@@ -5,8 +5,8 @@ Copyright 2026 SeederPowerDrop
 SPDX-License-Identifier: MPL-2.0
 
 이 문서에 열거한 시각 자산은 별도 예외 없이
-[Mozilla Public License 2.0](LICENSE)의 적용을 받습니다. 프로젝트 소유자는
-2026-08-31에 이 자산을 공개 저장소, HwattakPDF 앱 번들 및 배포 ZIP에 포함하고
+[Mozilla Public License 2.0](LICENSE)의 적용을 받습니다. 앱 번들·탐색 자산에 대해서는 프로젝트 소유자가
+2026-08-31에 해당 자산을 공개 저장소, HwattakPDF 앱 번들 및 배포 ZIP에 포함하고
 MPL-2.0으로 제공하는 데 필요한 권리를 보유하고 있음을 확인했습니다.
 
 OpenAI ImageGen으로 제작한 자산은 프로젝트 소유자의 지시에 따라 생성되었고,
@@ -49,6 +49,21 @@ OpenAI ImageGen으로 제작한 자산은 프로젝트 소유자의 지시에 �
 
 `Documentation/AppIcon-*.prompt.md` 파일은 ImageGen 제작 과정의 출처와 프롬프트
 기록이며 이미지 자체를 대신하는 제3자 자산이 아닙니다.
+
+## README 스크린샷
+
+2026-09-13에 HwattakPDF 0.8.0 (build 18) 앱으로 직접 작성한 예제 PDF를
+열어 촬영했습니다. 개인 문서나 외부 출판물은 사용하지 않았습니다. 기존 사용자
+작업공간과 분리하기 위해 앱 복사본의 번들 식별자를 바꾸고 재서명했으며,
+앱 UI 코드는 변경하지 않았습니다. 아래 파일은 화면 합성이나 보정 없이 저장한
+실제 창 캡처이며, 프로젝트의 MPL-2.0으로 제공합니다.
+
+| 저장소 파일 | 표시하는 화면 | SHA-256 |
+| --- | --- | --- |
+| `Documentation/Images/reading-workspace.jpg` | 보기 모드, 페이지 썸네일과 예제 본문 | `4043cf9e9fd7b323315441f41d8f45743a88206d27acc78836e4451c27833b33` |
+| `Documentation/Images/study-highlights.jpg` | 학습 모드에서 실제 적용한 하이라이트 | `14dabb1c05eec7c55e40e4c3714ba761974082f8c3bef1c3e94395f6165032ab` |
+| `Documentation/Images/document-comparison.jpg` | 두 예제 PDF의 좌우 비교 | `3197578e49cf883559012943ecba0b5ae30881991b19e98bc64694a1b1d13380` |
+| `Documentation/Images/page-overview.jpg` | 편집 모드의 2×2 페이지 개요 | `2e3f4dee51bb3d93d269474dd2ee90c9c7bcd4edb68cef15fdce44814ab4d8aa` |
 
 ## 상표와 공식성
 
