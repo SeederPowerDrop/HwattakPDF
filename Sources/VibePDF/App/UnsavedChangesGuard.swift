@@ -5,10 +5,63 @@ import SwiftUI
 
 @MainActor
 final class VibePDFAppDelegate: NSObject, NSApplicationDelegate {
-    weak var workspace: MultiDocumentWorkspaceState?
+    /// Files requested by Finder/`open` before `workspace` is assigned.
+    ///
+    /// AppKit can deliver the `odoc` Apple Event (routed here as
+    /// `application(_:open:)`) before the main `Window` scene's view
+    /// hierarchy has appeared, which is when `VibePDFApp` assigns this
+    /// property. Unlike `WindowGroup`/`DocumentGroup`, a plain `Window` scene
+    /// does not queue and replay `.onOpenURL` events that arrive that early,
+    /// so a cold launch via "Open With" silently drops the file. Buffering
+    /// here and flushing on assignment closes that race.
+    private var pendingOpenURLs: [URL] = []
+
+    weak var workspace: MultiDocumentWorkspaceState? {
+        didSet {
+            guard let workspace, !pendingOpenURLs.isEmpty else { return }
+            let urls = pendingOpenURLs
+            pendingOpenURLs.removeAll()
+            openAndPresent(urls: urls, in: workspace)
+        }
+    }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         AppIconManager.shared.applySavedSelection()
+    }
+
+    /// Handles Finder "Open With", `open -a HwattakPDF <file>`, and dock
+    /// drops. This is the single path for externally requested files: once
+    /// implemented, AppKit stops bridging the same `odoc` event into
+    /// SwiftUI's `.onOpenURL`, so duplicating that handling here would
+    /// double-open the file rather than merely providing a fallback.
+    func application(_ application: NSApplication, open urls: [URL]) {
+        guard let workspace else {
+            pendingOpenURLs.append(contentsOf: urls)
+            return
+        }
+        openAndPresent(urls: urls, in: workspace)
+    }
+
+    /// Opens the files and then explicitly brings the app and its window
+    /// forward, rather than relying on AppKit to do so on its own.
+    ///
+    /// `workspace` is assigned (and the buffered branch above runs) from
+    /// inside the main window's `.onAppear`, the same pass in which AppKit's
+    /// own window-state restoration
+    /// (`_reopenWindowsAsNecessaryIncludingRestorableState`) decides whether
+    /// to close and recreate this scene's window. Comparing
+    /// `log stream --predicate 'process == "HwattakPDF"'` output between
+    /// consecutive cold launches showed AppKit's post-restoration sequence
+    /// intermittently skipping its "order window front conditionally" step,
+    /// leaving the window closed with no dock/Cmd-Tab presence roughly half
+    /// the time. Explicitly activating and ordering the window front here
+    /// does not depend on that internal AppKit decision succeeding.
+    private func openAndPresent(urls: [URL], in workspace: MultiDocumentWorkspaceState) {
+        workspace.beginOpeningViewableFilesInTabs(urls: urls)
+        NSApp.activate(ignoringOtherApps: true)
+        let mainWindow = NSApp.windows.first { $0.identifier?.rawValue == "main" }
+            ?? NSApp.windows.first { !($0 is NSPanel) }
+        mainWindow?.makeKeyAndOrderFront(nil)
     }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
