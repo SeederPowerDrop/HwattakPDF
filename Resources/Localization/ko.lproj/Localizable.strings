@@ -1,6 +1,11 @@
 /* Settings */
 "settings.title" = "설정";
 "settings.general" = "일반";
+"appearance.title" = "화면 모드";
+"appearance.system" = "시스템 설정";
+"appearance.light" = "라이트 모드";
+"appearance.dark" = "다크 모드";
+"settings.appearance.description" = "앱의 화면 모드를 선택하세요. 선택한 설정은 다음 실행에도 유지됩니다.";
 "settings.language.title" = "언어";
 "settings.language.description" = "메뉴와 기능에 사용할 언어를 선택합니다.";
 "settings.icon.title" = "앱 아이콘";
@@ -120,7 +125,7 @@
 "page.current_total" = "현재 %d페이지, 전체 %d페이지";
 "comparison.selection_count" = "%d/%d개 선택";
 "comparison.document_accessibility" = "%@, %d페이지";
-"comparison.order" = "비교 순서 %d";
+"comparison.order" = "보기 순서 %d";
 "action.move_forward" = "앞으로 이동";
 "action.move_backward" = "뒤로 이동";
 "comparison.layout.side_by_side_help" = "세로 분할선으로 화면을 나눠 PDF를 왼쪽에서 오른쪽 순서로 배치합니다.";
@@ -379,18 +384,18 @@
 "끔" = "끔";
 
 /* PDF comparison */
-"PDF 비교" = "PDF 비교";
-"PDF 비교 설정" = "PDF 비교 설정";
+"PDF 비교" = "PDF 같이 보기";
+"PDF 비교 설정" = "PDF 같이 보기 설정";
 "함께 볼 문서 2~4개와 배치 방식을 선택하세요." = "함께 볼 문서 2~4개와 배치 방식을 선택하세요.";
-"비교할 PDF" = "비교할 PDF";
-"비교할 PDF가 없습니다" = "비교할 PDF가 없습니다";
+"비교할 PDF" = "같이 볼 PDF";
+"비교할 PDF가 없습니다" = "같이 볼 PDF가 없습니다";
 "먼저 두 개 이상의 PDF를 탭으로 열어 주세요." = "먼저 두 개 이상의 PDF를 탭으로 열어 주세요.";
-"비교하려면 PDF 탭을 하나 더 열어 주세요." = "비교하려면 PDF 탭을 하나 더 열어 주세요.";
+"비교하려면 PDF 탭을 하나 더 열어 주세요." = "같이 보려면 PDF 탭을 하나 더 열어 주세요.";
 "배치" = "배치";
-"비교 배치" = "비교 배치";
-"PDF 비교 배치" = "PDF 비교 배치";
-"좌우 비교" = "좌우 비교";
-"위아래 비교" = "위아래 비교";
+"비교 배치" = "같이 보기 배치";
+"PDF 비교 배치" = "PDF 같이 보기 배치";
+"좌우 비교" = "좌우 배치";
+"위아래 비교" = "위아래 배치";
 "세로 분할" = "세로 분할";
 "가로 분할" = "가로 분할";
 "분할선 방향까지 함께 표시합니다." = "분할선 방향까지 함께 표시합니다.";
@@ -399,21 +404,21 @@
 "트랙패드 스크롤" = "트랙패드 스크롤";
 "문서 위치 함께 이동" = "문서 위치 함께 이동";
 "한 패널을 스크롤하면 잠기지 않은 PDF들이 같은 비율로 이동합니다." = "한 패널을 스크롤하면 잠기지 않은 PDF들이 같은 비율로 이동합니다.";
-"비교 화면의 자물쇠를 켠 문서는 다른 문서를 움직이지도, 다른 문서를 따라 움직이지도 않습니다." = "비교 화면의 자물쇠를 켠 문서는 다른 문서를 움직이지도, 다른 문서를 따라 움직이지도 않습니다.";
+"비교 화면의 자물쇠를 켠 문서는 다른 문서를 움직이지도, 다른 문서를 따라 움직이지도 않습니다." = "같이 보기 화면의 자물쇠를 켠 문서는 다른 문서를 움직이지도, 다른 문서를 따라 움직이지도 않습니다.";
 "스크롤 동기화" = "스크롤 동기화";
 "잠기지 않은 PDF의 트랙패드 스크롤 위치를 함께 맞춥니다." = "잠기지 않은 PDF의 트랙패드 스크롤 위치를 함께 맞춥니다.";
 "문서 선택" = "문서 선택";
-"비교 시작" = "비교 시작";
-"비교 종료" = "비교 종료";
-"비교할 PDF가 부족합니다" = "비교할 PDF가 부족합니다";
+"비교 시작" = "같이 보기 시작";
+"비교 종료" = "같이 보기 종료";
+"비교할 PDF가 부족합니다" = "같이 볼 PDF가 부족합니다";
 "열려 있는 PDF 중 2~4개를 다시 선택해 주세요." = "열려 있는 PDF 중 2~4개를 다시 선택해 주세요.";
 "잠금 해제: 다시 다른 PDF와 함께 스크롤합니다." = "잠금 해제: 다시 다른 PDF와 함께 스크롤합니다.";
 "잠금: 이 PDF는 다른 문서를 움직이지도, 따라 움직이지도 않습니다." = "잠금: 이 PDF는 다른 문서를 움직이지도, 따라 움직이지도 않습니다.";
 "동기화를 다시 켰을 때 이 PDF를 스크롤 그룹에서 제외합니다." = "동기화를 다시 켰을 때 이 PDF를 스크롤 그룹에서 제외합니다.";
 "동기 스크롤에서 제외됨" = "동기 스크롤에서 제외됨";
 "동기 스크롤에 참여함" = "동기 스크롤에 참여함";
-"PDF 비교 닫기" = "PDF 비교 닫기";
-"열린 PDF 비교" = "열린 PDF 비교";
+"PDF 비교 닫기" = "PDF 같이 보기 닫기";
+"열린 PDF 비교" = "열린 PDF 같이 보기";
 
 /* Resource monitor */
 "CPU 및 메모리 사용 보기" = "CPU 및 메모리 사용 보기";
@@ -511,8 +516,8 @@
 "action.merge" = "병합";
 "action.choose" = "선택";
 
-"comparison.side_by_side" = "좌우 비교";
-"comparison.stacked" = "위아래 비교";
+"comparison.side_by_side" = "좌우 배치";
+"comparison.stacked" = "위아래 배치";
 "comparison.vertical_split" = "세로 분할";
 "comparison.horizontal_split" = "가로 분할";
 "direction.vertical" = "세로";
@@ -560,6 +565,8 @@
 "view.two_page.continuous.help" = "두 페이지를 나란히 놓고 다음 펼침까지 이어서 스크롤합니다.";
 "view.two_page.paged.title" = "고정 2페이지 보기";
 "view.two_page.paged.help" = "현재 펼침의 두 페이지만 표시하고 두 페이지 단위로 이동합니다.";
+"view.fit.width" = "가로 폭 맞춤";
+"view.fit.height" = "세로 높이 맞춤";
 "view.four.selected_help" = "%@ 보기 중 · 다시 클릭하면 %@";
 "view.four.default_help" = "2행 2열로 4페이지를 표시합니다.";
 "view.four.accessibility" = "4페이지 2×2 보기";
@@ -904,7 +911,11 @@
 "page.sidebar.resize" = "페이지 패널 크기 조절";
 "page.sidebar.resize_hint" = "드래그하거나 방향키로 페이지 패널 크기를 조절합니다.";
 "settings.pdf_input.title" = "PDF 보기 조작";
-"settings.pdf_input.description" = "메인 PDF 화면의 마우스와 트랙패드 조작을 설정합니다.";
+"settings.pdf_input.description" = "메인 PDF 화면의 키보드, 마우스와 트랙패드 조작을 설정합니다.";
+"pdf.navigation.label" = "메인 페이지 이동";
+"pdf.navigation.vertical" = "상하 스크롤";
+"pdf.navigation.horizontal" = "좌우 넘김";
+"pdf.navigation.help" = "상하 스크롤 또는 좌우 넘김을 선택합니다. 좌우 넘김에서는 ←/→ 키나 좌우 스와이프로 이동하며, 2·4페이지 보기에서는 보이는 페이지 묶음을 넘깁니다.";
 "settings.pdf_input.zoom_modifier.label" = "스크롤 확대·축소 키";
 "settings.pdf_input.zoom_modifier.option" = "Option (⌥)";
 "settings.pdf_input.zoom_modifier.command" = "Command (⌘)";
@@ -934,9 +945,9 @@
 "help.item.open.title" = "PDF 열기";
 "help.item.open.detail" = "폴더 아이콘이나 ⌘O를 사용하세요. PDF를 여러 개 선택하면 각각 독립 탭으로 열립니다.";
 "help.item.layout.title" = "화면 구성 알아보기";
-"help.item.layout.detail" = "상단 막대에서는 워크스페이스·탭·비교·리소스를 관리하고, 아래 툴바에서는 페이지·보기·편집·OCR·AI·검색을 조작합니다.";
+"help.item.layout.detail" = "상단 막대에서는 워크스페이스·탭·같이 보기·리소스를 관리하고, 아래 툴바에서는 페이지·보기·편집·OCR·AI·검색을 조작합니다.";
 "help.item.resume.title" = "이전 작업 이어서 하기";
-"help.item.resume.detail" = "정상 종료 후 파일, 워크스페이스, 탭 순서와 스택, 현재 페이지, 보기 상태, 비교 배치를 복원합니다. PDF 편집 내용은 별도로 저장해야 합니다.";
+"help.item.resume.detail" = "정상 종료 후 파일, 워크스페이스, 탭 순서와 스택, 현재 페이지, 보기 상태, 같이 보기 배치를 복원합니다. PDF 편집 내용은 별도로 저장해야 합니다.";
 
 "help.topic.tabs.title" = "탭·스택·워크스페이스";
 "help.topic.tabs.summary" = "문서별 상태를 유지하면서 많은 PDF를 정리합니다.";
@@ -960,10 +971,10 @@
 "help.item.thumbnails.title" = "썸네일 묶음과 크기";
 "help.item.thumbnails.detail" = "페이지 패널을 1장, 고정된 좌우 2장, 4장 묶음으로 표시할 수 있습니다. 슬라이더·+/−·트랙패드 확대를 사용하고 실제 페이지 썸네일을 끌어 순서를 바꿉니다.";
 
-"help.topic.compare.title" = "PDF 비교";
+"help.topic.compare.title" = "PDF 같이 보기";
 "help.topic.compare.summary" = "열린 문서 2~4개를 좌우 또는 위아래로 함께 읽습니다.";
-"help.item.compare_start.title" = "비교 시작";
-"help.item.compare_start.detail" = "PDF를 두 개 이상 연 다음 겹친 사각형 아이콘을 누르고 비교할 문서를 선택합니다.";
+"help.item.compare_start.title" = "같이 보기 시작";
+"help.item.compare_start.detail" = "PDF를 두 개 이상 연 다음 겹친 사각형 아이콘을 누르고 같이 볼 문서를 선택합니다.";
 "help.item.compare_layout.title" = "패널 순서와 크기 조절";
 "help.item.compare_layout.detail" = "좌우 또는 위아래 배치를 고릅니다. 패널 제목을 끌어 순서를 바꾸고 구분선을 끌어 이웃 패널의 너비나 높이를 조절합니다.";
 "help.item.compare_sync.title" = "스크롤 동기화와 잠금";
@@ -1009,7 +1020,7 @@
 "help.item.save_close.title" = "작업을 잃지 않고 닫기";
 "help.item.save_close.detail" = "변경된 탭·창·앱을 닫으면 덮어쓰기, 복사본 저장, 저장 안 함, 취소를 묻습니다. 취소하면 문서가 그대로 열려 있습니다.";
 "help.item.session_vs_pdf.title" = "세션 복원은 PDF 저장이 아님";
-"help.item.session_vs_pdf.detail" = "탭 스택·워크스페이스·창·비교 배치·페이지·보기 위치는 자동으로 기억합니다. 주석과 페이지 편집은 사용자가 저장해야 PDF 파일에 반영됩니다.";
+"help.item.session_vs_pdf.detail" = "탭 스택·워크스페이스·창·같이 보기 배치·페이지·보기 위치는 자동으로 기억합니다. 주석과 페이지 편집은 사용자가 저장해야 PDF 파일에 반영됩니다.";
 
 "help.topic.shortcuts.title" = "키보드 단축키";
 "help.topic.shortcuts.summary" = "현재 HwattakPDF에서 동작하는 주요 명령입니다.";
@@ -1023,7 +1034,7 @@
 "help.shortcut.previous_tab" = "이전 탭";
 "help.shortcut.settings" = "설정 열기";
 "help.shortcut.signature_undo" = "마지막 서명 획 실행 취소";
-"help.shortcut.compare_exit" = "비교 종료 또는 취소";
+"help.shortcut.compare_exit" = "같이 보기 종료 또는 취소";
 "help.shortcut.help" = "이 사용법 창 열기";
 
 "help.topic.accessibility.title" = "접근성과 편의";

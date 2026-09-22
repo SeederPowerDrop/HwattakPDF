@@ -1,0 +1,65 @@
+HwattakPDF 설치 안내
+
+지원 환경
+Apple Silicon(M 시리즈) Mac, macOS 14 Sonoma 이상을 지원합니다.
+Intel Mac용 앱은 이 패키지에 포함되어 있지 않습니다.
+
+설치·업데이트
+1. 함께 받은 ZIP 체크섬 파일의 SHA-256 값으로 다운로드를 확인합니다.
+2. 기존 HwattakPDF에서 작업 중인 문서를 저장한 뒤 앱을 정상 종료합니다(⌘Q).
+3. ZIP을 풀고 HwattakPDF.app을 응용 프로그램 폴더(/Applications)로 옮깁니다.
+   같은 이름의 기존 앱이 있으면 교체합니다. 이전 버전을 보관하려면
+   앱 복사본을 여러 곳에 두기보다 이전 ZIP을 보관하세요.
+4. 응용 프로그램 폴더에 있는 HwattakPDF를 실행합니다.
+
+처음 실행할 때
+이 배포본은 개발용 ad-hoc 서명이며 Apple Developer ID 서명과 공증을
+받지 않았습니다. 처음 실행할 때 macOS가 확인 경고를 표시할 수 있습니다.
+배포 출처를 신뢰하고 체크섬을 확인한 경우에만, 앱을 한 번 열어 본 뒤
+시스템 설정 → 개인정보 보호 및 보안에서 해당 앱의 실행 허용 절차를
+진행하세요. 정확한 절차는 사용 중인 macOS 버전의 Apple 공식 안내를 따릅니다.
+https://support.apple.com/ko-kr/guide/mac-help/mh40616/mac
+
+PDF 기본 앱 연결
+HwattakPDF의 설정(⌘,) → 기본 PDF 앱 → Finder에서 연결 설정…을 선택합니다.
+또는 Finder에서 PDF 하나를 선택하고 정보 가져오기(⌘I)를 엽니다.
+다음으로 열기 → HwattakPDF → 모두 변경을 선택하면 PDF의 기본 앱이 됩니다.
+여러 HwattakPDF가 표시되면 응용 프로그램 폴더의 설치본을 선택하세요.
+
+화면 모드
+설정(⌘,) → 화면 모드, 또는 보기 → 화면 모드에서 라이트·다크·시스템 설정을
+선택합니다. 선택한 모드는 앱을 다시 실행해도 유지됩니다.
+
+PDF 파일 아이콘
+HwattakPDF용 PDF 문서 아이콘이 포함되어 있습니다. 기본 앱 연결 후에도
+Finder에 남은 캐시 때문에 이전 아이콘이 잠시 표시될 수 있습니다.
+파일 아이콘 갱신과 PDF를 여는 기본 앱 설정은 별개입니다.
+
+변경사항·소스·라이선스
+이 ZIP에는 앱, 이 설치 안내, 같은 버전의 RELEASE-NOTES 문서가 들어 있습니다.
+변경사항에 나오는 상세 검증 기록과 프로젝트 문서는 별도 제공되는 같은
+버전의 소스 패키지에서 해당 경로를 참조하세요. 앱 ZIP에는 포함되지 않습니다.
+LICENSE, NOTICE, ASSETS.md, TRADEMARKS.md는 앱 내부의
+Contents/Resources/Legal에도 포함되어 있습니다.
+
+
+English quick start
+
+Requires an Apple Silicon Mac with macOS 14 Sonoma or later.
+Verify the ZIP against the supplied SHA-256 checksum. Save your documents and
+quit the existing app normally, then move HwattakPDF.app into /Applications,
+replacing the previous version. Launch the app from Applications.
+
+This developer build is ad-hoc signed, without Apple Developer ID signing or
+notarization. If macOS blocks the first launch, proceed only after verifying the
+source and checksum, following Apple's instructions for your macOS version:
+https://support.apple.com/guide/mac-help/mh40616/mac
+
+To make it the default PDF app, select a PDF in Finder, open Get Info (⌘I),
+choose HwattakPDF under Open with, then select Change All.
+Choose Light, Dark or System in Settings (⌘,) → Appearance, or View → Appearance.
+Finder may temporarily retain an older PDF document icon in its cache.
+
+Read the enclosed release notes for changes and limitations. References to
+additional project documents point to the separate source package of the same
+version. License and asset notices are also bundled in Contents/Resources/Legal.

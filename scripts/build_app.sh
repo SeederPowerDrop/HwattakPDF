@@ -7,7 +7,7 @@ PROJECT_DIRECTORY="${SCRIPT_DIRECTORY:h}"
 BUILD_DIRECTORY="${PROJECT_DIRECTORY}/.build"
 OUTPUT_DIRECTORY="${HWATTAK_OUTPUT_DIRECTORY:-${PROJECT_DIRECTORY}/outputs}"
 APP_NAME="HwattakPDF"
-BUILD_EXECUTABLE_NAME="VibePDF"
+BUILD_EXECUTABLE_NAME="HwattakPDF"
 BUNDLE_EXECUTABLE_NAME="HwattakPDF"
 APP_BUNDLE="${OUTPUT_DIRECTORY}/${APP_NAME}.app"
 PACKAGE_TEMPORARY="${PROJECT_DIRECTORY}/work/package-${APP_NAME}.app"
@@ -33,11 +33,22 @@ ARCHIVE_NAME="${APP_NAME}-${SHORT_VERSION}-macOS-${TARGET_ARCHITECTURE}.zip"
 ARCHIVE_PATH="${OUTPUT_DIRECTORY}/${ARCHIVE_NAME}"
 ARCHIVE_CHECKSUM_PATH="${ARCHIVE_PATH}.sha256"
 ARCHIVE_TEMPORARY="${PROJECT_DIRECTORY}/work/${ARCHIVE_NAME}.tmp"
+INSTALL_GUIDE="${PROJECT_DIRECTORY}/Documentation/INSTALL-macOS.txt"
+RELEASE_NOTES_NAME="RELEASE-NOTES-${SHORT_VERSION}.md"
+RELEASE_NOTES="${PROJECT_DIRECTORY}/Documentation/${RELEASE_NOTES_NAME}"
+
+for release_document in "${INSTALL_GUIDE}" "${RELEASE_NOTES}"; do
+    if [[ ! -f "${release_document}" ]]; then
+        echo "Missing release document: ${release_document}" >&2
+        exit 1
+    fi
+done
 
 # A failed build must not leave a previous archive looking like fresh output.
 rm -f "${ARCHIVE_PATH}" "${ARCHIVE_CHECKSUM_PATH}" "${ARCHIVE_TEMPORARY}"
 
-VERIFICATION_DIRECTORY="$(mktemp -d "${PROJECT_DIRECTORY}/work/verify-${APP_NAME}.XXXXXX")"
+VERIFICATION_DIRECTORY=""
+DISTRIBUTION_DIRECTORY=""
 
 cleanup() {
     if [[ -e "${PACKAGE_TEMPORARY}" ]]; then
@@ -46,11 +57,17 @@ cleanup() {
     if [[ -e "${ARCHIVE_TEMPORARY}" ]]; then
         rm -f "${ARCHIVE_TEMPORARY}"
     fi
-    if [[ -e "${VERIFICATION_DIRECTORY}" ]]; then
+    if [[ -n "${VERIFICATION_DIRECTORY}" && -e "${VERIFICATION_DIRECTORY}" ]]; then
         rm -rf "${VERIFICATION_DIRECTORY}"
+    fi
+    if [[ -n "${DISTRIBUTION_DIRECTORY}" && -e "${DISTRIBUTION_DIRECTORY}" ]]; then
+        rm -rf "${DISTRIBUTION_DIRECTORY}"
     fi
 }
 trap cleanup EXIT
+
+VERIFICATION_DIRECTORY="$(mktemp -d "${PROJECT_DIRECTORY}/work/verify-${APP_NAME}.XXXXXX")"
+DISTRIBUTION_DIRECTORY="$(mktemp -d "${PROJECT_DIRECTORY}/work/distribute-${APP_NAME}.XXXXXX")"
 
 env \
     CLANG_MODULE_CACHE_PATH="${MODULE_CACHE}" \
@@ -76,6 +93,7 @@ chmod 755 "${PACKAGE_TEMPORARY}/Contents/MacOS/${BUNDLE_EXECUTABLE_NAME}"
 strip -S -x "${PACKAGE_TEMPORARY}/Contents/MacOS/${BUNDLE_EXECUTABLE_NAME}"
 
 DEFAULT_ICON_MASTER="${PROJECT_DIRECTORY}/Resources/AppIcon-FoldWorkspace.png"
+DOCUMENT_ICON="HwattakPDFDocument.icns"
 ICON_VARIANTS=(
     "AppIcon-StackAndSelect.png"
     "AppIcon-PrecisionMarkup.png"
@@ -104,6 +122,13 @@ if [[ ! -f "${DEFAULT_ICON_MASTER}" ]]; then
     exit 1
 fi
 cp "${DEFAULT_ICON_MASTER}" "${PACKAGE_TEMPORARY}/Contents/Resources/AppIcon.png"
+
+DOCUMENT_ICON_PATH="${PROJECT_DIRECTORY}/Resources/${DOCUMENT_ICON}"
+if [[ ! -f "${DOCUMENT_ICON_PATH}" ]]; then
+    echo "Missing PDF document icon: ${DOCUMENT_ICON_PATH}" >&2
+    exit 1
+fi
+cp "${DOCUMENT_ICON_PATH}" "${PACKAGE_TEMPORARY}/Contents/Resources/${DOCUMENT_ICON}"
 
 for icon_name in "${ICON_VARIANTS[@]}"; do
     icon_path="${PROJECT_DIRECTORY}/Resources/${icon_name}"
@@ -170,7 +195,7 @@ fi
 codesign \
     --force \
     --sign - \
-    --entitlements "${PROJECT_DIRECTORY}/Resources/VibePDF.entitlements" \
+    --entitlements "${PROJECT_DIRECTORY}/Resources/HwattakPDF.entitlements" \
     "${PACKAGE_TEMPORARY}"
 
 if [[ -e "${APP_BUNDLE}" ]]; then
@@ -180,6 +205,11 @@ mv "${PACKAGE_TEMPORARY}" "${APP_BUNDLE}"
 
 plutil -lint "${APP_BUNDLE}/Contents/Info.plist"
 codesign --verify --deep --strict "${APP_BUNDLE}"
+
+PACKAGED_DOCUMENT_ICON="$(plutil -extract CFBundleDocumentTypes.0.CFBundleTypeIconFile raw -o - "${APP_BUNDLE}/Contents/Info.plist")"
+[[ "${PACKAGED_DOCUMENT_ICON}" == "${DOCUMENT_ICON}" ]] \
+    || { echo "PDF document icon registration does not match bundled resource" >&2; exit 1; }
+cmp "${DOCUMENT_ICON_PATH}" "${APP_BUNDLE}/Contents/Resources/${DOCUMENT_ICON}"
 
 for icon_name in "${ICON_VARIANTS[@]}"; do
     test -f "${APP_BUNDLE}/Contents/Resources/${icon_name}"
@@ -209,19 +239,43 @@ if [[ "${BINARY_ARCHITECTURES}" != "${TARGET_ARCHITECTURE}" ]]; then
     exit 1
 fi
 
+# Keep the standalone app output while staging three convenient ZIP-root items.
+COPYFILE_DISABLE=1 ditto --norsrc --noextattr \
+    "${APP_BUNDLE}" "${DISTRIBUTION_DIRECTORY}/${APP_NAME}.app"
+cp "${INSTALL_GUIDE}" "${DISTRIBUTION_DIRECTORY}/INSTALL-macOS.txt"
+# The source release notes link to other repository documents. Those documents
+# live in the matching source package, not beside the app in this ZIP. Preserve
+# external links and replace relative links with readable source references.
+perl -pe '
+    s{(?<!!)\[([^\]\n]+)\]\(((?![A-Za-z][A-Za-z0-9+.-]*:|\#)[^)\s]+)\)}{
+        my ($label, $path) = ($1, $2);
+        $path = $path =~ m{\A\.\./} ? substr($path, 3) : "Documentation/$path";
+        "$label (별도 소스 패키지의 `$path` 참조)"
+    }ge;
+' "${RELEASE_NOTES}" > "${DISTRIBUTION_DIRECTORY}/${RELEASE_NOTES_NAME}"
+test -s "${DISTRIBUTION_DIRECTORY}/${RELEASE_NOTES_NAME}"
+
 COPYFILE_DISABLE=1 ditto \
     -c \
     -k \
     --norsrc \
     --noextattr \
-    --keepParent \
-    "${APP_BUNDLE}" \
+    "${DISTRIBUTION_DIRECTORY}" \
     "${ARCHIVE_TEMPORARY}"
 
 COPYFILE_DISABLE=1 ditto -x -k --norsrc --noextattr \
     "${ARCHIVE_TEMPORARY}" "${VERIFICATION_DIRECTORY}"
 VERIFIED_APP="${VERIFICATION_DIRECTORY}/${APP_NAME}.app"
 VERIFIED_ENTITLEMENTS="${VERIFICATION_DIRECTORY}/verified-entitlements.plist"
+ARCHIVED_ROOT_ENTRIES=("${VERIFICATION_DIRECTORY}"/*(DN))
+if [[ ${#ARCHIVED_ROOT_ENTRIES[@]} -ne 3 ]]; then
+    echo "Archive must contain exactly the app, installation guide and release notes" >&2
+    exit 1
+fi
+test -d "${VERIFIED_APP}"
+cmp "${INSTALL_GUIDE}" "${VERIFICATION_DIRECTORY}/INSTALL-macOS.txt"
+cmp "${DISTRIBUTION_DIRECTORY}/${RELEASE_NOTES_NAME}" \
+    "${VERIFICATION_DIRECTORY}/${RELEASE_NOTES_NAME}"
 if find "${VERIFICATION_DIRECTORY}" \( -name '._*' -o -name '__MACOSX' \) \
     -print -quit | grep -q .; then
     echo "Archive contains AppleDouble metadata" >&2
@@ -229,6 +283,15 @@ if find "${VERIFICATION_DIRECTORY}" \( -name '._*' -o -name '__MACOSX' \) \
 fi
 plutil -lint "${VERIFIED_APP}/Contents/Info.plist"
 codesign --verify --deep --strict "${VERIFIED_APP}"
+cmp "${DOCUMENT_ICON_PATH}" "${VERIFIED_APP}/Contents/Resources/${DOCUMENT_ICON}"
+# Decode the archived resource, not just the source, to validate both format
+# and all standard/Retina representations used by Finder at different sizes.
+DOCUMENT_ICONSET="${VERIFICATION_DIRECTORY}/DocumentIcon.iconset"
+iconutil -c iconset "${VERIFIED_APP}/Contents/Resources/${DOCUMENT_ICON}" -o "${DOCUMENT_ICONSET}"
+for icon_points in 16 32 128 256 512; do
+    test -f "${DOCUMENT_ICONSET}/icon_${icon_points}x${icon_points}.png"
+    test -f "${DOCUMENT_ICONSET}/icon_${icon_points}x${icon_points}@2x.png"
+done
 codesign -d --entitlements - --xml "${VERIFIED_APP}" \
     > "${VERIFIED_ENTITLEMENTS}" 2>/dev/null
 plutil -lint "${VERIFIED_ENTITLEMENTS}"

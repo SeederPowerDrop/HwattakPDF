@@ -24,12 +24,12 @@ HwattakPDF는 [Mozilla Public License 2.0](LICENSE)으로 공개됩니다. Pull 
 ```bash
 swift --version
 ./scripts/run_test_batches.sh
-swift run VibePDF
+swift run HwattakPDF
 ```
 
 macOS 15의 PDFKit/AppKit 테스트 호스트는 여러 UI 테스트를 한 프로세스에서 연속 실행한 뒤 teardown 중 충돌할 수 있습니다. 전체 검증에는 클래스를 독립 프로세스로 격리하는 `run_test_batches.sh`를 사용하고, 개발 중 관련 클래스 하나만 확인할 때 `swift test --disable-sandbox --filter <TestClass>`를 사용합니다.
 
-`VibePDF`는 초기 프로토타입의 내부 SwiftPM 타깃 이름이고, 사용자에게 보이는 앱 이름은 `HwattakPDF`입니다. 이름이 다른 것은 오류가 아닙니다.
+앱 이름, SwiftPM 패키지·실행 타깃과 소스 디렉터리는 `HwattakPDF`로 통일되어 있습니다. 테스트는 `Tests/HwattakPDFTests`에 있습니다. 기존 사용자의 설정·Keychain·OCR 기록을 계속 읽기 위한 내부 저장 식별자는 별도로 유지합니다. [이름 통일과 호환성 범위](Documentation/SOURCE-UPDATE-2026-09-23.md)를 참고하세요.
 
 ## 3. 권장 작업 흐름
 

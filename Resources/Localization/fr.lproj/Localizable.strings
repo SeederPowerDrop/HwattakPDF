@@ -1,6 +1,11 @@
 /* Réglages et menus */
 "settings.title" = "Réglages";
 "settings.general" = "Général";
+"appearance.title" = "Apparence";
+"appearance.system" = "Système";
+"appearance.light" = "Clair";
+"appearance.dark" = "Sombre";
+"settings.appearance.description" = "Choisissez l’apparence de l’application. Votre choix sera conservé à la prochaine ouverture.";
 "settings.language.title" = "Langue";
 "settings.language.description" = "Choisissez la langue des menus et des fonctionnalités.";
 "settings.icon.title" = "Icône de l’app";
@@ -666,6 +671,8 @@
 "view.two_page.continuous.help" = "Affiche deux pages côte à côte et fait défiler en continu jusqu’à la double page suivante.";
 "view.two_page.paged.title" = "Vue deux pages fixe";
 "view.two_page.paged.help" = "N’affiche que la double page actuelle et avance de deux pages à la fois.";
+"view.fit.width" = "Ajuster à la largeur";
+"view.fit.height" = "Ajuster à la hauteur";
 "view.four.selected_help" = "Affichage de 4 pages en %@ · Cliquez de nouveau pour %@";
 "view.four.default_help" = "Affiche quatre pages sur 2 lignes et 2 colonnes.";
 "view.four.accessibility" = "Affichage de 4 pages";
@@ -890,7 +897,11 @@
 "page.sidebar.resize" = "Redimensionner le panneau des pages";
 "page.sidebar.resize_hint" = "Faites glisser ou utilisez les touches fléchées pour redimensionner le panneau des pages.";
 "settings.pdf_input.title" = "Commandes d’affichage PDF";
-"settings.pdf_input.description" = "Configurez la souris et le pavé tactile pour la zone PDF principale.";
+"settings.pdf_input.description" = "Configurez le clavier, la souris et le pavé tactile pour la zone principale du PDF.";
+"pdf.navigation.label" = "Navigation dans le document";
+"pdf.navigation.vertical" = "Défilement vertical";
+"pdf.navigation.horizontal" = "Changement de pages horizontal";
+"pdf.navigation.help" = "Choisissez le défilement vertical ou le changement de pages horizontal. En mode horizontal, utilisez ←/→ ou balayez à gauche ou à droite ; les vues à deux et quatre pages passent au groupe suivant ou précédent.";
 "settings.pdf_input.zoom_modifier.label" = "Touche de zoom par défilement";
 "settings.pdf_input.zoom_modifier.option" = "Option (⌥)";
 "settings.pdf_input.zoom_modifier.command" = "Commande (⌘)";

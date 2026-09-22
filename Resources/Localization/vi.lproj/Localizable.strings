@@ -3,6 +3,11 @@
 /* Semantic keys */
 "settings.title" = "Cài đặt";
 "settings.general" = "Cài đặt chung";
+"appearance.title" = "Giao diện";
+"appearance.system" = "Hệ thống";
+"appearance.light" = "Sáng";
+"appearance.dark" = "Tối";
+"settings.appearance.description" = "Chọn giao diện của ứng dụng. Lựa chọn của bạn sẽ được ghi nhớ cho lần mở ứng dụng tiếp theo.";
 "settings.language.title" = "Ngôn ngữ";
 "settings.language.description" = "Chọn ngôn ngữ dùng cho menu và tính năng.";
 "settings.icon.title" = "Biểu tượng ứng dụng";
@@ -658,6 +663,8 @@
 "view.two_page.continuous.help" = "Hiển thị hai trang cạnh nhau và cuộn liên tục sang cặp trang tiếp theo.";
 "view.two_page.paged.title" = "Chế độ hai trang cố định";
 "view.two_page.paged.help" = "Chỉ hiển thị cặp trang hiện tại và chuyển mỗi lần hai trang.";
+"view.fit.width" = "Vừa chiều rộng";
+"view.fit.height" = "Vừa chiều cao";
 "action.choose" = "Chọn";
 "action.merge" = "Gộp";
 "action.open" = "Mở";
@@ -878,7 +885,11 @@
 "page.sidebar.resize" = "Đổi kích thước bảng trang";
 "page.sidebar.resize_hint" = "Kéo hoặc dùng các phím mũi tên để đổi kích thước bảng trang.";
 "settings.pdf_input.title" = "Điều khiển xem PDF";
-"settings.pdf_input.description" = "Cấu hình chuột và bàn di chuột cho vùng PDF chính.";
+"settings.pdf_input.description" = "Thiết lập thao tác bàn phím, chuột và bàn di chuột cho vùng PDF chính.";
+"pdf.navigation.label" = "Điều hướng trang chính";
+"pdf.navigation.vertical" = "Cuộn dọc";
+"pdf.navigation.horizontal" = "Lật trang ngang";
+"pdf.navigation.help" = "Chọn cuộn dọc hoặc lật trang ngang. Ở chế độ ngang, dùng ←/→ hoặc vuốt trái/phải; chế độ xem hai và bốn trang sẽ lật cả nhóm trang đang hiển thị.";
 "settings.pdf_input.zoom_modifier.label" = "Phím cuộn để thu phóng";
 "settings.pdf_input.zoom_modifier.option" = "Option (⌥)";
 "settings.pdf_input.zoom_modifier.command" = "Command (⌘)";

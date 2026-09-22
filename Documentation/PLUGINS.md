@@ -2,9 +2,9 @@
 
 처음 제작한다면 [제작 가이드](PLUGIN-DEVELOPMENT.md)에서 시작한다. [English](PLUGIN-DEVELOPMENT.en.md) · [schema 3 명령](PLUGIN-HOST-API.md) · [보안](PLUGIN-SECURITY.md) · [호환성/확장 제안](PLUGIN-COMPATIBILITY.md) · [예제 지도](../Examples/Plugins/README.md). 이 문서는 기존 설치 관리와 schema 1·2의 상세 형식을 유지한다.
 
-> 0.8.0 배포 경계: 앱 번들에는 번역 도우미·웹 브라우저와 문서 명령 플러그인 3종의 검토본을 포함한다. YouTube 학습 manifest는 보안 검토용 소스 전용 예제이고 호스트 지원 코드는 활성화할 번들 검토본 없이 대기한다. 앱 개인정보처리방침·이용약관·사전 동의와 상시 정책 링크를 완성하기 전에는 공식 기본 플러그인으로 배포·설치하지 않는다.
+> 0.9.0 배포 경계: 앱 번들에는 번역 도우미·웹 브라우저와 문서 명령 플러그인 3종의 검토본을 포함한다. YouTube 학습 manifest는 보안 검토용 소스 전용 예제이고 호스트 지원 코드는 활성화할 번들 검토본 없이 대기한다. 앱 개인정보처리방침·이용약관·사전 동의와 상시 정책 링크를 완성하기 전에는 공식 기본 플러그인으로 배포·설치하지 않는다.
 
-HwattakPDF 0.8.0 (build 18)은 manifest schema 1·2·3을 함께 지원한다. 모든 스키마는
+HwattakPDF 0.9.0 (build 19)은 manifest schema 1·2·3을 함께 지원한다. 모든 스키마는
 네이티브 번들·JavaScript·Wasm 같은 **패키지 코드를 실행하지 않는다**.
 `.hwattakplugin`의 `manifest.json`을 호스트 앱이 엄격하게 검증하고, 사용자가 메뉴에서
 고른 순간에만 제한된 host action을 실행한다.
@@ -13,14 +13,14 @@ HwattakPDF 0.8.0 (build 18)은 manifest schema 1·2·3을 함께 지원한다. �
   지원한다. 패키지는 백그라운드 작업, 셸, Keychain, 원본 PDF 바이트, 직접 네트워크
   요청과 GPU 접근을 할 수 없으며 `openURL`은 기본 브라우저로만 넘긴다.
 - schema 2 구현은 앱이 소유한 번역·웹 브라우저 패널과 미배포 YouTube 호스트 경계를
-  선택한다. 0.8.0 번들은 앞의 두 패널만 활성화할 검토본을 제공한다. 패키지에 패널
+  선택한다. 0.9.0 번들은 앞의 두 패널만 활성화할 검토본을 제공한다. 패키지에 패널
   코드나 HTML은 없지만, 열린 패널의 원격 사이트는 WebKit 안에서 네트워크와
   JavaScript를 사용한다. 따라서 v1의 “직접 네트워크 없음” 경계를 v2 원격 웹 세션까지
   확대해 해석하면 안 된다.
 
 - schema 3은 현재 문서에 하이라이트·밑줄을 추가하고 펜·모드·페이지 이동을 요청한다. 일반 커뮤니티 패키지도 사용할 수 있으며 새 코드를 실행하지 않는다. [명령 참조](PLUGIN-HOST-API.md).
 
-이 문서는 현재 `Sources/VibePDF/Plugins/`와 `Views/PluginPanelHostView.swift` 구현의
+이 문서는 현재 `Sources/HwattakPDF/Plugins/`와 `Views/PluginPanelHostView.swift` 구현의
 schema 1·2 규칙과 공통 관리 기능을 설명한다. schema 3의 문서 명령, ⇧⌘P 팔레트, 필압 입력과 직접 만드는 예제는 [문서 명령 API 가이드](PLUGIN-HOST-API.md)에 있다.
 
 ## 사용자 가이드
@@ -55,9 +55,9 @@ schema 1·2 규칙과 공통 관리 기능을 설명한다. schema 3의 문서 �
 allowlist는 앱이 검토한 패널 선택지와 공식 이름의 사칭을 막지만, 일반 SHA-256 자체가
 게시자 서명으로 바뀌는 것은 아니다.
 
-### 0.8.0 기본 플러그인 검토 및 설치
+### 0.9.0 기본 플러그인 검토 및 설치
 
-0.8.0 (build 18) 앱 번들은 다음 다섯 검토본을 포함하지만 자동 설치하거나 자동
+0.9.0 (build 19) 앱 번들은 다음 다섯 검토본을 포함하지만 자동 설치하거나 자동
 활성화하지 않는다.
 
 | 기본 플러그인 | 식별자 | 분리된 핵심 권한 |
@@ -68,7 +68,7 @@ allowlist는 앱이 검토한 패널 선택지와 공식 이름의 사칭을 막
 | Tablet Tools | `dev.hwattakpdf.plugins.tablet-tools` | `toolControl`, `workspaceNavigation` |
 | Reading Navigation | `dev.hwattakpdf.plugins.reading-navigation` | `workspaceNavigation` |
 
-`Examples/Plugins/YouTubeStudy.hwattakplugin`은 소스 검토용 예제다. 0.8.0 앱에는 같은
+`Examples/Plugins/YouTubeStudy.hwattakplugin`은 소스 검토용 예제다. 0.9.0 앱에도 같은
 identifier와 digest를 가진 번들 검토본이 없으므로 설치·실행할 수 없다.
 
 설치 순서는 다음과 같다.

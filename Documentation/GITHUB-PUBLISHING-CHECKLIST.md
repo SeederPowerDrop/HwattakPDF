@@ -1,6 +1,8 @@
 # GitHub 공개 준비 체크리스트
 
-> 현재 확인 상태: 공식 공개 저장소는 `https://github.com/SeederPowerDrop/HwattakPDF`이며, 로컬 `main`의 첫 공개 커밋과 0.8.0 개발자 프리릴리스를 검증했다.
+> 2026-09-23: **0.9.0 (build 19) Developer Preview**의 이름을 HwattakPDF로 통일하고 누적 수정과 개발 방향을 소스에 정리했다. [이번 소스 갱신 기록](SOURCE-UPDATE-2026-09-23.md)과 [9월 22일 로컬 패키지 검증](RELEASE-VALIDATION-0.9.0.md)은 별개다. 마지막 GitHub Release 다운로드 배포본은 0.8.0이며 이번 작업은 새 태그나 Release 자산을 만들지 않는다. 기능·설치·한계는 [릴리스 노트](RELEASE-NOTES-0.9.0.md)를 따른다. 아래 체크 표시는 기존 공개 준비 당시의 기록이다.
+
+> 이전 공개 확인 상태: 공식 공개 저장소는 `https://github.com/SeederPowerDrop/HwattakPDF`이며, 로컬 `main`의 첫 공개 커밋과 0.8.0 개발자 프리릴리스를 검증했다.
 
 ## 1. 공개를 막는 필수 결정
 
@@ -53,7 +55,9 @@ find . -type f -size +10M -not -path './.git/*' -not -path './.build/*' -not -pa
 
 테스트 개수는 코드가 늘 때 바뀌므로 README에 고정 숫자를 약속하기보다 각 commit의 GitHub Actions 결과를 기준으로 삼습니다.
 
-### 0.8.0 공개 뒤 미출시 개발 트리
+### 0.8.0 공개 뒤 개발 기록 — 2026-09-03~13
+
+아래 항목은 새 앱 릴리스 전 개발 단계의 당시 상태를 보존한다. 해당 기능은 이후 0.9.0 로컬 배포 패키지에 포함했으며, 현재 버전·빌드·체크섬 검증은 위 0.9.0 기록에서 확인한다.
 
 - [x] 이미지·HTML·Office 변환 구현 뒤 50개 클래스·659개 테스트 메서드를 7개 격리 배치로 실행 — 실패 0, 예상 skip 2
 - [x] 마지막 처리 방식 적용 경로 중앙화 뒤 변환 관련 17개 테스트 재실행, Debug·Release SwiftPM 빌드와 10개 언어별 1,405키 정적 검사 통과

@@ -3,6 +3,11 @@
 /* Semantic keys */
 "settings.title" = "设置";
 "settings.general" = "通用";
+"appearance.title" = "显示模式";
+"appearance.system" = "系统设置";
+"appearance.light" = "浅色模式";
+"appearance.dark" = "深色模式";
+"settings.appearance.description" = "选择应用的显示模式。下次打开应用时将保留您的选择。";
 "settings.language.title" = "语言";
 "settings.language.description" = "选择菜单和功能所使用的语言。";
 "settings.icon.title" = "应用图标";
@@ -658,6 +663,8 @@
 "view.two_page.continuous.help" = "并排显示两页，并可连续滚动到下一组双页。";
 "view.two_page.paged.title" = "固定双页视图";
 "view.two_page.paged.help" = "仅显示当前双页，并以两页为一组翻页。";
+"view.fit.width" = "适合宽度";
+"view.fit.height" = "适合高度";
 "action.choose" = "选择";
 "action.merge" = "合并";
 "action.open" = "打开";
@@ -878,7 +885,11 @@
 "page.sidebar.resize" = "调整页面面板大小";
 "page.sidebar.resize_hint" = "拖动或使用方向键调整页面面板大小。";
 "settings.pdf_input.title" = "PDF 查看操作";
-"settings.pdf_input.description" = "配置主 PDF 画布的鼠标和触控板操作。";
+"settings.pdf_input.description" = "设置 PDF 主视图的键盘、鼠标和触控板操作。";
+"pdf.navigation.label" = "主视图翻页方式";
+"pdf.navigation.vertical" = "上下滚动";
+"pdf.navigation.horizontal" = "左右翻页";
+"pdf.navigation.help" = "选择上下滚动或左右翻页。左右翻页时，使用 ←/→ 键或左右轻扫；双页和四页视图会整组翻动当前显示的页面。";
 "settings.pdf_input.zoom_modifier.label" = "滚动缩放键";
 "settings.pdf_input.zoom_modifier.option" = "Option (⌥)";
 "settings.pdf_input.zoom_modifier.command" = "Command (⌘)";

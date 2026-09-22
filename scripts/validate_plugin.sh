@@ -10,7 +10,7 @@ fi
 
 SCRIPT_DIRECTORY="${0:A:h}"
 PROJECT_DIRECTORY="${SCRIPT_DIRECTORY:h}"
-PLUGIN_HOST_VERSION="${2:-0.8.0}"
+PLUGIN_HOST_VERSION="${2:-$(plutil -extract CFBundleShortVersionString raw -o - "${PROJECT_DIRECTORY}/Resources/Info.plist")}"
 PLUGIN_SOURCE=""
 if [[ "$1" != "--examples" ]]; then
     # :a preserves a symlink so the native validator can reject it.

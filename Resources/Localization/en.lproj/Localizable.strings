@@ -1,6 +1,11 @@
 /* Settings and native menus */
 "settings.title" = "Settings";
 "settings.general" = "General";
+"appearance.title" = "Appearance";
+"appearance.system" = "System";
+"appearance.light" = "Light";
+"appearance.dark" = "Dark";
+"settings.appearance.description" = "Choose the app’s appearance. Your choice is remembered the next time you open the app.";
 "settings.language.title" = "Language";
 "settings.language.description" = "Choose the language used for menus and features.";
 "settings.icon.title" = "App Icon";
@@ -666,6 +671,8 @@
 "view.two_page.continuous.help" = "Shows two pages side by side and scrolls continuously into the next spread.";
 "view.two_page.paged.title" = "Fixed Two-Page View";
 "view.two_page.paged.help" = "Shows only the current two-page spread and moves two pages at a time.";
+"view.fit.width" = "Fit Width";
+"view.fit.height" = "Fit Height";
 "view.four.selected_help" = "Showing 4 pages in %@ · Click again for %@";
 "view.four.default_help" = "Displays four pages in 2 rows and 2 columns.";
 "view.four.accessibility" = "4-Page View";
@@ -890,7 +897,11 @@
 "page.sidebar.resize" = "Resize page panel";
 "page.sidebar.resize_hint" = "Drag or use the arrow keys to resize the page panel.";
 "settings.pdf_input.title" = "PDF Viewing Controls";
-"settings.pdf_input.description" = "Configure mouse and trackpad controls for the main PDF canvas.";
+"settings.pdf_input.description" = "Configure keyboard, mouse, and trackpad controls for the main PDF canvas.";
+"pdf.navigation.label" = "Main page navigation";
+"pdf.navigation.vertical" = "Vertical scrolling";
+"pdf.navigation.horizontal" = "Horizontal page turns";
+"pdf.navigation.help" = "Choose vertical scrolling or horizontal page turns. In horizontal mode, use ←/→ or swipe left/right; two- and four-page views turn the whole visible group.";
 "settings.pdf_input.zoom_modifier.label" = "Scroll-to-zoom key";
 "settings.pdf_input.zoom_modifier.option" = "Option (⌥)";
 "settings.pdf_input.zoom_modifier.command" = "Command (⌘)";

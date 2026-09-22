@@ -4,8 +4,8 @@
 
 ## 1. 먼저 알아둘 이름
 
-- **HwattakPDF**: 사용자에게 보이는 앱과 제품 이름
-- **VibePDF**: Swift Package의 실행 타깃과 일부 소스 타입에 남은 내부 이름
+- **HwattakPDF**: 앱·제품과 SwiftPM 패키지·실행 타깃 이름
+- **HwattakPDFTests**: 실행 타깃을 검사하는 XCTest 타깃
 - **workspace**: 주제별로 탭과 탭 스택을 나누는 공간
 - **tab session**: PDF 한 개의 상태를 감싸는 탭
 - **resident document**: 현재 메모리에 살아 있는 `PDFDocument`
@@ -17,18 +17,18 @@
 ## 2. 폴더를 읽는 순서
 
 ```text
-Package.swift                 SwiftPM 타깃과 최소 macOS 버전
-Sources/VibePDF/App/          앱 시작점, 메뉴, 종료 보호
-Sources/VibePDF/Models/       관찰 가능한 상태와 순수한 값/알고리즘
-Sources/VibePDF/Services/     저장, OCR, 보안 저장소, 파일·AI 작업
-Sources/VibePDF/Views/        SwiftUI와 AppKit/PDFKit 연결 화면
-Resources/                    Info.plist, 권한, 현지화, 이미지
-Tests/VibePDFTests/           기능별 XCTest 회귀 테스트
-Documentation/               제품 경계, 설계, 운영 기록
-scripts/                      아이콘 생성, 검증, 앱 번들 패키징
+Package.swift                  SwiftPM 타깃과 최소 macOS 버전
+Sources/HwattakPDF/App/        앱 시작점, 메뉴, 종료 보호
+Sources/HwattakPDF/Models/     관찰 가능한 상태와 순수한 값/알고리즘
+Sources/HwattakPDF/Services/   저장, OCR, 보안 저장소, 파일·AI 작업
+Sources/HwattakPDF/Views/      SwiftUI와 AppKit/PDFKit 연결 화면
+Resources/                     Info.plist, 권한, 현지화, 이미지
+Tests/HwattakPDFTests/         기능별 XCTest 회귀 테스트
+Documentation/                 제품 경계, 설계, 운영 기록
+scripts/                       아이콘 생성, 검증, 앱 번들 패키징
 ```
 
-처음에는 `VibePDFApp.swift` → `TabbedWorkspaceView.swift` → `MultiDocumentWorkspaceState.swift` → `WorkspaceView.swift` → `PDFWorkspaceState.swift` 순으로 읽어 보세요. 화면, 여러 탭의 상태, 한 문서의 상태가 어떻게 분리되는지 보입니다.
+처음에는 `HwattakPDFApp.swift` → `TabbedWorkspaceView.swift` → `MultiDocumentWorkspaceState.swift` → `WorkspaceView.swift` → `PDFWorkspaceState.swift` 순으로 읽어 보세요. 화면, 여러 탭의 상태, 한 문서의 상태가 어떻게 분리되는지 보입니다.
 
 ## 3. 가장 중요한 상태 흐름
 
@@ -53,7 +53,9 @@ View가 PDF를 직접 여기저기 바꾸기 시작하면 dirty 표시, 실행 �
 3. 여러 파일은 가벼운 검사 후 `MultiDocumentWorkspaceState`가 탭 세션으로 만듭니다.
 4. 활성 탭만 실제 `PDFDocument`와 `PDFView`를 우선 유지합니다.
 
-주의: security-scoped 접근은 한 번 호출하고 잊는 권한 플래그가 아닙니다. 접근 시작과 종료가 객체 수명에 맞아야 하고, 재실행하려면 bookmark가 필요합니다.
+Finder의 더블클릭·“다음으로 열기” 요청은 `AppExternalFileOpenCoordinator`가 앱 시작 전후와 창 수명에 걸쳐 보관합니다. 창을 먼저 표시한 뒤 묶음 요청의 중복을 제거해 탭으로 전달합니다.
+
+주의: security-scoped 접근은 한 번 호출하고 잊는 권한 플래그가 아닙니다. 접근 시작과 종료가 객체 수명에 맞아야 하고, 재실행하려면 bookmark가 필요합니다. 기존 저장 식별자와 과거 PDF 주석 접두사는 호환성 때문에 유지하며, 타입·파일명을 바꾸는 작업과 구분합니다.
 
 ### 편집하고 되돌릴 때
 
@@ -124,7 +126,7 @@ UI가 사용하는 살아 있는 문서를 background task에 직접 넘기지 �
 
 ## 7. 테스트를 읽는 법
 
-`Tests/VibePDFTests`는 기능 이름별로 나뉩니다. 테스트 이름은 사용자가 기대하는 동작을 문장처럼 표현해야 합니다. 좋은 회귀 테스트는 다음 네 부분이 보입니다.
+`Tests/HwattakPDFTests`는 기능 이름별로 나뉩니다. 테스트 이름은 사용자가 기대하는 동작을 문장처럼 표현해야 합니다. 좋은 회귀 테스트는 다음 네 부분이 보입니다.
 
 1. 작은 입력 또는 합성 PDF 준비
 2. 한 가지 사용자 동작 실행

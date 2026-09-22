@@ -1,6 +1,11 @@
 /* Einstellungen und Menüs */
 "settings.title" = "Einstellungen";
 "settings.general" = "Allgemein";
+"appearance.title" = "Erscheinungsbild";
+"appearance.system" = "Systemeinstellung";
+"appearance.light" = "Hell";
+"appearance.dark" = "Dunkel";
+"settings.appearance.description" = "Wählen Sie das Erscheinungsbild der App. Ihre Auswahl bleibt beim nächsten Öffnen der App erhalten.";
 "settings.language.title" = "Sprache";
 "settings.language.description" = "Wählen Sie die Sprache für Menüs und Funktionen.";
 "settings.icon.title" = "App-Symbol";
@@ -666,6 +671,8 @@
 "view.two_page.continuous.help" = "Zeigt zwei Seiten nebeneinander und scrollt fortlaufend zur nächsten Doppelseite.";
 "view.two_page.paged.title" = "Feste Doppelseitenansicht";
 "view.two_page.paged.help" = "Zeigt nur die aktuelle Doppelseite und wechselt jeweils um zwei Seiten.";
+"view.fit.width" = "An Breite anpassen";
+"view.fit.height" = "An Höhe anpassen";
 "view.four.selected_help" = "4 Seiten in %@ werden angezeigt · Erneut klicken für %@";
 "view.four.default_help" = "Zeigt vier Seiten in 2 Zeilen und 2 Spalten.";
 "view.four.accessibility" = "4-Seiten-Ansicht";
@@ -890,7 +897,11 @@
 "page.sidebar.resize" = "Seitenbereich vergrößern oder verkleinern";
 "page.sidebar.resize_hint" = "Ziehen Sie oder verwenden Sie die Pfeiltasten, um die Größe des Seitenbereichs zu ändern.";
 "settings.pdf_input.title" = "PDF-Ansichtssteuerung";
-"settings.pdf_input.description" = "Maus- und Trackpad-Steuerung für die PDF-Hauptansicht konfigurieren.";
+"settings.pdf_input.description" = "Konfigurieren Sie Tastatur, Maus und Trackpad für die PDF-Hauptansicht.";
+"pdf.navigation.label" = "Seitennavigation im Hauptbereich";
+"pdf.navigation.vertical" = "Vertikal scrollen";
+"pdf.navigation.horizontal" = "Horizontal umblättern";
+"pdf.navigation.help" = "Wählen Sie vertikales Scrollen oder horizontales Umblättern. Im horizontalen Modus blättern Sie mit ←/→ oder durch Wischen nach links/rechts; bei zwei oder vier Seiten wird die gesamte sichtbare Gruppe umgeblättert.";
 "settings.pdf_input.zoom_modifier.label" = "Taste für Scroll-Zoom";
 "settings.pdf_input.zoom_modifier.option" = "Wahltaste (⌥)";
 "settings.pdf_input.zoom_modifier.command" = "Befehlstaste (⌘)";

@@ -1,11 +1,13 @@
 # HwattakPDF 아키텍처
 
+> 2026-09-23 소스 갱신: HwattakPDF 이름 통일과 Finder 파일 열기 대응, 화면 모드·문서 아이콘·읽기·편집의 누적 개선을 0.9.0 소스에 정리했습니다. 제품 방향과 이번 검증은 [소스 갱신 기록](SOURCE-UPDATE-2026-09-23.md), 기능 범위는 [릴리스 노트](RELEASE-NOTES-0.9.0.md), 9월 22일 패키지 검증은 [기존 배포 검증 기록](RELEASE-VALIDATION-0.9.0.md)을 확인하세요.
+
 > 2026-09-05 안정화 후속: [수정·성능·복구 검증](STABILIZATION-2026-09-05.md), [schema 3 문서 명령 API와 태블릿 입력](PLUGIN-HOST-API.md). 아래의 이전 단계 설명보다 후속 기록을 우선한다.
 
 > 최초 기준일: 2026-08-28
-> 최신 보완일: 2026-09-03
-> 공개 버전: 0.8.0 (build 18)
-> 미출시 개발 트리: 이미지·HTML 기반 PDF 만들기와 페이지 이미지형 DOCX/PPTX 내보내기
+> 최신 보완일: 2026-09-23
+> 배포 준비 버전: 0.9.0 (build 19) Developer Preview · 직전 공개 버전: 0.8.0 (build 18)
+> 0.9.0 포함: 이미지·HTML 기반 PDF 만들기와 페이지 이미지형 DOCX/PPTX 내보내기
 > 현재 구현: macOS 14 이상, Swift Package, SwiftUI + AppKit + PDFKit + Vision + WebKit
 > 목적: 현재 코드가 실제로 보장하는 경계와 다음 단계의 설계 방향을 구분한다.
 
@@ -25,11 +27,11 @@
 
 ```mermaid
 flowchart TB
-    App["VibePDFApp · 메뉴와 Window/WindowGroup"] --> Multi["창별 MultiDocumentWorkspaceState @MainActor"]
+    App["HwattakPDFApp · 메뉴와 Window/WindowGroup"] --> Multi["창별 MultiDocumentWorkspaceState @MainActor"]
     App --> SessionStore["WorkspaceSessionStore · 보안 북마크 + 원자 JSON"]
     App --> Shell["TabbedWorkspaceView"]
     App --> PluginManager["PluginManager · bounded 선언형 registry"]
-    App --> BuilderUI["ImagePDFBuilderView · 미출시 변환 작업대"]
+    App --> BuilderUI["ImagePDFBuilderView · PDF 변환 작업대"]
     PluginManager --> PluginRunner["PluginActionRunner · host-rendered action"]
     PluginRunner --> PluginEffects["v1 · 대화상자 · 클립보드 · 승인된 기본 브라우저"]
     PluginRunner --> PanelRequest["v2 · immutable bounded PluginPanelRequest"]
@@ -101,7 +103,7 @@ flowchart TB
 
 | 영역 | 주요 파일 | 현재 책임 |
 | --- | --- | --- |
-| 앱 진입점 | `App/VibePDFApp.swift`, `App/AppEditCommandRouter.swift`, `App/UnsavedChangesGuard.swift` | 주 창과 UUID `WindowGroup`, focused command routing, 텍스트 편집기 우선 실행 취소, 창·앱 종료 시 모든 탭의 미저장 상태 확인과 최종 세션 flush/freeze |
+| 앱 진입점 | `App/HwattakPDFApp.swift`, `App/AppEditCommandRouter.swift`, `App/UnsavedChangesGuard.swift` | 주 창과 UUID `WindowGroup`, focused command routing, 텍스트 편집기 우선 실행 취소, 창·앱 종료 시 모든 탭의 미저장 상태 확인과 최종 세션 flush/freeze |
 | 다중 문서 상태 | `Models/MultiDocumentWorkspaceState.swift`, `Models/PDFTabGroup.swift`, `Models/RecentDocumentsStore.swift`, `Models/WorkspaceSessionStore.swift` | 탭·워크스페이스·그룹 정규화, 최근 PDF와 전체 세션의 security-scoped bookmark 기록·복원, 비활성 lazy restore |
 | 탭 작업공간 | `Views/TabbedWorkspaceView.swift`, `Views/PDFTabBar.swift`, `Views/WelcomeView.swift` | 전체 이름 툴팁, 좌/중앙/우 drop에 따른 재정렬·스택 생성, 스택 접기·이름·멤버 관리, PDF 본문과 사이드바를 모두 덮는 단일 Finder fileURL drop 경계, 최근 PDF 7개, 비교 모드 진입·종료 |
 | 변환 작업대 | `Views/ImagePDFBuilderView.swift`, `Models/ImagePDFAssemblyModel.swift`, `Models/PDFConversionPlanning.swift` | 이미지·HTML·선택 PDF 페이지·A4 공백의 순서 편집, 안정성/속도 방식과 휴리스틱 예상치, 선택적 OCR, 진행·취소와 실제 결과 표시 |
@@ -296,8 +298,8 @@ WebKit 패널은 일반 community extension surface가 아니다. `PluginManager
 output이 하나라도 있거나 `dev.hwattakpdf.` 식별자 영역을 주장하는 package를 검토하기
 전, 설치할 때와 매 refresh 때 앱 번들의 `BundledPlugins` 검토본 중 같은 identifier와
 같은 `manifest.json` SHA-256 digest가 있는지 확인한다. 따라서 schema 1 package도 공식
-식별자로 검토 화면·설치본을 사칭하거나 교체할 수 없다. 0.8.0 build 18 번들은 번역
-도우미와 웹 브라우저 두 검토본만 포함하며 사용자가
+식별자로 검토 화면·설치본을 사칭하거나 교체할 수 없다. 0.9.0 build 19 번들은 번역
+도우미·웹 브라우저와 문서 명령 3종을 합쳐 다섯 검토본을 포함하며 사용자가
 `플러그인 관리 > HwattakPDF 기본 플러그인 > 검토 및 설치` 흐름으로 명시적으로
 설치한다. YouTube 학습 manifest는 정책·동의 UI가 준비될 때까지 소스 예제로만 남고,
 일치하는 번들 검토본이 없으므로 공식 플러그인으로 설치·실행할 수 없다. 일반 v1 선언형
@@ -384,7 +386,7 @@ timeout·취소·동시성·메모리/CPU budget과 crash circuit breaker를 먼
 
 Apple은 공유·iCloud 위치의 충돌 방지를 위해 [file coordination](https://developer.apple.com/documentation/technologyoverviews/shared-data)을 사용하도록 안내한다. 현재의 열기·원본 덮어쓰기 transaction은 `NSFileCoordinator`로 감싸지만, 세션 이전형 다중 창을 지속적 변경 알림·버전 병합·범용 문서 창 관리까지 확장하려면 [`NSDocument`](https://developer.apple.com/documentation/appkit/nsdocument)와 `NSFilePresenter` 평가가 우선이다.
 
-### 6.4 미출시 파생 문서 변환 작업대
+### 6.4 파생 문서 변환 작업대 — 0.9.0 포함
 
 `ImagePDFAssemblyModel`은 원본 PDF 편집 세션과 분리된 일회성 조립 상태다. 이미지, 로컬 HTML/HTM, 기존 PDF의 선택 페이지와 A4 공백을 값 목록으로 보관하고, 저장을 시작할 때 목록을 snapshot으로 고정한다. 처리 중에는 항목 변경과 중복 실행을 막고 취소를 전달한다. 외부 URL은 각 입력과 목적지의 `SecurityScopedAccess` 수명 안에서만 읽거나 쓴다.
 
@@ -666,19 +668,19 @@ PDFKit은 렌더링, 선택, 검색, 페이지 관리와 annotation에는 유용
 목표 모듈:
 
 ```text
-VibePDFCore
+HwattakPDFCore
   Foundation/CoreGraphics 기반 페이지 명령, 작업 manifest, OCR 모델
 
-VibePDFPDFKitAdapter
+HwattakPDFPDFKitAdapter
   PDFKit 문서/페이지/annotation 변환, 플랫폼별 좌표 어댑터
 
-VibePDFMac
+HwattakPDFMac
   AppKit PDFView, 트랙패드, NSDocument/File Panel
 
-VibePDFiPad
+HwattakPDFiPad
   UIKit PDFView, PencilKit, UIDocument/Files
 
-VibePDFOCRProviders
+HwattakPDFOCRProviders
   Vision 및 선택 설치 엔진 어댑터
 ```
 
@@ -695,7 +697,7 @@ VibePDFOCRProviders
 
 ### 12.1 현재 순수·상태 테스트
 
-`Tests/VibePDFTests`는 외부 실문서 fixture 없이 임시 `PDFDocument`/`PDFPage`와 모델 상태를 생성해 다음을 검증한다.
+`Tests/HwattakPDFTests`는 외부 실문서 fixture 없이 임시 `PDFDocument`/`PDFPage`와 모델 상태를 생성해 다음을 검증한다.
 
 - extract가 인덱스를 정렬하고 페이지를 원본과 다른 인스턴스로 복사하는지
 - 범위 밖 인덱스가 오류이며 원본이 변하지 않는지

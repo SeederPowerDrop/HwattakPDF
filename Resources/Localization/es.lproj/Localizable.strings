@@ -1,6 +1,11 @@
 /* Ajustes y menús */
 "settings.title" = "Ajustes";
 "settings.general" = "Opciones generales";
+"appearance.title" = "Apariencia";
+"appearance.system" = "Sistema";
+"appearance.light" = "Claro";
+"appearance.dark" = "Oscuro";
+"settings.appearance.description" = "Elige la apariencia de la aplicación. Tu elección se conservará la próxima vez que la abras.";
 "settings.language.title" = "Idioma";
 "settings.language.description" = "Elige el idioma de los menús y las funciones.";
 "settings.icon.title" = "Icono de la app";
@@ -666,6 +671,8 @@
 "view.two_page.continuous.help" = "Muestra dos páginas una al lado de la otra y continúa el desplazamiento hasta el siguiente pliego.";
 "view.two_page.paged.title" = "Vista fija de dos páginas";
 "view.two_page.paged.help" = "Muestra solo el pliego actual y avanza de dos páginas en dos páginas.";
+"view.fit.width" = "Ajustar al ancho";
+"view.fit.height" = "Ajustar al alto";
 "view.four.selected_help" = "Mostrando 4 páginas en %@ · Vuelve a hacer clic para %@";
 "view.four.default_help" = "Muestra cuatro páginas en 2 filas y 2 columnas.";
 "view.four.accessibility" = "Vista de 4 páginas";
@@ -890,7 +897,11 @@
 "page.sidebar.resize" = "Cambiar el tamaño del panel de páginas";
 "page.sidebar.resize_hint" = "Arrastra o usa las teclas de flecha para cambiar el tamaño del panel de páginas.";
 "settings.pdf_input.title" = "Controles de visualización PDF";
-"settings.pdf_input.description" = "Configura el ratón y el trackpad para el lienzo PDF principal.";
+"settings.pdf_input.description" = "Configura el teclado, el ratón y el trackpad para la vista principal del PDF.";
+"pdf.navigation.label" = "Navegación del documento principal";
+"pdf.navigation.vertical" = "Desplazamiento vertical";
+"pdf.navigation.horizontal" = "Paso de páginas horizontal";
+"pdf.navigation.help" = "Elige desplazamiento vertical o paso de páginas horizontal. En modo horizontal, usa ←/→ o desliza a izquierda o derecha; las vistas de dos y cuatro páginas pasan todo el grupo visible.";
 "settings.pdf_input.zoom_modifier.label" = "Tecla para zoom con desplazamiento";
 "settings.pdf_input.zoom_modifier.option" = "Opción (⌥)";
 "settings.pdf_input.zoom_modifier.command" = "Comando (⌘)";

@@ -1,6 +1,6 @@
 # 플러그인 호환성과 확장 설계
 
-상태 기준: **2026-09-05 안정화 소스**. “현재 동작”은 코드에 있는 규칙이고, “제안”은 구현·배포를 약속한 API가 아니다. 아래 설계용 용어를 manifest에 임의로 추가하면 현재 검사기는 거부한다.
+상태 기준: **2026-09-23, 0.9.0 (build 19) 소스**. “현재 동작”은 코드에 있는 규칙이고, “제안”은 구현·배포를 약속한 API가 아니다. 아래 설계용 용어를 manifest에 임의로 추가하면 현재 검사기는 거부한다.
 
 [제작 시작](PLUGIN-DEVELOPMENT.md) · [문서 명령 참조](PLUGIN-HOST-API.md) · [보안과 신뢰](PLUGIN-SECURITY.md)
 
@@ -8,13 +8,14 @@
 
 | 대상 | schema 1 | schema 2 | schema 3 |
 | --- | --- | --- | --- |
+| 0.9.0/build 19 소스·로컬 빌드 | 지원 | 지원 | 지원 |
 | 2026-09-05 안정화 소스/후보 | 지원 | 지원 | 지원 |
 | 이전 0.8.0/build 18 바이너리 | 지원 | 지원 | 지원하지 않을 수 있음 |
 | 임의의 과거/향후 빌드 | 지원 선언만으로 단정하지 않음 | 실제 바이너리 검사 필요 | 실제 바이너리 검사 필요 |
 
-현재 안정화 후보는 `outputs/stabilization-2026-09-05/HwattakPDF.app`이며 기존과 같은 **0.8.0 (build 18)** 표기를 사용한다. 이 이력 때문에 `minimumHostVersion: "0.8.0"`만으로 schema 3 구현 여부를 구별할 수 없다. 개발자는 README에 시험한 배포 파일·빌드 출처·검증 날짜를 기록하고, 사용자는 지원 앱에서 예제 설치까지 확인한다. 공개 배포 전에는 서로 다른 코드에 고유한 버전/빌드를 부여하는 것이 필요하다. **현재 manifest에 최소 build나 날짜 필드는 없다.**
+현재 소스와 로컬 빌드는 **0.9.0 (build 19)**로 구분한다. 다만 과거 `outputs/stabilization-2026-09-05/HwattakPDF.app` 후보는 기존 공개 앱과 같은 **0.8.0 (build 18)** 표기를 사용했다. 이 이력 때문에 `minimumHostVersion: "0.8.0"`만으로 schema 3 구현 여부를 구별할 수 없다. 개발자는 README에 시험한 배포 파일·소스 커밋·검증 날짜를 기록하고, 사용자는 지원 앱에서 예제 설치까지 확인한다. **현재 manifest에 최소 build나 날짜 필드는 없다.**
 
-현재 후보 식별 및 checksum은 [안정화 검증 기록](STABILIZATION-2026-09-05.md)에 있다. 소스를 바꿔 다시 빌드했다면 기존 checksum을 새 파일에 재사용하지 않는다.
+현재 소스 반영 범위는 [9월 23일 소스 갱신](SOURCE-UPDATE-2026-09-23.md), 0.9.0 초기 패키지 식별 및 checksum은 [9월 22일 배포 검증](RELEASE-VALIDATION-0.9.0.md), 과거 후보는 [9월 5일 안정화 검증](STABILIZATION-2026-09-05.md)에 있다. 소스를 바꿔 다시 빌드했다면 기존 checksum을 새 파일에 재사용하지 않는다.
 
 ### 서로 다른 세 가지 버전
 
@@ -108,12 +109,12 @@ native Highlight/Ink와 사용자 정의 appearance를 가진 Stamp는 PDF 안�
 
 | 변경 위치 | 함께 검토할 내용 |
 | --- | --- |
-| `Sources/VibePDF/Plugins/PluginDocumentCommand.swift` | Kind·입력 범위·필요 capability·실행 가능 조건 |
+| `Sources/HwattakPDF/Plugins/PluginDocumentCommand.swift` | Kind·입력 범위·필요 capability·실행 가능 조건 |
 | `PluginModels.swift`, `PluginManifestValidator.swift` | schema 협상과 정확한 권한 합집합, 알 수 없는 필드 거부 |
 | `PluginActionRunner.swift`, `PluginActionLauncher.swift` | 실행 직전 활성 설치본·action 소유권, 오래된 요청 무효화 |
 | `Models/PDFWorkspaceState.swift` | 중앙 문서 권한, 현재 문서 객체, revision, Undo와 저장 경계 |
 | 메뉴·툴바·팔레트와 지역화 | 실행 가능 표시와 실제 실행 조건의 일치, 필요한 10개 언어 공통 문구 |
-| `Tests/VibePDFTests/PluginSystemTests.swift` 등 | 정상·잘못된 값·권한 거부·stale selection·비활성화·Undo/Redo·저장 결과 |
+| `Tests/HwattakPDFTests/PluginSystemTests.swift` 등 | 정상·잘못된 값·권한 거부·stale selection·비활성화·Undo/Redo·저장 결과 |
 
 앱이 사용하는 PDFKit 객체를 임의의 worker로 넘기지 않는다. 긴 작업은 입력을 제한하고 취소·진행률·문서 revision 검사를 갖춘다. 패키지 README, API 표, 예제 검사, schema 1·2 회귀 검증도 PR에 포함한다. [코어 기여 원칙](../CONTRIBUTING.md).
 

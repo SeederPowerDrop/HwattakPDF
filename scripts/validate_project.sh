@@ -5,7 +5,7 @@ set -euo pipefail
 SCRIPT_DIRECTORY="${0:A:h}"
 PROJECT_DIRECTORY="${SCRIPT_DIRECTORY:h}"
 INFO_PLIST="${PROJECT_DIRECTORY}/Resources/Info.plist"
-ENTITLEMENTS="${PROJECT_DIRECTORY}/Resources/VibePDF.entitlements"
+ENTITLEMENTS="${PROJECT_DIRECTORY}/Resources/HwattakPDF.entitlements"
 LOCALIZATION_DIRECTORY="${PROJECT_DIRECTORY}/Resources/Localization"
 EXPECTED_LOCALIZATIONS=(ko en fr de es ja zh-Hans ar pt vi)
 REQUIRED_RESOURCES=(
@@ -13,6 +13,7 @@ REQUIRED_RESOURCES=(
     AppIcon-FoldWorkspace.png
     AppIcon-PrecisionMarkup.png
     AppIcon-StackAndSelect.png
+    HwattakPDFDocument.icns
 )
 EXAMPLE_PLUGIN_NAMES=(
     TranslationCompanion.hwattakplugin
@@ -57,6 +58,10 @@ require_command find
 require_command head
 
 require_file "${PROJECT_DIRECTORY}/Package.swift"
+require_file "${PROJECT_DIRECTORY}/Sources/HwattakPDF/App/HwattakPDFApp.swift"
+require_file "${PROJECT_DIRECTORY}/Sources/HwattakPDF/Views/HwattakPDFTheme.swift"
+[[ -d "${PROJECT_DIRECTORY}/Tests/HwattakPDFTests" ]] \
+    || fail "HwattakPDF test directory is missing"
 require_file "${INFO_PLIST}"
 require_file "${ENTITLEMENTS}"
 require_file "${PROJECT_DIRECTORY}/LICENSE"
@@ -95,6 +100,12 @@ BUNDLE_COPYRIGHT="$(plutil -extract NSHumanReadableCopyright raw -o - "${INFO_PL
 [[ "${BUILD_VERSION}" == <-> ]] \
     || fail "CFBundleVersion must be a positive integer"
 (( BUILD_VERSION > 0 )) || fail "CFBundleVersion must be greater than zero"
+require_file "${PROJECT_DIRECTORY}/Documentation/RELEASE-NOTES-${SHORT_VERSION}.md"
+require_file "${PROJECT_DIRECTORY}/Documentation/RELEASE-VALIDATION-${SHORT_VERSION}.md"
+require_file "${PROJECT_DIRECTORY}/Documentation/INSTALL-macOS.txt"
+PDF_DOCUMENT_ICON="$(plutil -extract CFBundleDocumentTypes.0.CFBundleTypeIconFile raw -o - "${INFO_PLIST}")"
+[[ "${PDF_DOCUMENT_ICON}" == "HwattakPDFDocument.icns" ]] \
+    || fail "PDF document icon registration is missing or stale"
 [[ "${MINIMUM_SYSTEM}" == "14.0" ]] \
     || fail "Info.plist minimum macOS must remain 14.0"
 [[ "${BUNDLE_EXECUTABLE}" == "HwattakPDF" ]] \
@@ -181,7 +192,13 @@ env \
     swift package \
         --package-path "${PROJECT_DIRECTORY}" \
         --disable-sandbox \
-        dump-package >/dev/null
+        dump-package > "${VALIDATION_TEMPORARY}/package.json"
+jq -e '
+    .name == "HwattakPDF"
+    and any(.products[]; .name == "HwattakPDF" and .targets == ["HwattakPDF"])
+    and ([.targets[].name] | sort == ["HwattakPDF", "HwattakPDFTests"])
+' "${VALIDATION_TEMPORARY}/package.json" >/dev/null \
+    || fail "Swift package, executable and test targets must use HwattakPDF names"
 zsh -n "${PROJECT_DIRECTORY}/scripts/build_app.sh"
 zsh -n "${PROJECT_DIRECTORY}/scripts/run_test_batches.sh"
 zsh -n "${PROJECT_DIRECTORY}/scripts/validate_plugin.sh"

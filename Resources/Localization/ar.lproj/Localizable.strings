@@ -3,6 +3,11 @@
 /* Semantic keys */
 "settings.title" = "الإعدادات";
 "settings.general" = "عام";
+"appearance.title" = "المظهر";
+"appearance.system" = "النظام";
+"appearance.light" = "فاتح";
+"appearance.dark" = "داكن";
+"settings.appearance.description" = "اختر مظهر التطبيق. سيتم تذكّر اختيارك عند فتح التطبيق في المرة القادمة.";
 "settings.language.title" = "اللغة";
 "settings.language.description" = "اختر اللغة المستخدمة في القوائم والميزات.";
 "settings.icon.title" = "أيقونة التطبيق";
@@ -658,6 +663,8 @@
 "view.two_page.continuous.help" = "يعرض صفحتين جنبًا إلى جنب مع تمرير متواصل إلى الصفحتين التاليتين.";
 "view.two_page.paged.title" = "عرض صفحتين ثابت";
 "view.two_page.paged.help" = "يعرض الصفحتين الحاليتين فقط وينتقل صفحتين في كل مرة.";
+"view.fit.width" = "ملاءمة العرض";
+"view.fit.height" = "ملاءمة الارتفاع";
 "action.choose" = "اختيار";
 "action.merge" = "دمج";
 "action.open" = "فتح";
@@ -878,7 +885,11 @@
 "page.sidebar.resize" = "تغيير حجم لوحة الصفحات";
 "page.sidebar.resize_hint" = "اسحب أو استخدم مفاتيح الأسهم لتغيير حجم لوحة الصفحات.";
 "settings.pdf_input.title" = "عناصر التحكم بعرض PDF";
-"settings.pdf_input.description" = "اضبط الماوس ولوحة التتبع لمساحة PDF الرئيسية.";
+"settings.pdf_input.description" = "اضبط عناصر التحكم بلوحة المفاتيح والفأرة ولوحة التعقب في عرض PDF الرئيسي.";
+"pdf.navigation.label" = "التنقل بين صفحات العرض الرئيسي";
+"pdf.navigation.vertical" = "التمرير العمودي";
+"pdf.navigation.horizontal" = "تقليب الصفحات أفقياً";
+"pdf.navigation.help" = "اختر التمرير العمودي أو تقليب الصفحات أفقياً. في الوضع الأفقي، استخدم ←/→ أو اسحب لليسار أو اليمين؛ في عرض صفحتين أو أربع صفحات، تُقلب المجموعة الظاهرة كاملة.";
 "settings.pdf_input.zoom_modifier.label" = "مفتاح التكبير بالتمرير";
 "settings.pdf_input.zoom_modifier.option" = "Option (⌥)";
 "settings.pdf_input.zoom_modifier.command" = "Command (⌘)";

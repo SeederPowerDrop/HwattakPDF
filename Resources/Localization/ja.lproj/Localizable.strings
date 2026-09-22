@@ -3,6 +3,11 @@
 /* Semantic keys */
 "settings.title" = "設定";
 "settings.general" = "一般";
+"appearance.title" = "外観";
+"appearance.system" = "システム設定";
+"appearance.light" = "ライトモード";
+"appearance.dark" = "ダークモード";
+"settings.appearance.description" = "アプリの外観を選択します。選択した設定は次回の起動時にも保持されます。";
 "settings.language.title" = "言語";
 "settings.language.description" = "メニュー、ボタン、メッセージに使用する言語を選択します。";
 "settings.icon.title" = "アプリアイコン";
@@ -658,6 +663,8 @@
 "view.two_page.continuous.help" = "2ページを横に並べ、次の見開きまで連続してスクロールします。";
 "view.two_page.paged.title" = "固定2ページ表示";
 "view.two_page.paged.help" = "現在の見開き2ページだけを表示し、2ページ単位で移動します。";
+"view.fit.width" = "幅に合わせる";
+"view.fit.height" = "高さに合わせる";
 "action.choose" = "選択";
 "action.merge" = "結合";
 "action.open" = "開く";
@@ -878,7 +885,11 @@
 "page.sidebar.resize" = "ページパネルのサイズを変更";
 "page.sidebar.resize_hint" = "ドラッグまたは矢印キーでページパネルのサイズを変更します。";
 "settings.pdf_input.title" = "PDF表示の操作";
-"settings.pdf_input.description" = "PDFのメイン表示で使うマウスとトラックパッドの操作を設定します。";
+"settings.pdf_input.description" = "メインPDF画面のキーボード、マウス、トラックパッド操作を設定します。";
+"pdf.navigation.label" = "メイン画面のページ移動";
+"pdf.navigation.vertical" = "上下スクロール";
+"pdf.navigation.horizontal" = "左右のページめくり";
+"pdf.navigation.help" = "上下スクロールまたは左右のページめくりを選択します。左右のページめくりでは ←/→ キーか左右スワイプで移動し、2・4ページ表示では表示中のページ全体をまとめてめくります。";
 "settings.pdf_input.zoom_modifier.label" = "スクロールズームキー";
 "settings.pdf_input.zoom_modifier.option" = "Option (⌥)";
 "settings.pdf_input.zoom_modifier.command" = "Command (⌘)";

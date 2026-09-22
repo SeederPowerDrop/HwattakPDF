@@ -4,11 +4,13 @@ set -euo pipefail
 
 SCRIPT_DIRECTORY="${0:A:h}"
 PROJECT_DIRECTORY="${SCRIPT_DIRECTORY:h}"
-TEST_DIRECTORY="${PROJECT_DIRECTORY}/Tests/VibePDFTests"
+TEST_DIRECTORY="${PROJECT_DIRECTORY}/Tests/HwattakPDFTests"
 
 typeset -a presentation_tests=(
     AboutContentTests
+    AppAppearanceTests
     AppEditCommandRouterTests
+    AppExternalFileOpenCoordinatorTests
     AppFileCommandRouterTests
     AppMenuRegistrationTests
     AIAssistantWindowPresentationTests
@@ -19,12 +21,15 @@ typeset -a presentation_tests=(
     PDFExportPermissionPresentationTests
     PDFGridLayoutModeTests
     PDFGridPagingEdgeCaseTests
+    PDFMainPageNavigationTests
     PDFPageDisplayRangeTests
     PDFPageDragPayloadTests
+    PDFPageFitModeTests
     PDFPageJumpRequestTests
     PDFShareNoteTests
     PDFViewportScrollInteractionTests
     PageScrollHUDStateTests
+    PageSidebarKeyboardNavigationTests
     PageSidebarLayoutModeTests
     ResourceMonitorTests
     SearchNavigatorPresentationTests
@@ -48,6 +53,7 @@ typeset -a document_tests=(
     PDFSecurityTests
     PDFWorkspaceSafetyTests
     SecureSignatureStoreTests
+    StudyUnderlineRenderingTests
     WorkspaceSaveCoordinatorTests
 )
 

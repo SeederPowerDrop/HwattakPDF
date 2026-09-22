@@ -27,7 +27,7 @@
 - 개인 자료가 없는 시험용 PDF 한 개. 문서 편집 실험은 복사본에서 한다.
 - JSON을 UTF-8 일반 텍스트로 저장할 수 있는 편집기.
 
-현재 0.8.0/build 18이라는 표기가 같은 이전 앱과 안정화 후보가 존재한다. 버전 숫자만 보지 말고 [정확한 호환성 기준](PLUGIN-COMPATIBILITY.md#1-현재-지원-범위)을 확인한다.
+현재 소스는 0.9.0/build 19이며 schema 1·2·3을 지원한다. 과거에는 0.8.0/build 18 표기가 같은 공개 앱과 안정화 후보가 존재했다. 예제의 최소 버전 숫자만 보지 말고 [정확한 호환성 기준](PLUGIN-COMPATIBILITY.md#1-현재-지원-범위)을 확인한다.
 
 ### 패키지 복사
 
@@ -151,7 +151,7 @@ zsh scripts/validate_plugin.sh work/MyStudy.hwattakplugin
 zsh scripts/validate_plugin.sh --examples
 ```
 
-`PLUGIN VALID: ... schema=3; host=0.8.0; sha256=...`와 실패 없는 테스트 종료를 확인한다. 실패하면 종료 코드는 0이 아니다. 이 명령은 별도 Python 모방 검사기가 아니라 앱의 `PluginPackageValidator`와 `PluginManager` 신뢰 규칙을 호출한다. 사용자 플러그인 폴더에 설치하지 않으며 패키지 코드를 실행하지 않는다. 읽은 파일·검토 bytes·manifest digest만 검사한다.
+`PLUGIN VALID: ... schema=3; host=0.9.0; sha256=...`와 실패 없는 테스트 종료를 확인한다. 실패하면 종료 코드는 0이 아니다. 이 명령은 별도 Python 모방 검사기가 아니라 앱의 `PluginPackageValidator`와 `PluginManager` 신뢰 규칙을 호출한다. 사용자 플러그인 폴더에 설치하지 않으며 패키지 코드를 실행하지 않는다. 읽은 파일·검토 bytes·manifest digest만 검사한다.
 
 최소 호스트 버전 선언의 거부 동작도 검사할 수 있다.
 

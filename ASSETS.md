@@ -21,6 +21,8 @@ OpenAI ImageGen으로 제작한 자산은 프로젝트 소유자의 지시에 �
 | `Resources/AppIcon-StackAndSelect.png` | 선택 가능한 앱 아이콘. ImageGen 탐색안 B와 같은 파일 | `c94cd6e1d36c7a7c30e4c1a9366c0255bf0e6ab5a6b3c014c40b7e319c2e0cc7` |
 | `Resources/AppIcon-PrecisionMarkup.png` | 선택 가능한 앱 아이콘. ImageGen 탐색안 A와 같은 파일 | `c39919beac3ce65cc1664ff982715cb33dc42e167f711c4bb9158e72b566210c` |
 | `Resources/AppIcon-FoldWorkspace.png` | 기본 앱 아이콘. ImageGen 탐색안 C와 같은 파일 | `e9db64c1a79bad8aab7e80311d9c324644588add3c6a33760085f2cf9661d324` |
+| `Resources/HwattakPDFDocument.icns` | PDF 연결 파일 아이콘. `scripts/generate_document_icon.swift`의 프로젝트 내 벡터 도형으로 제작한 16–1024px 다중 해상도 자산 | `d05d2bb79878a3c58bc48551c3870ad8d90a4bf4d318724ae9a74205d88b9a45` |
+| `Resources/HwattakPDFDocument.png` | PDF 연결 파일 아이콘의 1024px 미리보기. 같은 벡터 생성기로 제작; 앱 번들에는 ICNS만 포함 | `5c92bff76e75a4c84a32472c125c6f7052a984d4ea8ae05ee5feabdfafededc6` |
 | `Resources/AboutAuthor-SeederPowerDrop-UserProvided.jpg` | 프로젝트 소유자가 제공한 정보 화면 그림 | `a7bae1f9d82833339173d5c2e17ca490b8acd34f7a1c946d4d028183e90470ae` |
 
 배포 스크립트가 만드는 `AppIcon.png`는
@@ -70,3 +72,14 @@ OpenAI ImageGen으로 제작한 자산은 프로젝트 소유자의 지시에 �
 MPL-2.0은 위 자산에 적용되지만, 그 사실만으로 HwattakPDF의 상표를 사용할
 권리나 수정본이 공식 배포본이라는 인상을 줄 권리가 생기지는 않습니다. 정확한
 출처 표기와 혼동 방지 원칙은 [TRADEMARKS.md](TRADEMARKS.md)를 참고하세요.
+
+## PDF 문서 아이콘 제작 기록
+
+2026-09-21에 HwattakPDF에 연결된 PDF 파일용으로 제작했습니다. 기존 앱의
+남색·아이보리 팔레트와 펼친 두 페이지 모티프를 단순한 벡터 도형으로 그렸으며,
+외부 이미지나 상표를 입력하거나 사용하지 않았습니다. 원본 제작 코드는
+`scripts/generate_document_icon.swift`이며 이 프로젝트의 MPL-2.0을 적용합니다.
+
+재생성: `swift scripts/generate_document_icon.swift work/document-icon`,
+이후 `iconutil -c icns work/document-icon/HwattakPDFDocument.iconset -o Resources/HwattakPDFDocument.icns`.
+생성된 `HwattakPDFDocument.png`는 디자인 확인용 미리보기입니다.

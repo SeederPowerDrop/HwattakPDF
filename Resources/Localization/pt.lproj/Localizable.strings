@@ -1,6 +1,11 @@
 /* Definições */
 "settings.title" = "Definições";
 "settings.general" = "Geral";
+"appearance.title" = "Aparência";
+"appearance.system" = "Sistema";
+"appearance.light" = "Claro";
+"appearance.dark" = "Escuro";
+"settings.appearance.description" = "Escolha a aparência da aplicação. A sua escolha será mantida na próxima vez que abrir a aplicação.";
 "settings.language.title" = "Idioma";
 "settings.language.description" = "Escolha o idioma dos menus e das funcionalidades.";
 "settings.icon.title" = "Ícone da aplicação";
@@ -560,6 +565,8 @@
 "view.two_page.continuous.help" = "Mostra duas páginas lado a lado e continua a deslocação até ao par seguinte.";
 "view.two_page.paged.title" = "Vista fixa de duas páginas";
 "view.two_page.paged.help" = "Mostra apenas o par atual e avança duas páginas de cada vez.";
+"view.fit.width" = "Ajustar à largura";
+"view.fit.height" = "Ajustar à altura";
 "view.four.selected_help" = "Vista %@ ativa · clique novamente para %@";
 "view.four.default_help" = "Mostra quatro páginas numa grelha 2×2.";
 "view.four.accessibility" = "Vista 2×2 de quatro páginas";
@@ -904,7 +911,11 @@
 "page.sidebar.resize" = "Redimensionar painel de páginas";
 "page.sidebar.resize_hint" = "Arraste ou use as teclas de seta para redimensionar o painel de páginas.";
 "settings.pdf_input.title" = "Controles de visualização do PDF";
-"settings.pdf_input.description" = "Configure o mouse e o trackpad para a área principal do PDF.";
+"settings.pdf_input.description" = "Configure os controles de teclado, mouse e trackpad para a área principal do PDF.";
+"pdf.navigation.label" = "Navegação das páginas principais";
+"pdf.navigation.vertical" = "Rolagem vertical";
+"pdf.navigation.horizontal" = "Virar páginas na horizontal";
+"pdf.navigation.help" = "Escolha rolagem vertical ou virar páginas na horizontal. No modo horizontal, use ←/→ ou deslize para a esquerda ou direita; as visualizações de duas e quatro páginas viram todo o grupo visível.";
 "settings.pdf_input.zoom_modifier.label" = "Tecla de zoom por rolagem";
 "settings.pdf_input.zoom_modifier.option" = "Option (⌥)";
 "settings.pdf_input.zoom_modifier.command" = "Command (⌘)";

@@ -58,7 +58,7 @@ Use [CommunityStarter](../Examples/Plugins/CommunityStarter.hwattakplugin/manife
 
 ## Compatibility matters
 
-The stabilization source supports schemas **1, 2, and 3**. Earlier binaries also labeled **0.8.0/build 18** may not support schema 3. `minimumHostVersion: "0.8.0"` cannot distinguish them. Record the exact tested artifact/source revision and installation result in your README. Do not add an unsupported `minimumHostBuild` key.
+The current **0.9.0/build 19** source and local build support schemas **1, 2, and 3**. This source update does not publish a new downloadable GitHub Release. Earlier binaries also labeled **0.8.0/build 18** may not support schema 3. `minimumHostVersion: "0.8.0"` cannot distinguish them. Record the exact tested artifact/source revision and installation result in your README. Do not add an unsupported `minimumHostBuild` key.
 
 Plugin `version` and `minimumHostVersion` use three numeric components; prerelease suffixes and version ranges are unsupported. The manager permits reviewed replacement with the same or a lower plugin version, so publish clear release notes and retain rollback artifacts.
 
