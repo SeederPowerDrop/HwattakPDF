@@ -3,9 +3,8 @@
 import Foundation
 import SwiftUI
 
-/// Adaptive palette, sampled from the Freed Page app icon.
-/// Navy and ivory distinguish dark and light chrome, and coral is kept as
-/// a small brand/status accent so documents remain the visual focus.
+/// Quiet neutral surfaces keep the document in front.
+/// Brand colors are reserved for small action and status accents.
 struct HwattakPDFTheme {
     let colorScheme: ColorScheme
 
@@ -15,32 +14,32 @@ struct HwattakPDFTheme {
 
     var canvas: Color {
         colorScheme == .dark
-            ? Color(red: 0.051, green: 0.090, blue: 0.137)
-            : Color(red: 0.933, green: 0.914, blue: 0.871)
+            ? Color(white: 0.105)
+            : Color(white: 0.945)
     }
 
     var sidebar: Color {
         colorScheme == .dark
-            ? Color(red: 0.078, green: 0.145, blue: 0.220)
-            : Color(red: 0.973, green: 0.949, blue: 0.902)
+            ? Color(white: 0.135)
+            : Color(white: 0.970)
     }
 
     var panel: Color {
         colorScheme == .dark
-            ? Color(red: 0.106, green: 0.188, blue: 0.278)
-            : Color(red: 0.980, green: 0.953, blue: 0.898)
+            ? Color(white: 0.155)
+            : Color(white: 0.980)
     }
 
     var card: Color {
         colorScheme == .dark
-            ? Color(red: 0.122, green: 0.216, blue: 0.318)
-            : Color(red: 1.000, green: 0.976, blue: 0.933)
+            ? Color(white: 0.190)
+            : Color.white
     }
 
     var border: Color {
         colorScheme == .dark
-            ? cream.opacity(0.17)
-            : brandNavy.opacity(0.20)
+            ? Color.white.opacity(0.085)
+            : Color.black.opacity(0.075)
     }
 
     var accent: Color {
@@ -51,22 +50,22 @@ struct HwattakPDFTheme {
 
     var primaryText: Color {
         colorScheme == .dark
-            ? cream
-            : ink
+            ? Color(white: 0.91)
+            : Color(white: 0.16)
     }
 
     var secondaryText: Color {
         colorScheme == .dark
-            ? Color(red: 0.620, green: 0.704, blue: 0.790)
-            : Color(red: 0.318, green: 0.392, blue: 0.463)
+            ? Color(white: 0.64)
+            : Color(white: 0.43)
     }
 
     var dropHighlight: Color {
-        steel.opacity(colorScheme == .dark ? 0.28 : 0.18)
+        accent.opacity(colorScheme == .dark ? 0.20 : 0.10)
     }
 
     var elevatedShadow: Color {
-        Color.black.opacity(colorScheme == .dark ? 0.38 : 0.15)
+        Color.black.opacity(colorScheme == .dark ? 0.20 : 0.08)
     }
 
     var success: Color {
@@ -111,7 +110,7 @@ struct HwattakPDFTheme {
     }
 
     var paperIvory: Color {
-        Color(red: 0.980, green: 0.953, blue: 0.898)
+        Color(white: 0.980)
     }
 
     var cream: Color {
@@ -120,17 +119,17 @@ struct HwattakPDFTheme {
 
     var chrome: Color {
         colorScheme == .dark
-            ? Color(red: 0.035, green: 0.075, blue: 0.122)
-            : Color(red: 0.890, green: 0.875, blue: 0.839)
+            ? Color(white: 0.125)
+            : Color(white: 0.945)
     }
 
     var chromeRaised: Color {
         colorScheme == .dark
-            ? Color(red: 0.078, green: 0.149, blue: 0.231)
-            : Color(red: 0.953, green: 0.937, blue: 0.902)
+            ? Color(white: 0.190)
+            : Color(white: 0.995)
     }
 
-    var chromeText: Color { colorScheme == .dark ? cream : ink }
+    var chromeText: Color { primaryText }
 
     var chromeSecondaryText: Color {
         chromeText.opacity(0.66)
@@ -158,7 +157,7 @@ private struct HwattakPDFCardModifier: ViewModifier {
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                     .stroke(theme.border, lineWidth: 1)
             }
-            .shadow(color: theme.elevatedShadow.opacity(0.22), radius: 5, y: 2)
+
     }
 }
 

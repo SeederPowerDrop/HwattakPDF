@@ -8,11 +8,15 @@ import Foundation
 /// 전환해도 문서가 dirty 상태가 되지 않으며, 탭별 session archive에만
 /// 저장된다. `String` raw value는 JSON에 장기 저장되므로 한번 배포한
 /// 값은 함부로 이름을 바꾸지 않는다.
+// [학습 02] 세 케이스(case)는 허용되는 값의 전체 목록입니다. String은 원시값(raw value)의 타입이고,
+// 나머지는 모든 값 나열·직렬화(serialization)·식별 기능을 약속하는 프로토콜(protocol)입니다.
 enum PDFWorkspaceMode: String, CaseIterable, Codable, Identifiable {
     case viewer
     case editing
     case study
 
+    // [학습 02] 계산 속성(computed property)은 별도 값을 저장하지 않고 읽을 때 rawValue를 돌려줍니다.
+    // 표시 이름(title)을 식별자로 쓰지 않아 언어를 바꿔도 같은 모드로 인식합니다.
     var id: String { rawValue }
 
     var title: String {
@@ -62,6 +66,8 @@ enum PDFWorkspaceMode: String, CaseIterable, Codable, Identifiable {
         PDFWorkspaceModePolicy.toolbarSections(for: self)
     }
 
+    // [학습 02] `_`는 mode.allows(.ocr)처럼 호출할 때 인자 레이블(argument label)을 생략하게 합니다.
+    // 아래에 있는 같은 이름의 함수는 WorkspaceTool을 받으며, 타입에 따라 구분하는 오버로딩(overloading)의 예입니다.
     func allows(_ capability: PDFWorkspaceCapability) -> Bool {
         capabilities.contains(capability)
     }
@@ -132,6 +138,8 @@ enum PDFWorkspaceToolbarSection: String, Hashable {
 /// 세 mode의 유일한 capability 표다.
 enum PDFWorkspaceModePolicy {
     static func capabilities(for mode: PDFWorkspaceMode) -> Set<PDFWorkspaceCapability> {
+        // [학습 02] Set은 중복을 허용하지 않고 순서를 보장하지 않는 집합(set)이므로 이런 권한 목록에 적합합니다.
+        // union은 common 자체를 고치지 않고 모드별 권한을 합친 새 값을 반환합니다.
         let common: Set<PDFWorkspaceCapability> = [
             .reading,
             .textSelection,

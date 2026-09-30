@@ -141,6 +141,13 @@ struct PluginSettingsSheet: View {
                     defaultValue: "플러그인 옵션"
                 )
             ) {
+                Toggle(
+                    L10n.string("translation.settings.web_default", defaultValue: "웹 번역 도우미를 기본으로 열기"),
+                    isOn: $draft.translationUsesWebCompanion
+                )
+
+                cardDivider
+
                 settingRow(
                     title: L10n.string(
                         "plugins.settings.translation_provider",

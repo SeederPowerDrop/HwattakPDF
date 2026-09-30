@@ -12,6 +12,8 @@ import PDFKit
 /// 직접 쓰기는 프로세스 중단에 대한 원자성은 낮지만, 쓰기 전에 완전한 PDF인지
 /// 확인하고 쓴 뒤에도 다시 열어 조용한 손상을 최대한 탐지한다.
 enum AtomicPDFWriter {
+    // [학습 05] 이 enum은 케이스(case)로 값을 만드는 대신 static 함수를 묶는 이름 공간(namespace)입니다.
+    // Documentation/Learning/05-SAVING-OCR.md에서 저장 단계와 실패 경로를 함께 읽어 보세요.
     private enum StagingFailure: Error {
         case pdfKitReturnedFalse
     }
@@ -38,7 +40,7 @@ enum AtomicPDFWriter {
             destination: destination
         )
         let temporary = parent.appendingPathComponent(
-            ".\(destination.lastPathComponent).\(UUID().uuidString).tmp"
+            ".HwattakPDF-\(UUID().uuidString).tmp"
         )
 
         do {
@@ -58,6 +60,8 @@ enum AtomicPDFWriter {
             // Serializing a very large PDF can take seconds. Revalidate only
             // after the complete temporary file is ready so an external save
             // during that interval cannot be silently replaced at commit time.
+            // [학습 05] 옵셔널 클로저(optional closure)의 `?()`는 값이 있을 때만 클로저를 호출합니다.
+            // 검사 시점은 직렬화(serialization) 이후입니다. 큰 파일을 쓰는 동안 저장 대상 파일이 달라질 수 있습니다.
             try validateDestinationBeforeCommit?()
             try destinationPrecondition.validate()
             if fileManager.fileExists(atPath: destination.path) {
@@ -72,6 +76,8 @@ enum AtomicPDFWriter {
             // Semantic validation failures (external edit, Save Copy alias,
             // invalid staged PDF) are intentional stops. Falling back after
             // any of them would bypass the very guard that protected the user.
+            // [학습 05] 다시 시도할 수 있는 오류와 중단해야 하는 오류를 구분합니다.
+            // 문서 충돌처럼 검증에서 발견한 문제를 다른 쓰기 방식으로 우회하면 검증한 의미가 없어집니다.
             if let workspaceError = atomicError as? WorkspaceError {
                 throw workspaceError
             }
@@ -109,25 +115,21 @@ enum AtomicPDFWriter {
             // preferred atomic path fail for PDFs opened through NSOpenPanel.
             // Serialize and validate before touching the destination, then
             // fall back to a direct write that only needs access to the file.
-            do {
-                try writeValidatedDirectly(
-                    document,
-                    to: destination,
-                    writeOptions: writeOptions,
-                    validateSerializedDocument: validateSerializedDocument,
-                    validateDestinationBeforeCommit: {
-                        try validateDestinationBeforeCommit?()
-                        try destinationPrecondition.validate()
-                    },
-                    onDirectWriteCommit: onDirectWriteFallback
-                )
-                return destination
-            } catch {
-                if let workspaceError = error as? WorkspaceError {
-                    throw workspaceError
-                }
-                throw WorkspaceError.cannotSave(destination)
-            }
+            // Propagate the system's permission/disk/I/O reason to the UI.
+            // [학습 05] 이 호환용 처리 방식은 저장 전후에 검증하지만 원자적 교체(atomic replacement)는 아닙니다.
+            // 쓰기 도중 종료되면 원본 파일이 일부만 기록될 수 있다는 한계가 있습니다.
+            try writeValidatedDirectly(
+                document,
+                to: destination,
+                writeOptions: writeOptions,
+                validateSerializedDocument: validateSerializedDocument,
+                validateDestinationBeforeCommit: {
+                    try validateDestinationBeforeCommit?()
+                    try destinationPrecondition.validate()
+                },
+                onDirectWriteCommit: onDirectWriteFallback
+            )
+            return destination
         }
     }
 
@@ -187,23 +189,17 @@ enum AtomicPDFWriter {
             validateSerializedDocument: validateSerializedDocument
         )
 
-        do {
-            // Do not request `.atomic` here: Foundation would create another
-            // sibling file, recreating the sandbox failure this is handling.
-            try validateDestinationBeforeCommit?()
-            try validateIsolatedRegularFileForDirectWrite(at: destination)
-            onDirectWriteCommit?()
-            try data.write(to: destination, options: [])
-            try validatePDF(
-                at: destination,
-                expectedPageCount: document.pageCount,
-                validateSerializedDocument: validateSerializedDocument
-            )
-        } catch let error as WorkspaceError {
-            throw error
-        } catch {
-            throw WorkspaceError.cannotSave(destination)
-        }
+        // Do not request `.atomic` here: Foundation would create another
+        // sibling file, recreating the sandbox failure this is handling.
+        try validateDestinationBeforeCommit?()
+        try validateIsolatedRegularFileForDirectWrite(at: destination)
+        onDirectWriteCommit?()
+        try data.write(to: destination, options: [])
+        try validatePDF(
+            at: destination,
+            expectedPageCount: document.pageCount,
+            validateSerializedDocument: validateSerializedDocument
+        )
     }
 
     /// Direct writes follow symlinks and mutate every hard link to one inode.

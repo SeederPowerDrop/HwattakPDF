@@ -35,7 +35,7 @@ struct WorkspaceView: View {
     /// sidebar and triggered its request-cancellation lifecycle.
     @SceneStorage("ai.assistantPanelVisible") private var aiPanelVisible = false
     @AppStorage(WorkspaceChromePreferences.modeToolsVisibleKey)
-    private var modeToolsVisible = true
+    private var modeToolsVisible = false
     @AppStorage(PageSidebarPreferences.layoutModeKey)
     private var pageSidebarLayoutModeValue = PageSidebarLayoutMode.single.rawValue
     @AppStorage(PageSidebarPreferences.thumbnailScaleKey)
@@ -1079,11 +1079,15 @@ struct WorkspaceView: View {
         }
     }
 
-    private func exportOCRCopy() {
-        let base = workspace.documentURL?.deletingPathExtension().lastPathComponent ?? "HwattakPDF"
-        if let url = WorkspaceFilePanels.chooseSavePDF(suggestedName: "\(base)-searchable.pdf") {
-            workspace.exportSearchableOCRCopy(to: url)
-        }
+    private func exportOCRCopy() async -> Bool {
+        guard workspace.canUseCompletedOCRResult else { return false }
+        let destination = OCRExportDestination(sourceURL: workspace.documentURL)
+        guard let url = WorkspaceFilePanels.chooseSavePDF(
+            suggestedName: destination.fileName,
+            title: L10n.string("ocr.result.save_copy"),
+            directoryURL: destination.directoryURL
+        ) else { return false }
+        return await workspace.exportSearchableOCRCopy(to: url)
     }
 
     private func exportProtectedPDF(

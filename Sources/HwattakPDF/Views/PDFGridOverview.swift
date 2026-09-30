@@ -105,12 +105,10 @@ struct PDFGridOverview: View {
                             return
                         }
                     }
-                    withAnimation(.easeOut(duration: 0.2)) {
-                        proxy.scrollTo(
-                            navigationTarget(for: newValue),
-                            anchor: navigationAnchor(for: metrics)
-                        )
-                    }
+                    proxy.scrollTo(
+                        navigationTarget(for: newValue),
+                        anchor: navigationAnchor(for: metrics)
+                    )
                 }
                 .onChange(of: workspace.pageColumns) { _, _ in
                     establishInitialPosition(using: proxy, metrics: metrics)
@@ -179,10 +177,13 @@ struct PDFGridOverview: View {
                 groupPagingControls
             }
         }
-        .focusable()
-        .focused($isPageGridFocused)
+        .modifier(PDFArrowKeyNavigationModifier(
+            isFocused: $isPageGridFocused,
+            contextID: "\(workspace.revision)-\(workspace.mode)-\(workspace.pageColumns)-\(layoutMode)-\(pagingDirection)",
+            onArrow: handlePagingKey
+        ))
         .onKeyPress(
-            keys: [.upArrow, .downArrow, .leftArrow, .rightArrow, .pageUp, .pageDown],
+            keys: [.pageUp, .pageDown],
             phases: [.down, .repeat]
         ) { keyPress in
             guard keyPress.modifiers.intersection([.command, .control, .option, .shift]).isEmpty else {

@@ -84,16 +84,23 @@ struct PageThumbnailView: View {
     let revision: UUID
     var showPageNumber = true
     @State private var renderedImage: NSImage?
-    @State private var renderedRequestID: String?
+    @State private var renderedContentID: String?
+
+    private var contentID: String {
+        "\(revision)-\(pageIndex)-\(page.rotation)-\(efficientRenderingEnabled)"
+    }
 
     private var requestID: String {
-        "\(revision)-\(pageIndex)-\(width)-\(page.rotation)-\(efficientRenderingEnabled)"
+        "\(contentID)-\(width)"
     }
 
     private var pageAspectRatio: CGFloat {
         let size = page.bounds(for: .cropBox).size
-        guard size.width > 0, size.height > 0 else { return 1 }
-        return abs(page.rotation % 180) == 90 ? size.height / size.width : size.width / size.height
+        guard size.width.isFinite, size.height.isFinite,
+              size.width > 0, size.height > 0 else { return 1 }
+        let aspect = abs(page.rotation % 180) == 90
+            ? size.height / size.width : size.width / size.height
+        return aspect.isFinite && aspect > 0 ? aspect : 1
     }
 
     @Environment(\.colorScheme) private var colorScheme
@@ -105,8 +112,12 @@ struct PageThumbnailView: View {
 
         return VStack(spacing: 9) {
             Group {
-                if renderedRequestID == requestID, let renderedImage {
-                    Image(nsImage: renderedImage).resizable().aspectRatio(contentMode: .fit)
+                // Keep the last raster visible while a resize requests a new
+                // resolution. A changed page/revision still clears stale content.
+                if renderedContentID == contentID, let renderedImage {
+                    Image(nsImage: renderedImage)
+                        .resizable()
+                        .aspectRatio(pageAspectRatio, contentMode: .fit)
                 } else {
                     Rectangle().fill(Color.white).aspectRatio(pageAspectRatio, contentMode: .fit)
                 }
@@ -117,7 +128,7 @@ struct PageThumbnailView: View {
                     RoundedRectangle(cornerRadius: 4, style: .continuous)
                         .stroke(Color.black.opacity(colorScheme == .dark ? 0.24 : 0.08), lineWidth: 0.75)
                 }
-                .shadow(color: theme.elevatedShadow, radius: 10, y: 4)
+                .shadow(color: theme.elevatedShadow, radius: 3, y: 1)
                 .accessibilityLabel(L10n.format("page.number", pageIndex + 1))
 
             if showPageNumber {
@@ -134,11 +145,11 @@ struct PageThumbnailView: View {
             let image = PageImageCache.shared.image(for: page, pageIndex: pageIndex,
                 width: width, revision: revision, efficientRenderingEnabled: efficientRenderingEnabled)
             renderedImage = image
-            renderedRequestID = requestID
+            renderedContentID = contentID
         }
         .onDisappear {
             renderedImage = nil
-            renderedRequestID = nil
+            renderedContentID = nil
         }
     }
 }

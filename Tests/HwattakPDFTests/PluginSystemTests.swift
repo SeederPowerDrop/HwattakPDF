@@ -124,6 +124,7 @@ final class PluginSystemTests: XCTestCase {
             PluginPreferences.followAppLanguageCode
         )
         XCTAssertFalse(decoded.translationShowsSource)
+        XCTAssertFalse(decoded.translationUsesWebCompanion)
         XCTAssertFalse(decoded.youtubeLoadsStartPage)
         XCTAssertEqual(decoded.browserSearchEngine, .google)
         XCTAssertFalse(decoded.browserLoadsStartPage)
@@ -1097,6 +1098,7 @@ final class PluginSystemTests: XCTestCase {
             translationProvider: .claude,
             translationTargetLanguageCode: "en",
             translationShowsSource: false,
+            translationUsesWebCompanion: true,
             youtubeLoadsStartPage: false,
             browserSearchEngine: .duckDuckGo,
             browserLoadsStartPage: false
@@ -1734,6 +1736,7 @@ final class PluginSystemTests: XCTestCase {
         XCTAssertEqual(request.pluginIdentifier, translateManifest.identifier)
         XCTAssertEqual(request.manifestDigest, translatePlugin.manifestDigest)
         XCTAssertEqual(request.documentRevision, capturedRevision)
+        XCTAssertEqual(request.sourceDocumentURL, workspace.documentURL)
         XCTAssertEqual(request.actionID, translateAction.id)
         XCTAssertEqual(request.kind, .translation)
         XCTAssertEqual(request.sourceText, sourceText)
@@ -1748,6 +1751,24 @@ final class PluginSystemTests: XCTestCase {
         XCTAssertNil(workspace.pluginPanelRequest)
         XCTAssertEqual(request.sourceText, sourceText, "The captured value is immutable")
         XCTAssertEqual(request.documentRevision, capturedRevision)
+    }
+
+    func testTranslationSelectionIsNotSilentlyLimitedToShareNoteExcerpt() throws {
+        let pdfURL = try writeTextPDF(String(repeating: "i ", count: 2_600))
+        let workspace = PDFWorkspaceState()
+        XCTAssertTrue(workspace.open(url: pdfURL))
+        let page = try XCTUnwrap(workspace.document?.page(at: 0))
+        let text = try XCTUnwrap(page.string)
+        XCTAssertGreaterThan(text.count, PDFShareNote.maximumExcerptCharacters)
+        workspace.currentSelection = page.selection(for: NSRange(location: 0, length: text.utf16.count))
+        let action = makeAction(output: .translatePanel, template: "{{selection}}")
+        let plugin = installedPlugin(manifest: makeManifest(
+            capabilities: [.selectedText, .clipboardWrite, .translationService], actions: [action]
+        ))
+        let effect = try PluginActionRunner().run(plugin: plugin, action: action, workspace: workspace)
+        guard case .openedPanel(let request) = effect else { return XCTFail("Expected translation panel") }
+        XCTAssertGreaterThan(try XCTUnwrap(request.sourceText).count, PDFShareNote.maximumExcerptCharacters)
+        workspace.close()
     }
 
     func testTranslationCommandAvailabilityMatchesWorkspaceModePolicy() throws {

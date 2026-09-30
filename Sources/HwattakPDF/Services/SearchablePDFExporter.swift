@@ -7,10 +7,9 @@ import PDFKit
 
 /// OCR 결과를 보이지 않는 텍스트 층으로 합성한 새 PDF를 만든다.
 ///
-/// 원본 PDF를 직접 수정하지 않고 각 페이지의 **보이는 모습**을 새 PDF에 그린 뒤
-/// Vision 좌표에 투명 텍스트를 얹는다. 따라서 검색/선택은 가능해지지만 링크,
-/// 양식, 기존 전자서명 같은 상호작용 객체는 평탄화된다. 이 차이는 UI와 README에
-/// 명시되어 있으며, 사용자는 항상 원본을 별도로 보관해야 한다.
+/// 새로 인식한 글자가 있는 페이지만 다시 그리고 투명한 텍스트를 얹는다.
+/// 다른 페이지와 인식을 건너뛴 페이지는 원래 PDF 구조 그대로 복사한다.
+/// 다시 그린 페이지의 링크와 양식은 편집 기능이 사라질 수 있다.
 enum SearchablePDFExporter {
     /// 전체 결과를 임시 파일에 완성하고 다시 열어 검증한 뒤 destination으로 옮긴다.
     static func export(
@@ -18,19 +17,18 @@ enum SearchablePDFExporter {
         checkpoint: OCRCheckpoint,
         to destination: URL,
         sourceURL: URL? = nil,
+        renderDPI: CGFloat = 220,
         beforeDestinationCommit: (() throws -> Void)? = nil
     ) throws {
         try PDFDocumentSecurityPolicy.validateCanExportSearchableOCR(document)
         guard
             checkpoint.pageCount == document.pageCount,
-            checkpoint.pages.keys.allSatisfy({ $0 >= 0 && $0 < document.pageCount })
+            checkpoint.pages.allSatisfy({ index, result in
+                index >= 0 && index < document.pageCount && result.pageIndex == index
+            })
         else {
             throw WorkspaceError.operationFailed(L10n.string("error.validate_ocr_copy"))
         }
-        let parent = destination.deletingLastPathComponent()
-        let temporary = parent.appendingPathComponent(
-            ".\(destination.lastPathComponent).\(UUID().uuidString).ocr.tmp"
-        )
         let access = SecurityScopedAccess(url: destination)
         // Protect both identities independently. A direct caller must not be
         // able to hide PDFKit's actual disk source by supplying a different
@@ -40,41 +38,145 @@ enum SearchablePDFExporter {
         // The save-panel extension must remain active through staging,
         // validation, the final alias recheck, and the move/replace commit.
         defer { withExtendedLifetime(access) {} }
-        defer { try? FileManager.default.removeItem(at: temporary) }
         try validateDoesNotAliasSource(protectedSourceURLs, destination: destination)
         let destinationPrecondition = try PDFDestinationPrecondition(
             destination: destination
         )
 
-        guard
-            let consumer = CGDataConsumer(url: temporary as CFURL),
-            let context = CGContext(consumer: consumer, mediaBox: nil, nil)
-        else {
-            throw WorkspaceError.cannotSave(destination)
+        // NSSavePanel can authorize only the chosen file, not a temporary
+        // sibling in its folder. Render in our private temporary directory,
+        // then let the shared writer handle the file-scoped save permission.
+        let fileManager = FileManager.default
+        let stagingDirectory = fileManager.temporaryDirectory.appendingPathComponent(
+            "HwattakPDF-OCRExport-\(UUID().uuidString)", isDirectory: true
+        )
+        try fileManager.createDirectory(
+            at: stagingDirectory,
+            withIntermediateDirectories: false,
+            attributes: [.posixPermissions: 0o700]
+        )
+        defer { try? fileManager.removeItem(at: stagingDirectory) }
+        let replacementIndexes = PDFOCRApplication.replacementPageIndexes(checkpoint: checkpoint).sorted()
+        let snapshotData: Data?
+        if document.isEncrypted {
+            // Only owner-unlocked sources reach this point. Like the OCR
+            // snapshot writer, produce a passwordless, process-local copy.
+            snapshotData = document.dataRepresentation(options: [
+                .ownerPasswordOption: "",
+                .userPasswordOption: "",
+                PDFDocumentWriteOption(rawValue: kCGPDFContextEncryptionKeyLength as String): NSNumber(value: 128)
+            ])
+        } else {
+            snapshotData = document.dataRepresentation()
         }
+        guard let snapshotData,
+              let stagedDocument = PDFDocument(data: snapshotData),
+              !stagedDocument.isLocked,
+              stagedDocument.pageCount == document.pageCount else {
+            throw WorkspaceError.operationFailed(L10n.string("error.validate_ocr_copy"))
+        }
+        // Keep the page objects from this full-document copy. Rebuilding all
+        // pages through Core Graphics would flatten unselected annotations,
+        // forms, and links and discard their original crop/rotation geometry.
+        var outputPages = try (0..<stagedDocument.pageCount).map { index in
+            guard let page = stagedDocument.page(at: index) else {
+                throw WorkspaceError.operationFailed(L10n.format("error.ocr_page_load", index + 1))
+            }
+            return page
+        }
+        if !replacementIndexes.isEmpty {
+            let temporary = stagingDirectory.appendingPathComponent("recognized-pages.pdf")
+            try renderRecognizedPages(
+                in: document, checkpoint: checkpoint, pageIndexes: replacementIndexes,
+                to: temporary, renderDPI: renderDPI
+            )
+            guard let recognizedDocument = PDFDocument(url: temporary),
+                  recognizedDocument.pageCount == replacementIndexes.count else {
+                throw WorkspaceError.operationFailed(L10n.string("error.validate_ocr_copy"))
+            }
+            for (renderedIndex, originalIndex) in replacementIndexes.enumerated() {
+                guard let page = recognizedDocument.page(at: renderedIndex) else {
+                    throw WorkspaceError.operationFailed(L10n.string("error.validate_ocr_copy"))
+                }
+                outputPages[originalIndex] = page
+            }
+            let originalPages = (0..<stagedDocument.pageCount).compactMap { stagedDocument.page(at: $0) }
+            let linkChanges = PDFOCRApplication.linkDestinationChanges(from: originalPages, to: outputPages)
+            let outline = PDFOCRApplication.copyOutline(
+                stagedDocument.outlineRoot, from: stagedDocument, to: outputPages
+            )
+            for index in replacementIndexes {
+                stagedDocument.removePage(at: index)
+                stagedDocument.insert(outputPages[index], at: index)
+            }
+            for change in linkChanges { change.apply() }
+            stagedDocument.outlineRoot = outline
+        }
+        try Task.checkCancellation()
 
-        for index in 0..<document.pageCount {
-            guard let page = document.page(at: index) else { continue }
-            let sourceBounds = page.bounds(for: .cropBox)
-            let rotated = abs(page.rotation % 180) == 90
-            let outputSize = rotated
-                ? CGSize(width: sourceBounds.height, height: sourceBounds.width)
-                : sourceBounds.size
-            var mediaBox = CGRect(origin: .zero, size: outputSize)
-            let pageInfo = [kCGPDFContextMediaBox as String: Data(bytes: &mediaBox, count: MemoryLayout<CGRect>.size)] as CFDictionary
-            context.beginPDFPage(pageInfo)
+        try AtomicPDFWriter.write(
+            stagedDocument,
+            to: destination,
+            validateDestinationBeforeCommit: {
+                // Keep the precondition captured BEFORE OCR rendering, not
+                // just the one the writer captures before serialization.
+                try beforeDestinationCommit?()
+                try validateDoesNotAliasSource(protectedSourceURLs, destination: destination)
+                try destinationPrecondition.validate()
+            }
+        )
 
-            context.saveGState()
-            context.setFillColor(CGColor(gray: 1, alpha: 1))
-            context.fill(mediaBox)
-            // PDFPage draws the crop box with its rotation and printable
-            // annotation appearances. This keeps handwritten notes and image
-            // stamps visible in the derived OCR copy while the original stays
-            // untouched. Interactive links/forms are intentionally flattened.
-            page.draw(with: .cropBox, to: context)
-            context.restoreGState()
+        guard PDFDocument(url: destination)?.pageCount == document.pageCount else {
+            throw WorkspaceError.operationFailed(L10n.string("error.reopen_ocr_copy"))
+        }
+    }
 
-            if let result = checkpoint.pages[index], !result.skippedBecauseTextExists {
+    /// Render only pages with usable new recognition. A skipped or empty
+    /// result must not flatten a page merely because it was in the OCR range.
+    private static func renderRecognizedPages(
+        in document: PDFDocument,
+        checkpoint: OCRCheckpoint,
+        pageIndexes: [Int],
+        to temporary: URL,
+        renderDPI: CGFloat
+    ) throws {
+        guard let consumer = CGDataConsumer(url: temporary as CFURL),
+              let context = CGContext(consumer: consumer, mediaBox: nil, nil) else {
+            throw WorkspaceError.cannotSave(temporary)
+        }
+        defer { context.closePDF() }
+        for index in pageIndexes {
+            try Task.checkCancellation()
+            try autoreleasepool {
+                guard let page = document.page(at: index),
+                      let result = checkpoint.pages[index] else {
+                    throw WorkspaceError.operationFailed(L10n.format("error.ocr_page_load", index + 1))
+                }
+                let sourceBounds = page.bounds(for: .cropBox)
+                let rotated = abs(page.rotation % 180) == 90
+                let outputSize = rotated
+                    ? CGSize(width: sourceBounds.height, height: sourceBounds.width)
+                    : sourceBounds.size
+                var mediaBox = CGRect(origin: .zero, size: outputSize)
+                let pageInfo = [kCGPDFContextMediaBox as String: Data(
+                    bytes: &mediaBox, count: MemoryLayout<CGRect>.size
+                )] as CFDictionary
+                context.beginPDFPage(pageInfo)
+                defer { context.endPDFPage() }
+                context.saveGState()
+                context.setFillColor(CGColor(gray: 1, alpha: 1))
+                context.fill(mediaBox)
+                let hasExistingText = !(page.string ?? "")
+                    .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                if hasExistingText {
+                    // Drawing into a PDF copies its old hidden text. Replace
+                    // inaccurate OCR instead of stacking two text layers.
+                    let image = try VisionOCRService.render(page: page, dpi: renderDPI)
+                    context.draw(image, in: mediaBox)
+                } else {
+                    page.draw(with: .cropBox, to: context)
+                }
+                context.restoreGState()
                 drawInvisibleText(
                     result.observations,
                     sourceBounds: sourceBounds,
@@ -83,43 +185,6 @@ enum SearchablePDFExporter {
                     context: context
                 )
             }
-
-            context.endPDFPage()
-        }
-        context.closePDF()
-
-        // Never replace the user's chosen destination with an unopenable
-        // partial result. Validate the staging file first.
-        guard
-            let stagedDocument = PDFDocument(url: temporary),
-            stagedDocument.pageCount == document.pageCount
-        else {
-            try? FileManager.default.removeItem(at: temporary)
-            throw WorkspaceError.operationFailed(L10n.string("error.validate_ocr_copy"))
-        }
-
-        let fileManager = FileManager.default
-        do {
-            // OCR export may take minutes. Respect a file created or edited at
-            // the chosen path while pages were rendered instead of replacing it.
-            try beforeDestinationCommit?()
-            try validateDoesNotAliasSource(protectedSourceURLs, destination: destination)
-            try destinationPrecondition.validate()
-            if fileManager.fileExists(atPath: destination.path) {
-                _ = try fileManager.replaceItemAt(destination, withItemAt: temporary)
-            } else {
-                try fileManager.moveItem(at: temporary, to: destination)
-            }
-        } catch let workspaceError as WorkspaceError {
-            try? fileManager.removeItem(at: temporary)
-            throw workspaceError
-        } catch {
-            try? fileManager.removeItem(at: temporary)
-            throw WorkspaceError.cannotSave(destination)
-        }
-
-        guard PDFDocument(url: destination)?.pageCount == document.pageCount else {
-            throw WorkspaceError.operationFailed(L10n.string("error.reopen_ocr_copy"))
         }
     }
 

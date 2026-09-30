@@ -15,6 +15,8 @@ enum MainWorkspaceWindowID: String, Codable, Hashable {
 @main
 struct HwattakPDFApp: App {
     @NSApplicationDelegateAdaptor(HwattakPDFAppDelegate.self) private var appDelegate
+    // [학습 03] View가 다시 계산되어도 탭 모델의 식별성(identity)은 유지되어야 합니다.
+    // 모델을 생성하는 이곳에서는 @StateObject를, 전달받는 TabbedWorkspaceView에서는 @ObservedObject를 씁니다.
     @StateObject private var workspace: MultiDocumentWorkspaceState
     @StateObject private var preferences = AppPreferences.shared
     @StateObject private var iconManager = AppIconManager.shared
@@ -31,6 +33,8 @@ struct HwattakPDFApp: App {
             recentDocumentsStore: recentDocuments,
             sessionStore: sessionStore
         )
+        // [학습 02] 밑줄로 시작하는 이름은 프로퍼티 래퍼(property wrapper)의 저장소입니다.
+        // 같은 객체를 래퍼와 sessionCoordinator에 전달하므로 두 곳에서 서로 다른 탭 목록을 만들지 않습니다.
         _workspace = StateObject(wrappedValue: workspace)
         sessionCoordinator = AppWideWorkspaceSessionCoordinator(
             mainWorkspace: workspace,
@@ -51,6 +55,8 @@ struct HwattakPDFApp: App {
             )
                 .frame(minWidth: 1_180, minHeight: 690)
                 .background(WindowCloseGuard(workspace: workspace))
+                // [학습 03] 메뉴는 View의 자식이 아니므로 현재 창의 모델을 포커스(focus)를 통해 전달합니다.
+                // 아래 environmentObject는 이 장면의 자식 View들이 공유 설정에 접근하는 통로입니다.
                 .focusedSceneObject(workspace)
                 .environmentObject(preferences)
                 .environmentObject(iconManager)
@@ -80,6 +86,8 @@ struct HwattakPDFApp: App {
             HelpTutorialCommands()
         }
 
+        // [학습 03] 분리한 탭은 독립 창의 루트 뷰(root view)에 들어갑니다. 주 창의 workspace를
+        // 재사용하지 않는 이유는 두 창의 활성 탭과 닫기 처리를 독립적으로 유지하기 위해서입니다.
         WindowGroup("HwattakPDF", for: UUID.self) { $requestID in
             PDFTabTearOutWindowRoot(
                 requestID: requestID,
@@ -169,7 +177,7 @@ private struct HwattakPDFCommands: Commands {
     @FocusedValue(\.comparisonReadOnlyActive) private var comparisonReadOnlyActive
     @FocusedValue(\.workspacePresentationCommands) private var presentationCommands
     @AppStorage(WorkspaceChromePreferences.modeToolsVisibleKey)
-    private var modeToolsVisible = true
+    private var modeToolsVisible = false
     @AppStorage("pageOverviewPlacement")
     private var pageOverviewPlacementValue = PageOverviewPlacement.left.rawValue
     @AppStorage(PDFPageNavigationMode.defaultsKey)

@@ -2,7 +2,7 @@
 
 문서가 많아질수록 “어떤 파일이 최신 기준인지” 찾기 어려워집니다. 목적에 맞는 시작점을 아래에서 고르세요. 기능 설명이 서로 다르면 현재 코드와 테스트, `PRODUCT.md`, `ARCHITECTURE.md` 순으로 근거를 확인하고 불일치를 Issue로 남깁니다.
 
-현재 소스 문서 기준은 **HwattakPDF 0.9.0 (build 19) Developer Preview**입니다. 9월 22일 로컬 패키지와 [9월 23일 이름 통일·누적 소스 갱신](SOURCE-UPDATE-2026-09-23.md)을 구분합니다. 마지막 GitHub Release 다운로드 배포본은 **0.8.0 (build 18)**이며, 소스 갱신은 새 Release 자산 공개를 뜻하지 않습니다. 0.9.0은 이미지·HTML 기반 PDF 만들기, Word/PowerPoint 내보내기, 작업 복구, 문서 명령 플러그인과 파일 연결·화면 모드·읽기 조작의 누적 변경을 포함합니다. 실제 검사와 아직 남은 Office·기기별 수동 확인은 배포 검증 기록에서 구분합니다. 과거 날짜의 문서는 당시 상태의 기록입니다.
+현재 소스 문서 기준은 **HwattakPDF 0.9.0 (build 20) Developer Preview**, 최신 정리는 [2026-10-01 소스 갱신](SOURCE-UPDATE-2026-10-01.md)입니다. 차분한 홈·읽기 화면, 패널 크기에 맞춰 커지는 썸네일, 방향키 속도와 OCR·선택·번역 개선, Swift·Rust 학습 자료를 포함합니다. 마지막 GitHub Release 다운로드 배포본은 **0.8.0 (build 18)**이며, 소스 갱신은 새 Release 자산 공개를 뜻하지 않습니다. [9월 22일 로컬 패키지](RELEASE-VALIDATION-0.9.0.md)와 [9월 23일 이름 통일 기록](SOURCE-UPDATE-2026-09-23.md)의 검사 수·체크섬은 당시 기준으로 보존합니다.
 
 ## 사용자와 기여자
 
@@ -11,6 +11,7 @@
 | [프로젝트 README](../README.md) | 모든 사람 | 기능, 실행, 현재 한계 |
 | [개발노트](DEVELOPMENT-LOG.md) | 사용자·기여자 | 시작 동기부터 버전별 공개·개발·배포 준비의 문제·변경·검증·한계 |
 | [처음 기여자를 위한 코드 안내](ONBOARDING.md) | Swift 초보·첫 기여자 | 폴더, 상태 흐름, 저장·검색·OCR·변환 작업대 예제 |
+| [HwattakPDF로 배우는 앱 개발과 Rust](Learning/README.md) | 앱을 교재로 공부할 사람 | 기초 0장과 본문 7장, Swift·Rust 첫 실습, 실코드 주석, 연습과 해설 |
 | [플러그인 가이드](PLUGINS.md) | 사용자·플러그인 개발자·보안 검토자 | 설치·업데이트·비활성화·삭제, manifest schema 1·2·3, 번역·브라우저 패널과 문서 명령, 미배포 YouTube 실험 경계, 권한·상한·위협 모델 |
 | [기여 가이드](../CONTRIBUTING.md) | 기여자 | 작업 흐름, 주석, 테스트, PR 규칙 |
 | [행동 강령](../CODE_OF_CONDUCT.md) | 커뮤니티 | 협업 태도와 신고 절차 |
@@ -24,6 +25,10 @@
 | [아키텍처](ARCHITECTURE.md) | 상태 소유권, 모드 capability, 인라인 FreeText·학습 Stamp 경계, 저장·OCR·AI 구조와 불변 조건 |
 | [대용량 PDF 성능](LARGE-PDF-PERFORMANCE.md) | resident 예산, LRU 휴면, 측정 결과와 아직 필요한 실물 stress test |
 | [외부 AI와 MCP](AI-INTEGRATION.md) | 공급자별 기능, 전송 동의, Keychain, MCP 승인과 개인정보 경계 |
+| [로컬 언어팩 번역](LOCAL-TRANSLATION.md) | 별도 Argos 도우미 실행, 언어팩 설치·가져오기, 오프라인 범위와 검증 |
+| [PDF 글자·영역 선택 보정](REGION-SELECTION-2026-09-23.md) | 잘못된 글꼴 치수의 선택 보정, Option 드래그 OCR과 원문 보존 |
+| [OCR 흐름](OCR-WORKFLOW-2026-09-25.md) · [페이지 범위](OCR-PAGE-SCOPE-2026-09-25.md) | 지원 언어와 대상 확인, 현재 문서 적용·새 PDF 저장, 선택하지 않은 페이지 보존 |
+| [OCR 저장 수정](OCR-SAVE-FIX-2026-09-25.md) · [잘못된 텍스트 교체](OCR-TEXT-REPAIR-2026-09-25.md) | 선택 파일 권한·긴 파일명 처리, 재인식과 기존 텍스트 보정의 한계 |
 | [품질 점검 보고서](QUALITY_REPORT.md) | 공개 0.8.0의 검증 기준선, 이후 검사 기록의 안내와 수동 확인 필요 항목 |
 
 ## 공개와 릴리스 운영
@@ -33,6 +38,7 @@
 | [GitHub 공개 준비 체크리스트](GITHUB-PUBLISHING-CHECKLIST.md) | 저장소 설정·변경 commit·공개 릴리스와 미출시 개발 트리의 남은 확인 |
 | [라이선스 결정 기록](LICENSE-CHOICE.md) | MPL-2.0 선택 이유, 저작권 표기와 적용 상태 |
 | [자산 및 의존성 공개 기록](ASSET-AND-DEPENDENCY-NOTICES.md) | 소개 그림, 아이콘, fixture와 향후 제3자 의존성 권리 |
+| [2026-10-01 소스 갱신](SOURCE-UPDATE-2026-10-01.md) | 간결한 UI, 반응형 썸네일·방향키, OCR·번역·선택 개선과 이번 검증 |
 | [2026-09-23 소스 갱신](SOURCE-UPDATE-2026-09-23.md) | 제품 방향, HwattakPDF 이름 통일, Finder 제보 대응과 이번 소스 검증 |
 | [0.9.0 릴리스 노트](RELEASE-NOTES-0.9.0.md) | 누적 소스 변경·로컬 패키지 설치·알려진 한계 |
 | [0.9.0 배포 검증](RELEASE-VALIDATION-0.9.0.md) | 9월 22일 패키지 검사 결과·식별 정보·남은 수동 확인 |

@@ -99,6 +99,8 @@ struct PDFKitViewer: NSViewRepresentable {
         let coordinator = context.coordinator
         coordinator.updateState(state)
         coordinator.updateScrollActivityHandler(onScrollActivity)
+        // [학습 03] 여기서 go(to:)를 호출하면 PDFKit 알림도 발생할 수 있습니다.
+        // 적용 중인 상태임을 표시해 알림을 사용자 입력으로 다시 처리하지 않도록 하고, defer로 이 표시를 해제합니다.
         coordinator.isApplyingState = true
         defer { coordinator.isApplyingState = false }
         var pdfKitHierarchyMayHaveChanged = false
@@ -124,6 +126,8 @@ struct PDFKitViewer: NSViewRepresentable {
             pdfView.pageShadowsEnabled = pageShadowsEnabled
         }
 
+        // [학습 02] !==는 클래스 객체의 식별성(identity)을 비교합니다. 파일 내용의 차이가 아니라
+        // 지금 PDFView가 바로 그 PDFDocument 객체를 표시하는지 검사합니다.
         let documentChanged = pdfView.document !== state.document
         if documentChanged {
             pdfView.resetPageTurnGesture()
@@ -171,6 +175,8 @@ struct PDFKitViewer: NSViewRepresentable {
             }
         }
 
+        // [학습 03] PDFDocument 내부를 편집해도 document 참조(reference)는 같을 수 있습니다.
+        // 이때도 PDFKit에 다시 배치하고 그리도록 요청하기 위해 별도 변경 신호인 revision을 사용합니다.
         if coordinator.lastRevision != state.revision {
             pdfKitHierarchyMayHaveChanged = true
             coordinator.lastRevision = state.revision
@@ -220,6 +226,7 @@ struct PDFKitViewer: NSViewRepresentable {
         applySearchSelection(to: pdfView, coordinator: coordinator)
         coordinator.clearSelectionAfterMarkup(in: pdfView)
         pdfView.updatePageFitMode(revealCurrentPage: pdfKitHierarchyMayHaveChanged)
+        pdfView.regionSelection.synchronize()
         if documentChanged {
             coordinator.scheduleViewportRestoration(
                 state.pdfViewportState(for: viewportContext)
@@ -231,8 +238,8 @@ struct PDFKitViewer: NSViewRepresentable {
         NSColor(name: nil) { appearance in
             let isDark = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
             return isDark
-                ? NSColor(red: 0.051, green: 0.090, blue: 0.137, alpha: 1)
-                : NSColor(red: 0.933, green: 0.914, blue: 0.871, alpha: 1)
+                ? NSColor(white: 0.105, alpha: 1)
+                : NSColor(white: 0.945, alpha: 1)
         }
     }
 
@@ -281,6 +288,7 @@ struct PDFKitViewer: NSViewRepresentable {
         pdfView.resetViewportScrollGesture()
         pdfView.resetPageTurnGesture()
         pdfView.prepareAnnotationEditingOverlayForRemoval()
+        pdfView.regionSelection.cancel()
         pdfView.workspaceState = nil
     }
 
@@ -290,6 +298,8 @@ struct PDFKitViewer: NSViewRepresentable {
 
     @MainActor
     final class Coordinator: NSObject {
+        // [학습 03] 이 객체는 연결을 관리합니다. 문서 모델과 PDFView의 수명을 늘리지 않도록
+        // 약한 참조(weak reference)를 사용하며, 연결 대상이 사라진 상태(nil)도 정상적으로 처리해야 합니다.
         private(set) weak var state: PDFWorkspaceState?
         weak var pdfView: InteractivePDFView?
         var isApplyingState = false
@@ -340,6 +350,8 @@ struct PDFKitViewer: NSViewRepresentable {
         }
 
         func attach(to pdfView: InteractivePDFView) {
+            // [학습 03] 다시 연결하기 전에 기존 구독(subscription)을 해제해야 한 이벤트가 여러 번 처리되지 않습니다.
+            // object: pdfView는 이 창의 PDFView에서 온 알림만 받도록 범위를 제한하는 필터(filter)입니다.
             detach()
             self.pdfView = pdfView
             observeActiveSearchSelection()
@@ -1005,6 +1017,8 @@ struct PDFKitViewer: NSViewRepresentable {
         }
 
         @objc private func pageChanged(_ notification: Notification) {
+            // [학습 03] 아래 코드는 PDFKit에서 모델로 변경을 전달합니다. 반대로 모델을 화면에 적용하는 동안에는
+            // updateNSView가 isApplyingState를 켜므로 같은 페이지 이동을 다시 모델에 전달하지 않습니다.
             guard
                 !isApplyingState,
                 self.pdfView?.isApplyingPageFitScale != true,
@@ -1070,6 +1084,9 @@ struct PDFKitViewer: NSViewRepresentable {
                 !isApplyingState,
                 let pdfView = notification.object as? PDFView
             else { return }
+            if let interactive = pdfView as? InteractivePDFView {
+                interactive.regionSelection.cancel()
+            }
             state?.currentSelection = pdfView.currentSelection
         }
 
@@ -1085,15 +1102,22 @@ struct PDFKitViewer: NSViewRepresentable {
 }
 
 @MainActor
-final class InteractivePDFView: PDFView {
+final class InteractivePDFView: PDFView, NSMenuItemValidation {
     weak var workspaceState: PDFWorkspaceState?
+    lazy var regionSelection = PDFRegionSelectionController(owner: self)
     var activePageFitMode: PDFPageFitMode?
     var isApplyingPageFitScale = false
     var pageFitUpdateScheduled = false
     var revealPageAfterFitting = false
     var pageNavigationMode: PDFPageNavigationMode = .defaultValue {
-        didSet { if oldValue != pageNavigationMode { resetPageTurnGesture() } }
+        didSet {
+            if oldValue != pageNavigationMode {
+                resetPageTurnGesture()
+                arrowKeyRepeater.stop()
+            }
+        }
     }
+    let arrowKeyRepeater = PDFArrowKeyRepeater()
     var pageTurnGesture = PDFGridPagingGestureSession()
     var pageTurnResetWorkItem: DispatchWorkItem?
     var wheelZoomModifier: PDFWheelZoomModifier = .defaultValue
@@ -1118,6 +1142,7 @@ final class InteractivePDFView: PDFView {
     /// comparison viewport we swallow that sequence so PDFKit cannot create a
     /// field editor after the protected mouse-down.
     private var suppressingProtectedWidgetMouseSequence = false
+    private var ownsRegionMouseSequence = false
 
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
@@ -1133,6 +1158,7 @@ final class InteractivePDFView: PDFView {
 
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
+        arrowKeyRepeater.stop()
         relinquishNativeFileDropDestination()
     }
 
@@ -1151,6 +1177,11 @@ final class InteractivePDFView: PDFView {
             AppEditCommandRouter.shared.invalidate()
         }
         return accepted
+    }
+
+    override func resignFirstResponder() -> Bool {
+        arrowKeyRepeater.stop()
+        return super.resignFirstResponder()
     }
 
     func configure(with state: PDFWorkspaceState) {
@@ -1185,6 +1216,7 @@ final class InteractivePDFView: PDFView {
         super.layout()
         inkOverlay.frame = bounds
         schedulePageFitUpdate()
+        regionSelection.refreshOverlay()
     }
 
     override func resetCursorRects() {
@@ -1200,6 +1232,8 @@ final class InteractivePDFView: PDFView {
     }
 
     override func mouseDown(with event: NSEvent) {
+        // Recover if the preceding mouse-up was lost when focus changed.
+        ownsRegionMouseSequence = false
         // Events inside the floating panel never reach PDFView. Therefore an
         // event that does arrive here is an outside click and closes the prior
         // transaction before a new tool interprets the same pointer action.
@@ -1226,6 +1260,10 @@ final class InteractivePDFView: PDFView {
             // that mutates a document, so intercept only that hit.
             clearAnnotationEditingSelection()
             cancelInkStroke()
+            if regionSelection.begin(with: event) {
+                ownsRegionMouseSequence = true
+                return
+            }
             super.mouseDown(with: event)
             return
         }
@@ -1236,6 +1274,10 @@ final class InteractivePDFView: PDFView {
         switch activeTool {
         case .select:
             clearAnnotationEditingSelection()
+            if regionSelection.begin(with: event) {
+                ownsRegionMouseSequence = true
+                return
+            }
             super.mouseDown(with: event)
         case .text:
             handleTextClick(event)
@@ -1248,6 +1290,10 @@ final class InteractivePDFView: PDFView {
 
     override func mouseDragged(with event: NSEvent) {
         if suppressingProtectedWidgetMouseSequence {
+            return
+        }
+        if ownsRegionMouseSequence {
+            if regionSelection.isDragging { regionSelection.drag(with: event) }
             return
         }
         guard viewportContext == .normal else {
@@ -1267,6 +1313,11 @@ final class InteractivePDFView: PDFView {
             suppressingProtectedWidgetMouseSequence = false
             return
         }
+        if ownsRegionMouseSequence {
+            ownsRegionMouseSequence = false
+            if regionSelection.isDragging { regionSelection.end(with: event) }
+            return
+        }
         guard viewportContext == .normal else {
             cancelInkStroke()
             super.mouseUp(with: event)
@@ -1281,6 +1332,19 @@ final class InteractivePDFView: PDFView {
     }
 
     override func keyDown(with event: NSEvent) {
+        if event.keyCode == 53, regionSelection.isActive {
+            regionSelection.cancel()
+            return
+        }
+        if event.modifierFlags.contains(.command),
+           event.charactersIgnoringModifiers?.lowercased() == "c",
+           regionSelection.selection != nil {
+            copy(nil)
+            return
+        }
+        if regionSelection.isActive, !event.modifierFlags.contains(.command) {
+            regionSelection.cancel()
+        }
         if handlePageNavigationKey(event) { return }
         if suppressesNativeFormWidgetTraversal(keyCode: event.keyCode) {
             // PDFKit uses Tab/Shift-Tab to enter and cycle AcroForm controls.
@@ -1290,6 +1354,37 @@ final class InteractivePDFView: PDFView {
             return
         }
         super.keyDown(with: event)
+    }
+
+    override func keyUp(with event: NSEvent) {
+        arrowKeyRepeater.handleKeyUp(keyCode: event.keyCode)
+        super.keyUp(with: event)
+    }
+
+    override func clearSelection() {
+        regionSelection.cancel()
+        super.clearSelection()
+    }
+
+    override func copy(_ sender: Any?) {
+        guard let selection = regionSelection.selection else {
+            super.copy(sender)
+            return
+        }
+        guard workspaceState?.allows(.copyAndPaste) == true,
+              workspaceState?.currentSelection === selection,
+              document === workspaceState?.document,
+              let text = selection.string, !text.isEmpty else { return }
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(text, forType: .string)
+    }
+
+    func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+        if menuItem.action == #selector(copy(_:)) {
+            return workspaceState?.allows(.copyAndPaste) == true
+                && (regionSelection.selection != nil || currentSelection != nil)
+        }
+        return true
     }
 
     /// Small deterministic seam for the keyboard half of comparison read-only
@@ -1414,11 +1509,22 @@ final class InteractivePDFView: PDFView {
     }
 
     func invalidateDocumentScrollViewCache() {
+        arrowKeyRepeater.stop()
         cachedDocumentScrollView = nil
     }
 
     func restoreRenderingOverlayOrderIfNeeded() {
         restoreEditingOverlayOrderIfNeeded(above: inkOverlay)
+        regionSelection.refreshOverlay()
+    }
+
+    func positionRegionSelectionOverlay(_ overlay: NSView) {
+        let inkIndex = subviews.firstIndex { $0 === inkOverlay }
+        let overlayIndex = subviews.firstIndex { $0 === overlay }
+        guard let inkIndex else { return }
+        if overlayIndex != inkIndex - 1 {
+            addSubview(overlay, positioned: .below, relativeTo: inkOverlay)
+        }
     }
 
     var inkPreviewSubviewIndexForTesting: Int? {

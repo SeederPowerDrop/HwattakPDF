@@ -22,6 +22,8 @@ struct SettingsView: View {
     private var wheelZoomModifierValue = PDFWheelZoomModifier.defaultValue.rawValue
     @AppStorage(PDFPageNavigationMode.defaultsKey)
     private var pageNavigationModeValue = PDFPageNavigationMode.defaultValue.rawValue
+    @AppStorage(PDFKeyboardNavigationSpeed.defaultsKey)
+    private var keyboardNavigationSpeedValue = PDFKeyboardNavigationSpeed.defaultValue.rawValue
     @AppStorage(AppPerformanceSettings.efficientRenderingEnabledKey)
     private var efficientRenderingEnabled = AppPerformanceSettings.defaultEfficientRenderingEnabled
     /// TextField 편집 중인 secret은 영속 model에 실시간 반영하지 않는다.
@@ -288,6 +290,22 @@ struct SettingsView: View {
                 .frame(maxWidth: 360, alignment: .leading)
 
                 Text(L10n.string("pdf.navigation.help"))
+                    .font(.caption)
+                    .foregroundStyle(theme.secondaryText)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Picker(
+                    L10n.string("settings.pdf_input.keyboard_speed.label"),
+                    selection: $keyboardNavigationSpeedValue
+                ) {
+                    ForEach(PDFKeyboardNavigationSpeed.allCases) { speed in
+                        Text(speed.title).tag(speed.rawValue)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .frame(maxWidth: 360, alignment: .leading)
+
+                Text(L10n.string("settings.pdf_input.keyboard_speed.help"))
                     .font(.caption)
                     .foregroundStyle(theme.secondaryText)
                     .fixedSize(horizontal: false, vertical: true)

@@ -17,6 +17,9 @@ struct PDFEditNavigationSnapshot: Equatable {
 /// history is owned by that state and doing so would create a retain cycle.
 @MainActor
 final class PDFEditCommand {
+    // [학습 04] 명령 패턴(command pattern)은 "무엇을 되돌릴지"를 값과 클로저(closure)로 묶습니다.
+    // 클로저가 이력을 소유한 workspace를 강하게 참조하면 서로를 유지해 해제되지 않을 수 있으므로,
+    // 호출부는 필요한 페이지·주석·좌표만 캡처(capture)해야 합니다.
     let actionName: String
     let beforeNavigation: PDFEditNavigationSnapshot
     let afterNavigation: PDFEditNavigationSnapshot
@@ -77,6 +80,8 @@ final class PDFEditHistory {
 
     private var currentStateID = UUID()
     private var savedStateID: UUID
+    // [학습 04] UUID는 내용의 해시(hash)나 편집 횟수가 아니라 이력에서 특정 위치를 식별하는 값입니다.
+    // 저장 지점과 비교하므로 실행 취소(undo)를 해도 항상 미저장 변경이 있는 상태(dirty)가 되는 것은 아닙니다.
 
     init(
         limit: Int = PDFEditHistory.defaultLimit,
@@ -121,6 +126,8 @@ final class PDFEditHistory {
         undo: @escaping () throws -> Void,
         redo: @escaping () throws -> Void
     ) -> Bool {
+        // [학습 04] register는 변경을 실행하지 않습니다. 호출부에서 이미 수행한 편집을
+        // 되돌리는 실행 취소(undo) 동작과 다시 적용하는 다시 실행(redo) 동작을 기록하며, 적용 중 중복 등록도 막습니다.
         guard !isApplyingCommand else { return false }
 
         let nextStateID = UUID()
@@ -135,6 +142,7 @@ final class PDFEditHistory {
             undoMutation: undo,
             redoMutation: redo
         )
+        // 되돌린 뒤 새로 편집하면 이전 미래는 더 이상 현재 이력의 연장이 아니다.
         redoStack.removeAll(keepingCapacity: false)
         if retainedPageCost >= retainedPageLimit {
             // Preserve one oversized explicit page operation without also
@@ -142,6 +150,8 @@ final class PDFEditHistory {
             undoStack.removeAll(keepingCapacity: false)
         }
         undoStack.append(command)
+        // [학습 04] 명령 개수와 이력 때문에 메모리에 보관하는 페이지 수를 함께 제한합니다.
+        // 큰 작업 하나는 되돌릴 수 있도록 남기므로 retainedPageLimit은 반드시 지켜지는 상한은 아닙니다.
         while undoStack.count > limit || retainedPageCostTotal > retainedPageLimit {
             guard undoStack.count > 1 else { break }
             undoStack.removeFirst()
@@ -165,6 +175,9 @@ final class PDFEditHistory {
     func undo() throws -> PDFEditCommand? {
         guard !isApplyingCommand, let command = undoStack.last else { return nil }
         isApplyingCommand = true
+        // [학습 06] defer는 함수를 정상적으로 빠져나갈 때도, 오류로 빠져나갈 때도 실행됩니다.
+        // 변경 작업이 실패하면 아래 스택(stack) 이동과 UUID 변경은 실행하지 않습니다. 단, 작업 내부의 부분 변경까지
+        // 자동으로 롤백(rollback)하지는 않으므로 되돌리는 동작도 실패 시 안전하도록 작성해야 합니다.
         defer { isApplyingCommand = false }
         try command.undoMutation()
         undoStack.removeLast()

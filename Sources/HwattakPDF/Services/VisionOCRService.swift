@@ -39,12 +39,19 @@ enum VisionOCRService {
     }
 
     static func configurationFingerprint(for configuration: OCRConfiguration) -> String {
+        var canonical = configuration
+        if let indexes = canonical.pageIndexes {
+            canonical.pageIndexes = Array(Set(indexes)).sorted()
+        }
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys]
-        guard let data = try? encoder.encode(configuration) else {
+        guard let data = try? encoder.encode(canonical) else {
             return "configuration-encoding-failed"
         }
-        return fingerprint(for: data)
+        // Version 2 also invalidates schema-1 results that older versions may
+        // have migrated under a requested fingerprint without proving that
+        // their recognition settings matched. Explicit settings stay reliable.
+        return fingerprint(for: Data("vision-explicit-languages-v2\0".utf8) + data)
     }
 
     /// Uses a trusted source-baseline identity when available; otherwise hashes
@@ -85,11 +92,18 @@ enum VisionOCRService {
         checkpointStore: OCRCheckpointStore = OCRCheckpointStore(),
         progress: @escaping (Progress) -> Void
     ) async throws -> OCRCheckpoint {
+        // [학습 05] async를 붙인다고 오래 걸리는 작업이 UI 격리(isolation) 영역 밖으로 이동하지는 않습니다.
+        // 이 작업은 별도 스냅샷(snapshot)을 열어 화면에서 사용하는 PDF 객체와 분리된 객체를 사용합니다.
         let worker = Task.detached(priority: .utility) {
             try checkpointStore.withProcessingLease {
             guard let document = PDFDocument(url: pdfURL) else {
                 throw WorkspaceError.operationFailed(L10n.string("error.ocr_pdf_data"))
             }
+
+            // Validate once before hashing or processing the document, including
+            // runs where every page would otherwise be skipped or resumed.
+            let selectedIndexes = try configuration.resolvedPageIndexes(pageCount: document.pageCount)
+            let request = try recognitionRequest(configuration: configuration)
 
             let documentFingerprint = try resolveDocumentFingerprint(
                 for: pdfURL,
@@ -99,15 +113,25 @@ enum VisionOCRService {
             var checkpoint = checkpointStore.load(
                 fingerprint: documentFingerprint,
                 pageCount: document.pageCount,
-                configurationFingerprint: configurationFingerprint
+                configurationFingerprint: configurationFingerprint,
+                requiresConfigurationMatch: true
             ) ?? OCRCheckpoint(
                 documentFingerprint: documentFingerprint,
                 pageCount: document.pageCount,
                 configurationFingerprint: configurationFingerprint
             )
 
-            let total = document.pageCount
-            for index in 0..<total {
+            // [학습 05] 작업을 재개할 때 사용하는 데이터도 다시 검증합니다. 캐시(cache)가 있다는 사실만으로
+            // 현재 선택 범위에 속한 결과라고 믿으면 진행률과 적용 대상 페이지가 어긋납니다.
+            let selected = Set(selectedIndexes)
+            // Resume only pages that belong to this selection. In particular,
+            // a legacy checkpoint must never inflate scoped progress or apply
+            // an OCR result to a page the user did not select.
+            checkpoint.pages = checkpoint.pages.filter {
+                selected.contains($0.key) && $0.key == $0.value.pageIndex
+            }
+            let total = selectedIndexes.count
+            for index in selectedIndexes {
                 try Task.checkCancellation()
 
                 if checkpoint.pages[index] != nil {
@@ -139,7 +163,7 @@ enum VisionOCRService {
                         let image = try render(page: page, dpi: configuration.renderDPI)
                         return try recognize(
                             image: image,
-                            configuration: configuration
+                            request: request
                         )
                     }
                     result = OCRPageResult(
@@ -154,6 +178,8 @@ enum VisionOCRService {
                 try Task.checkCancellation()
                 checkpoint.pages[index] = result
                 checkpoint.updatedAt = result.completedAt
+                // [학습 05] 페이지 단위로 완료 결과를 보관하면 취소 후에도 이미 끝난 계산을 재사용할 수 있습니다.
+                // 이 기록에는 원문이 포함됩니다. 암호를 보관하는 키체인(Keychain)과는 별도로 관리하는 데이터입니다.
                 try checkpointStore.savePage(result, for: checkpoint)
                 progress(Progress(completed: checkpoint.pages.count, total: total, currentPage: index + 1))
             }
@@ -161,6 +187,8 @@ enum VisionOCRService {
             }
         }
 
+        // [학습 05] 취소 요청을 전달하는 것과 실제로 작업을 중단하는 것은 별개입니다. worker.cancel()이 요청을 남기고,
+        // 위 반복문의 Task.checkCancellation()이 그 요청을 확인해 작업을 중단합니다.
         return try await withTaskCancellationHandler {
             try await worker.value
         } onCancel: {
@@ -171,7 +199,7 @@ enum VisionOCRService {
     }
 
     /// PDF 좌표(72dpi)를 Vision이 읽을 bitmap으로 변환한다.
-    private static func render(page: PDFPage, dpi: CGFloat) throws -> CGImage {
+    static func render(page: PDFPage, dpi: CGFloat) throws -> CGImage {
         let box = page.bounds(for: .cropBox)
         let rotated = abs(page.rotation % 180) == 90
         let logicalSize = rotated
@@ -196,24 +224,34 @@ enum VisionOCRService {
         return cgImage
     }
 
-    /// Vision이 실제 지원한다고 보고한 언어만 요청해 OS 버전 차이를 견딘다.
-    private static func recognize(
-        image: CGImage,
-        configuration: OCRConfiguration
-    ) throws -> [OCRWordBox] {
+    /// Check support for this exact request quality; an empty selection must
+    /// never cause Vision to fall back silently to its default English model.
+    static func recognitionRequest(configuration: OCRConfiguration) throws -> VNRecognizeTextRequest {
         let request = VNRecognizeTextRequest()
         request.recognitionLevel = configuration.recognitionQuality == .fast
             ? .fast
             : .accurate
         request.usesLanguageCorrection = configuration.useLanguageCorrection
-        request.automaticallyDetectsLanguage = true
+        request.automaticallyDetectsLanguage = false
 
-        let supported = Set(try request.supportedRecognitionLanguages())
-        let requested = configuration.languages.filter(supported.contains)
-        if !requested.isEmpty {
-            request.recognitionLanguages = requested
+        let supported = OCRRecognitionLanguage.catalog(
+            identifiers: try request.supportedRecognitionLanguages(),
+            locale: L10n.currentLanguage.locale
+        )
+        let requested = OCRRecognitionLanguage.selectedIdentifiers(
+            from: configuration.languages, available: supported
+        )
+        guard !requested.isEmpty else {
+            throw WorkspaceError.operationFailed(L10n.string(
+                "error.ocr_no_supported_language",
+                defaultValue: "이 Mac에서 인식할 수 있는 언어를 하나 이상 선택해 주세요."
+            ))
         }
+        request.recognitionLanguages = requested
+        return request
+    }
 
+    private static func recognize(image: CGImage, request: VNRecognizeTextRequest) throws -> [OCRWordBox] {
         let handler = VNImageRequestHandler(cgImage: image, orientation: .up, options: [:])
         try handler.perform([request])
 

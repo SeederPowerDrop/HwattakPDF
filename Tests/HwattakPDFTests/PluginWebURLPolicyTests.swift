@@ -337,6 +337,12 @@ final class PluginWebURLPolicyTests: XCTestCase {
         XCTAssertNil(info["NSMicrophoneUsageDescription"])
         let transport = info["NSAppTransportSecurity"] as? [String: Any]
         XCTAssertNotEqual(transport?["NSAllowsArbitraryLoads"] as? Bool, true)
+        XCTAssertNotEqual(transport?["NSAllowsLocalNetworking"] as? Bool, true)
+        let exceptions = try XCTUnwrap(transport?["NSExceptionDomains"] as? [String: Any])
+        XCTAssertEqual(Set(exceptions.keys), ["127.0.0.1"])
+        let loopback = try XCTUnwrap(exceptions["127.0.0.1"] as? [String: Any])
+        XCTAssertEqual(loopback["NSExceptionAllowsInsecureHTTPLoads"] as? Bool, true)
+        XCTAssertNotEqual(loopback["NSIncludesSubdomains"] as? Bool, true)
     }
 
     private func propertyList(at url: URL) throws -> [String: Any] {

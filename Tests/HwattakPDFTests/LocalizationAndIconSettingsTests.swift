@@ -350,6 +350,15 @@ final class LocalizationAndIconSettingsTests: XCTestCase {
         "search.navigator.ocr_short_action"
     ]
 
+    /// "Normal" is also the correct speed label in these languages. Scope
+    /// identical translations to the locale, key and value so other copy still
+    /// receives the full fallback check.
+    private static let intentionallyMatchingEnglishValuesByLanguage: [String: [String: String]] = [
+        "de": ["settings.pdf_input.keyboard_speed.normal": "Normal"],
+        "es": ["settings.pdf_input.keyboard_speed.normal": "Normal"],
+        "pt": ["settings.pdf_input.keyboard_speed.normal": "Normal"]
+    ]
+
     func testAllRequestedLanguagesAreAvailable() {
         XCTAssertEqual(AppLanguage.allCases.map(\.rawValue), Self.expectedLanguages)
         XCTAssertEqual(AppLanguage.arabic.layoutDirection, .rightToLeft)
@@ -462,7 +471,8 @@ final class LocalizationAndIconSettingsTests: XCTestCase {
 
                 if value == english[key] {
                     XCTAssertTrue(
-                        Self.intentionallyLanguageNeutralKeys.contains(key),
+                        Self.intentionallyLanguageNeutralKeys.contains(key)
+                            || Self.intentionallyMatchingEnglishValuesByLanguage[language]?[key] == value,
                         "\(language) still falls back verbatim to English for \(key): \(value)"
                     )
                 }

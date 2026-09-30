@@ -617,6 +617,16 @@ struct SearchNavigatorSidebarView: View {
 
     @ViewBuilder
     private var emptyState: some View {
+        GeometryReader { geometry in
+            ScrollView(.vertical) {
+                emptyStateContent
+                    .frame(minHeight: geometry.size.height)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var emptyStateContent: some View {
         VStack(spacing: 12) {
             switch emptyContent {
             case .searching:
@@ -671,12 +681,12 @@ struct SearchNavigatorSidebarView: View {
                 Image(systemName: "text.viewfinder")
                     .font(.system(size: 29, weight: .light))
                     .foregroundStyle(theme.warning)
-                Text(L10n.string("search.navigator.ocr_title", defaultValue: "검색할 텍스트 층이 없습니다"))
+                Text(L10n.string("search.navigator.ocr_title", defaultValue: "검색할 텍스트가 없습니다"))
                     .font(.headline)
                 Text(
                     L10n.string(
                         "search.navigator.ocr_message",
-                        defaultValue: "로컬 OCR 후 검색 가능한 사본을 내보내고, 그 사본을 열어 검색하세요."
+                        defaultValue: "OCR로 글자를 인식한 뒤 현재 PDF에 적용하거나 새로 저장한 PDF를 열어 검색하세요."
                     )
                 )
                 .font(.caption)
@@ -691,7 +701,7 @@ struct SearchNavigatorSidebarView: View {
                 Text(
                     L10n.string(
                         "search.navigator.partial_ocr_title",
-                        defaultValue: "일부 페이지는 검색하지 못했습니다"
+                        defaultValue: "일치하는 내용을 찾지 못했습니다"
                     )
                 )
                 .font(.headline)
@@ -703,6 +713,7 @@ struct SearchNavigatorSidebarView: View {
                 )
                 .font(.caption)
                 .foregroundStyle(theme.secondaryText)
+                ocrRepairGuidance
                 ocrLanguageSupportText
                 ocrActionButton
 
@@ -720,6 +731,8 @@ struct SearchNavigatorSidebarView: View {
                 )
                 .font(.caption)
                 .foregroundStyle(theme.secondaryText)
+                ocrRepairGuidance
+                ocrActionButton
             }
         }
         .multilineTextAlignment(.center)
@@ -756,12 +769,19 @@ struct SearchNavigatorSidebarView: View {
         Text(
             L10n.string(
                 "search.navigator.ocr_supported_languages",
-                defaultValue: "현재 OCR은 한국어·영어·일본어를 지원합니다."
+                defaultValue: "이 Mac에서 지원하는 인식 언어를 OCR 창에서 선택할 수 있습니다."
             )
         )
         .font(.caption2)
         .foregroundStyle(theme.secondaryText)
         .fixedSize(horizontal: false, vertical: true)
+    }
+
+    private var ocrRepairGuidance: some View {
+        Text(L10n.string("search.navigator.ocr_repair_message"))
+            .font(.caption2)
+            .foregroundStyle(theme.secondaryText)
+            .fixedSize(horizontal: false, vertical: true)
     }
 
     private var retrySearchButton: some View {

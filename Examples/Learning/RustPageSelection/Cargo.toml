@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: MPL-2.0
+[package]
+name = "hwattak-page-selection-lesson"
+version = "0.1.0"
+edition = "2021"
+license = "MPL-2.0"
+publish = false
+description = "HwattakPDF 페이지 선택 규칙을 배우는 독립 Rust 실습"
+
+# 외부 라이브러리가 없어, Rust 도구가 설치되어 있으면 오프라인으로 실행됩니다.
+[dependencies]

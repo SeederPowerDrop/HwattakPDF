@@ -1,12 +1,12 @@
 # HwattakPDF 아키텍처
 
-> 2026-09-23 소스 갱신: HwattakPDF 이름 통일과 Finder 파일 열기 대응, 화면 모드·문서 아이콘·읽기·편집의 누적 개선을 0.9.0 소스에 정리했습니다. 제품 방향과 이번 검증은 [소스 갱신 기록](SOURCE-UPDATE-2026-09-23.md), 기능 범위는 [릴리스 노트](RELEASE-NOTES-0.9.0.md), 9월 22일 패키지 검증은 [기존 배포 검증 기록](RELEASE-VALIDATION-0.9.0.md)을 확인하세요.
+> 2026-10-01 소스 갱신: 차분한 UI, 패널 크기에 맞춘 미리보기, 방향키 반복 제어와 OCR·선택·번역의 현재 경계를 반영했습니다. 누적 범위와 검증은 [소스 갱신 기록](SOURCE-UPDATE-2026-10-01.md), 사용자 변경 사항은 [릴리스 노트](RELEASE-NOTES-0.9.0.md)를 확인하세요. [9월 23일 소스 기록](SOURCE-UPDATE-2026-09-23.md)과 [9월 22일 패키지 검증](RELEASE-VALIDATION-0.9.0.md)은 당시 기준입니다.
 
 > 2026-09-05 안정화 후속: [수정·성능·복구 검증](STABILIZATION-2026-09-05.md), [schema 3 문서 명령 API와 태블릿 입력](PLUGIN-HOST-API.md). 아래의 이전 단계 설명보다 후속 기록을 우선한다.
 
 > 최초 기준일: 2026-08-28
-> 최신 보완일: 2026-09-23
-> 배포 준비 버전: 0.9.0 (build 19) Developer Preview · 직전 공개 버전: 0.8.0 (build 18)
+> 최신 보완일: 2026-10-01
+> 배포 준비 버전: 0.9.0 (build 20) Developer Preview · 직전 공개 버전: 0.8.0 (build 18)
 > 0.9.0 포함: 이미지·HTML 기반 PDF 만들기와 페이지 이미지형 DOCX/PPTX 내보내기
 > 현재 구현: macOS 14 이상, Swift Package, SwiftUI + AppKit + PDFKit + Vision + WebKit
 > 목적: 현재 코드가 실제로 보장하는 경계와 다음 단계의 설계 방향을 구분한다.
@@ -111,6 +111,8 @@ flowchart TB
 | 리소스·수명 | `Models/ResourceMonitorModels.swift`, `Services/ProcessResourceMonitor.swift`, `Services/PDFTabMemoryManager.swift`, `Views/ResourceMonitorView.swift` | 앱 프로세스 CPU·RSS 계측, 탭별 예상 부담, resident 문서 예산·LRU 휴면·Darwin memory-pressure 대응 |
 | 문서 화면 | `Views/WorkspaceView.swift`, `WorkspaceToolbar.swift`, `StudyModePalette.swift`, `PDFShareNoteSheet.swift`, `PageSidebarView.swift`, `SearchNavigatorSidebarView.swift`, `PageJumpControl.swift`, `WorkspaceFileDrop.swift` | 활성 문서의 열기/저장/병합/추출/OCR/서명 흐름, 모드 선택, 학습 AI·메모·표식 팔레트, Viewer/Study bounded 메모 공유, 전체 문서 검색과 페이지별 문맥 navigator, Finder drop, 페이지 이동·패널·선택·드래그 재정렬 |
 | 작업 모드 정책 | `Models/PDFWorkspaceMode.swift` | 뷰어·에디팅·학습의 capability·입력 도구·툴바 section을 한 표에서 결정하고 annotation kind별 편집 권한과 mode 전환 시 도구 정규화 제공 |
+| 읽기 입력·미리보기 | `Models/PDFKeyboardNavigationSpeed.swift`, `Models/PageSidebarLayoutMode.swift`, `Views/PDFArrowKeyRepeater.swift`, `PDFArrowKeyNavigationModifier.swift`, `PDFMainPageNavigation.swift`, `PageThumbnailView.swift` | 포커스에 한정한 방향키 반복, 수정키 양보, 실제 패널 치수·페이지 비율에 따른 썸네일 크기와 렌더 수명 |
+| 선택 보정·페이지 번역 | `Services/PDFNativeSelectionProxy.swift`, `PDFRegionTextRecognizer.swift`, `PageTranslationService.swift`, `LocalTranslationService.swift`, `PageTranslationExporter.swift`, `Views/PDFRegionSelectionController.swift`, `PageTranslationPanel.swift`, `ApplePageTranslationBridge.swift` | 원본을 바꾸지 않는 글꼴 치수 보정·영역 인식, 문단 번역 snapshot, 공급자·OS 경계와 로컬 도우미 연결 |
 | 제품 소개 | `Views/AboutView.swift`, `Resources/AboutAuthor-SeederPowerDrop-UserProvided.jpg` | 고정 라이트 팔레트의 레트로 정보 창, 사용자 제공 그림·제작 배경·GitHub·후원 링크 |
 | 도움말 | `Views/HelpTutorialView.swift` | 도움말 메뉴의 독립 창, 실제 기능·SF Symbol·단축키 데이터, 주제 탐색·검색과 VoiceOver/RTL 표시 |
 | 선언형 플러그인 | `Plugins/PluginModels.swift`, `PluginManifestValidator.swift`, `PluginPackageValidator.swift`, `PluginManager.swift`, `PluginActionRunner.swift`, `PluginWebURLPolicy.swift`, `App/PluginCommands.swift`, `Views/PluginManagerView.swift`, `PluginPanelHostView.swift` | schema 1·2의 엄격한 파일·권한·크기 검증, 검토 bytes의 staged 설치·무결성 확인, v1 텍스트/기본 브라우저 action, 번들 identifier+digest가 일치하는 v2 앱 소유 번역·YouTube·공개 HTTPS 패널, scoped WebKit 정책과 lifecycle 폐기 |
@@ -123,8 +125,8 @@ flowchart TB
 | 공유 모델 | `Models/WorkspaceModels.swift` | 도구, 잉크·서명·OCR 설정과 결과, 체크포인트, 사용자 오류 |
 | 페이지 연산 | `Services/PDFPageOperations.swift` | `PDFPage` 분리 복사, 정렬된 선택 페이지 추출, 문서 끝 병합 |
 | 저장 | `Services/PDFSourceFileVersion.swift`, `AtomicPDFWriter.swift` | 열기·재개·저장 시 가벼운 원본 버전 기록, 같은 원본 덮어쓰기 직전 coordinated 비교, 같은 부모 폴더의 임시 파일 검증 뒤 move/replace 우선, 파일 단위 권한용 검증 직접 쓰기 fallback |
-| OCR | `Services/VisionOCRService.swift`, `OCRCheckpointStore.swift` | 렌더링, Vision 인식, SHA-256 식별, 페이지별 체크포인트 |
-| OCR PDF 출력 | `Services/SearchablePDFExporter.swift` | 원본 페이지를 다시 그리고 인식 박스 위치에 보이지 않는 텍스트 추가 |
+| OCR | `Models/OCRPageSelection.swift`, `OCRRecognitionLanguage.swift`, `Services/VisionOCRService.swift`, `OCRCheckpointStore.swift` | 범위 파싱·고정, 지원 언어 조회, 렌더링, Vision 인식, SHA-256 식별, 범위별 페이지 체크포인트 |
+| OCR 적용·출력 | `Models/OCRExportDestination.swift`, `Services/PDFOCRApplication.swift`, `SearchablePDFExporter.swift` | 새 결과가 있는 페이지만 교체, 현재 문서의 실행 취소 가능한 적용과 전체 문서 사본 저장, 원본 경로 보호 |
 | 이미지 오버레이 | `Services/ImageStampAnnotation.swift`, `Models/ImageAnnotationEditing.swift`, `Models/PDFWorkspaceState+ImageAnnotations.swift` | 원본은 편집 중 메모리에만 두고, 보이는 crop 픽셀만 독립 래스터로 만들어 PDF appearance에 넣는 스탬프 주석, 편집 좌표 계산과 이미지 레이어 재정렬 |
 | 학습 표식·공유 | `Models/StudyModeModels.swift`, `StudyMarkupAnnotation.swift`, `PDFShareNote.swift` | 학습 AI 빠른 작업 mapping, 색상·두께·진하기 설정, appearance-backed Stamp 표식, live `PDFSelection`을 보관하지 않는 bounded 선택문·메모 일반 텍스트 snapshot |
 | 파일 접근 | `Services/WorkspaceFilePanels.swift`, `Support/SecurityScopedAccess.swift` | 시스템 파일 패널과 security-scoped resource 수명 관리 |
@@ -194,6 +196,10 @@ flowchart TB
 
 ## 5. 보기 계층
 
+읽기 화면의 `HwattakPDFTheme`는 라이트·다크 모두 중립색 표면을 사용하고 브랜드 색을 작은 강조에 남긴다. `WelcomeView`는 파일 열기와 최근 문서 7개를 우선하며, `PDFTabBar`는 기존 스택·재정렬·분리 창 기능을 유지한 채 기본 높이를 줄였다. `WorkspaceToolbar`는 공통 한 줄과 필요할 때 여는 모드 도구를 구분한다. 뷰어에서는 추가 도구를 접고, 에디팅·학습으로 전환하면 해당 도구를 보인다. 이 표시 상태가 기능 capability를 대신하지는 않는다.
+
+검색 버튼이나 `⌘F`가 입력란을 열고, 비어 있는 검색창이 포커스를 잃으면 다시 접힌다. 페이지 배치와 폭·높이 맞춤은 보기 설정 popover, 썸네일 묶음·크기는 페이지 패널의 설정 popover로 모았다. macOS 메뉴·단축키와 접근성 이름은 유지한다.
+
 ### 5.1 작업 모드 capability 경계
 
 `PDFWorkspaceMode`는 탭별 세션 값이며 메뉴와 toolbar에서 `⌃1` 뷰어, `⌃2` 에디팅, `⌃3` 학습으로 전환한다. 기능 코드는 mode를 직접 비교하지 않고 `PDFWorkspaceModePolicy` 또는 `workspace.allows(_:)`에 capability를 묻는다.
@@ -226,11 +232,19 @@ Viewer/Study의 텍스트 도구는 메모 주석이고, Editing에서만 페이
 - 펜 도구는 화면 좌표를 페이지 좌표로 변환해 Ink 주석 생성
 - 지우개는 Ink·FreeText·Highlight·Stamp 같은 편집 주석만 제거하며 Widget·Link·Popup·Redact는 제외
 
+방향키 반복은 `PDFArrowKeyRepeater`가 OS 키 반복과 별도로 관리한다. `PDFKeyboardNavigationSpeed`의 느리게·보통·빠르게 간격은 각각 0.10·0.05·0.025초이고, 보통의 기존 0.09초 대비 반복 빈도는 1.8배다. Shift 배수는 새 기본의 `4 / 1.8`로 이전 기본 대비 4배를 맞춘다. Option·Command·Control 조합은 소유하지 않아 PDFKit 페이지 넘김과 텍스트 편집 단축키를 유지한다. 스크롤은 한 번당 화면 좌표 40pt를 사용하고 페이지 넘김은 현재 배치의 페이지·펼침 단위를 따른다.
+
+키를 놓거나 포커스·창·문서·모드가 바뀌면 반복을 취소한다. 글자 입력·텍스트 선택 확장·선택한 주석 이동은 기존 입력 경로가 우선한다. SwiftUI 페이지 패널과 4페이지 개요는 `PDFArrowKeyNavigationModifier`로 같은 수명 경계를 적용하며, 사용자 지정 3·5~12페이지 그리드와 비교 화면까지 모두 새 반복 경로로 바꾸지는 않는다.
+
+원본 글꼴 치수가 잘못돼 선택 표시가 페이지 전체를 덮는 경우 `PDFNativeSelectionProxy`가 임시 페이지의 치수만 보정한다. 이를 만들 수 없는 페이지는 `PDFRegionSelectionController`의 영역 OCR 경로로 전환하며 Option 드래그로 직접 영역 인식을 요청할 수도 있다. 원본 bytes와 페이지는 수정하지 않는다. [선택 보정 기록](REGION-SELECTION-2026-09-23.md).
+
 Apple PDFKit의 공식 [`PDFDisplayMode`](https://developer.apple.com/documentation/pdfkit/pdfdisplaymode)는 단일 페이지와 2페이지 모드를 제공하지만 3페이지 이상의 편집 모드는 제공하지 않는다.
 
 ### 5.3 3~12페이지 개요
 
-3~12열은 PDFKit의 문서 뷰를 억지로 확장하지 않고 `LazyVGrid`에 페이지 썸네일을 배치한다. 툴바는 1·2·4페이지 아이콘 바로가기와 1~12열 숫자 입력을 제공한다. `PageJumpControl`은 1-based 페이지 번호를 검증한 뒤 `PDFWorkspaceState.setCurrentPage(_:)`의 0-based 인덱스로 변환하며, 툴바와 페이지 패널이 같은 이동 경로를 쓴다. `WorkspaceView`는 좌·우·상·하에 배치할 수 있는 페이지 패널, 현재 페이지 HUD, 마우스·키보드·VoiceOver로 조절하는 패널 구분선을 조합한다. 세로 배치 폭과 가로 배치 높이는 별도 설정으로 저장된다.
+3~12열은 PDFKit의 문서 뷰를 억지로 확장하지 않고 `LazyVGrid`에 페이지 썸네일을 배치한다. 보기 설정 popover는 1·2·4페이지 전환을 제공하며 사용자 지정 1~12열과 개요 방향은 macOS 보기 메뉴에도 남긴다. `PageJumpControl`은 1-based 페이지 번호를 검증한 뒤 `PDFWorkspaceState.setCurrentPage(_:)`의 0-based 인덱스로 변환한다. `WorkspaceView`는 좌·우·상·하에 배치할 수 있는 페이지 패널, 현재 페이지 HUD, 마우스·키보드·VoiceOver로 조절하는 패널 구분선을 조합한다. 세로 배치 폭과 가로 배치 높이는 별도 설정으로 저장된다.
+
+페이지 패널의 1·2·4페이지 묶음은 메인 문서의 열 수와 독립된 탐색 설정이다. `PageSidebarLayoutMetrics`는 세로 패널의 실제 폭·가로 패널의 실제 높이와 사용자가 고른 크기 배율을 받아 썸네일 폭을 계산한다. 스크롤 콘텐츠 바깥의 `GeometryReader`로 가용 공간을 읽고 여백·페이지 번호·crop 비율·회전을 고려해 크기를 제한한다. `PageThumbnailView`는 문서 내용 식별자와 요청 폭을 구분해 폭만 변할 때 기존 이미지를 유지하면서 새 크기를 렌더링한다.
 
 - 화면에 필요한 셀부터 만들며 세로·가로 스크롤을 허용한다.
 - 캐시는 revision, 페이지 인덱스, 요청 폭, 회전을 키에 포함한다.
@@ -298,7 +312,7 @@ WebKit 패널은 일반 community extension surface가 아니다. `PluginManager
 output이 하나라도 있거나 `dev.hwattakpdf.` 식별자 영역을 주장하는 package를 검토하기
 전, 설치할 때와 매 refresh 때 앱 번들의 `BundledPlugins` 검토본 중 같은 identifier와
 같은 `manifest.json` SHA-256 digest가 있는지 확인한다. 따라서 schema 1 package도 공식
-식별자로 검토 화면·설치본을 사칭하거나 교체할 수 없다. 0.9.0 build 19 번들은 번역
+식별자로 검토 화면·설치본을 사칭하거나 교체할 수 없다. 0.9.0 build 20 번들은 번역
 도우미·웹 브라우저와 문서 명령 3종을 합쳐 다섯 검토본을 포함하며 사용자가
 `플러그인 관리 > HwattakPDF 기본 플러그인 > 검토 및 설치` 흐름으로 명시적으로
 설치한다. YouTube 학습 manifest는 정책·동의 UI가 준비될 때까지 소스 예제로만 남고,
@@ -342,6 +356,12 @@ identifier, digest와 action snapshot을 다시 검사한다. 단일 action 플�
 최소 entitlement의 sandboxed XPC service, versioned bounded IPC, capability broker,
 timeout·취소·동시성·메모리/CPU budget과 crash circuit breaker를 먼저 설계하고 검증한다.
 현재 동작·상한·위협 모델은 [`PLUGINS.md`](PLUGINS.md)가 규정한다.
+
+### 5.7 페이지 번역과 읽기용 내보내기
+
+`PageTranslationPanel`은 선택문·페이지 텍스트의 불변 snapshot을 문단 블록으로 나누고 각 원문과 번역을 함께 보여 준다. Apple 번역의 문단 결과·내보내기는 macOS 15 이상에서 사용하며, 14.4의 시스템 팝업과 구분한다. 외부 AI는 사용자 설정과 전송 확인을 거친다. 로컬 언어팩은 별도 실행한 Argos 도우미의 정확한 `http://127.0.0.1:<port>` 주소만 허용하고 앱이 도우미를 자동 설치·시작하지 않는다.
+
+`LocalTranslationService`는 원문을 JSON 본문에 넣고 입력·응답 크기와 취소를 제한한다. 언어팩 목록·설치는 명시적인 준비 작업이며, 준비된 팩으로 번역할 때는 다운로드하지 않는다. `PageTranslationExporter`의 HTML·PDF는 추출한 텍스트를 새로 조판한 읽기용 사본이다. 원래 PDF 그림·글꼴·페이지 배치를 복원하거나 원본 내용을 직접 교체하지 않는다. 도우미 설치와 네트워크·언어팩 검증 경계는 [로컬 번역 안내](LOCAL-TRANSLATION.md)를 따른다.
 
 ## 6. 페이지 연산과 저장
 
@@ -483,30 +503,32 @@ sequenceDiagram
     S->>O: recognize(pdfData, configuration)
     O->>O: SHA-256 fingerprint
     O->>C: 같은 fingerprint/pageCount 체크포인트 로드
-    loop 미완료 페이지
+    loop 선택 범위의 미완료 페이지
         O->>O: 기존 텍스트 문자 수 확인
-        alt OCR 필요
+        alt 재인식 기본값 또는 OCR 필요
             O->>O: cropBox를 지정 DPI로 렌더
             O->>V: 로컬 정확도 우선 텍스트 인식
             V-->>O: 문자열·confidence·정규화 bounds
-        else 텍스트 충분
+        else 건너뛰기 옵션 사용 및 텍스트 충분
             O->>O: 건너뜀 결과 생성
         end
         O->>C: 해당 페이지 JSON만 원자적 저장
         O-->>S: 진행률 callback
     end
     O-->>S: 완료 체크포인트
-    UI->>S: 검색 가능한 사본 내보내기
+    UI->>S: 현재 문서 적용 또는 새 PDF 저장
     S->>E: 원본 문서 + 체크포인트
-    E->>E: 페이지 그림 + invisible CoreText
-    E-->>UI: 새 PDF 및 pageCount 검증
+    E->>E: 결과가 있는 페이지 그림 + invisible CoreText
+    E->>E: 나머지 페이지 보존
+    E-->>UI: 적용용 페이지 또는 새 PDF 검증
 ```
 
 세부 사항:
 
-- 열기·탭 재개·저장의 메인 액터에서는 대용량 파일 전체 SHA-256을 계산하지 않는다. OCR을 실제 시작할 때만 detached worker가 clean 문서의 원본 bytes를 baseline metadata 전후 검증과 함께 스트리밍 해시한다. 원본이 바뀌었거나 문서가 dirty이면 OCR이 실제로 읽을 임시 PDF 스냅샷을 해시한다. 별도 설정 fingerprint에는 언어·DPI·교정·건너뛰기 옵션이 포함된다.
-- 기본 언어는 한국어, 영어, 일본어이며 Vision이 실제 지원하는 언어만 요청한다.
-- 기존 텍스트가 공백 제외 기준치 이상이면 설정에 따라 페이지를 건너뛴다.
+- 열기·탭 재개·저장의 메인 액터에서는 대용량 파일 전체 SHA-256을 계산하지 않는다. OCR을 실제 시작할 때만 detached worker가 clean 문서의 원본 bytes를 baseline metadata 전후 검증과 함께 스트리밍 해시한다. 원본이 바뀌었거나 문서가 dirty이면 OCR이 실제로 읽을 임시 PDF 스냅샷을 해시한다. 별도 설정 fingerprint에는 언어·DPI·교정·건너뛰기 옵션과 선택한 원본 페이지 인덱스가 포함된다.
+- `OCRRecognitionLanguage`가 현재 Vision의 지원 언어를 조회하고 OCR 창에서 검색·선택한다. PDF 만들기 작업대의 간단한 한·영·일 옵션과 구분한다.
+- `OCRPageSelection`은 전체·현재·직접 입력 범위를 검증하고 실행 시 확정한다. 완료 결과가 확정 범위를 정확히 포함해야 적용·저장이 가능하다.
+- 기존 텍스트도 기본적으로 다시 인식한다. 건너뛰기 옵션을 선택했고 텍스트가 공백 제외 기준치 이상일 때만 해당 페이지를 건너뛴다.
 - 기본 렌더 해상도는 220 DPI이며 한 페이지의 최대 픽셀 변을 7,000으로 제한한다.
 - 한 번에 한 페이지를 처리하고 manifest가 가리키는 세대의 `pages/00000000.json` 같은 독립 파일만 `.atomic` 옵션으로 저장한다. 전체 누적 결과를 페이지마다 다시 쓰지 않는다.
 - `Task.checkCancellation()`은 페이지 시작과 결과 저장 직전에 취소를 확인하며, 취소된 worker가 끝나기 전에는 새 작업을 시작하지 않는다.
@@ -533,13 +555,13 @@ manifest가 현재 세대를 commit point로 지정하고, 각 페이지 파일�
 
 로더는 schema version, 두 fingerprint, page count가 맞지 않으면 체크포인트를 사용하지 않는다. 향후 외부 OCR provider를 추가할 때는 엔진 ID·엔진 버전·모델 checksum도 job identity에 포함해야 한다.
 
-현재 체크포인트의 page JSON에는 인식 문자열과 단어 위치 상자가 평문으로 들어간다. 저장 위치는 사용자 계정의 Application Support이며 네트워크로 자동 전송되지는 않지만, Keychain 저장이나 앱 수준 암호화를 사용하지 않는다. 활성 checkpoint directory 안에서는 manifest가 가리키지 않는 generation을 정리하지만 문서·설정별 directory, migration한 legacy 파일의 전체 보존 기한과 사용자용 삭제 UI는 없다. 민감 문서의 로컬 잔존 위험을 UI에 알리고, 문서별/전체 삭제·보존 기한·실패 복구 정책을 추가해야 한다.
+현재 체크포인트의 page JSON에는 인식 문자열과 단어 위치 상자가 평문으로 들어간다. 저장 위치는 사용자 계정의 Application Support이며 네트워크로 자동 전송되지는 않지만, Keychain 저장이나 앱 수준 암호화를 사용하지 않는다. 활성 checkpoint directory 안에서는 manifest가 가리키지 않는 generation을 정리하며, 설정에서 보관 내용을 삭제할 수 있다. 문서·설정별 directory와 migration한 legacy 파일의 자동 보존 기한은 아직 없다.
 
 ### 8.3 검색 가능한 PDF 출력의 한계
 
-현재 exporter는 새 PDF를 만들고 각 crop box와 인쇄 가능한 주석 외관을 PDFKit으로 평면화한 뒤, OCR word bounds에 invisible text를 추가한다. 목적지를 교체하기 전에 staging 파일을 다시 열어 페이지 수를 검증하고, 교체 뒤에도 한 번 더 연다.
+현재 exporter는 새 결과가 있는 페이지만 다시 그려 OCR word bounds에 invisible text를 추가한다. 잘못된 기존 텍스트를 교체할 페이지는 지정 해상도로 rasterize해 옛 검색 텍스트가 남지 않게 한다. 선택하지 않은 페이지, 건너뛴 페이지와 새 글자를 찾지 못한 페이지는 원래 텍스트·주석·양식·crop·회전을 유지한다. 저장 시 완성한 PDF를 검증하고 원자 교체를 우선하며, 선택한 파일에만 쓰기 권한이 있으면 사전·사후 검증 직접 쓰기 경로를 사용한다.
 
-이 방식은 시각적 페이지와 검색 레이어를 만드는 MVP에는 적합하지만 다음을 보장하지 않는다.
+이 방식으로 다시 그리는 페이지에서는 다음을 보장하지 않는다.
 
 - 원본 annotation의 편집 가능 상태, 링크, outline, 첨부, 문서 메타데이터, 접근성 태그 보존
 - AcroForm field와 JavaScript 동작 보존
@@ -548,7 +570,7 @@ manifest가 현재 세대를 commit point로 지정하고, 각 페이지 파일�
 - crop/media box 및 모든 회전 조합에서 완벽한 text bounds 정렬
 - 텍스트 검색·복사 품질을 포함한 의미 검증
 
-따라서 OCR 사본은 현재 **새 파생 파일**로만 내보내며 원본 위에 자동 덮어쓰지 않는 것이 안전하다.
+`PDFOCRApplication`은 결과를 현재 문서에 실행 취소 가능한 편집으로 적용하며, 일반 저장 전에는 원본 파일을 바꾸지 않는다. 바뀌지 않은 페이지 객체와 그 내부 링크·목차의 교체 페이지 대상 연결을 보존한다. 별도 사본은 `원본이름-ocr.pdf`를 기본 이름으로 사용하고 원본 경로를 출력 대상으로 삼지 못하게 한다. 세부 경계는 [OCR 페이지 범위](OCR-PAGE-SCOPE-2026-09-25.md), [저장 수정](OCR-SAVE-FIX-2026-09-25.md), [텍스트 교체](OCR-TEXT-REPAIR-2026-09-25.md)에 기록한다.
 
 ### 8.4 대용량 안정성
 
@@ -721,6 +743,8 @@ HwattakPDFOCRProviders
 - 로컬 HTML의 CSS·PNG·검색 가능한 벡터 글자, DOM 경계에서 글줄 중복/유실 방지와 최대 페이지 추론
 - 안정성/속도 방식의 이미지·HTML·OCR 설정 연결, 유한한 시간/용량 범위와 저장 후 실제 지표
 - DOCX/PPTX의 ZIP signature, 필수 Open XML part·relationship과 페이지별 PNG 수
+- 패널 폭·높이와 페이지 비율에 따른 미리보기 치수, 방향키 속도·수정키·반복 취소와 PDFKit 입력 포커스 경계
+- OCR 선택 범위·언어·부분 적용의 보존과 실행 취소, 보정용 선택 페이지의 원본 유지, 문단 번역·내보내기·로컬 도우미 정책
 
 ### 12.2 다음 테스트 층
 

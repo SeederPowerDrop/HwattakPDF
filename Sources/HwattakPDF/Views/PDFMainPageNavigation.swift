@@ -8,18 +8,83 @@ extension InteractivePDFView {
     @discardableResult
     func handlePageNavigationKey(_ event: NSEvent) -> Bool {
         guard event.type == .keyDown,
-              pageNavigationMode == .horizontalPaging,
               viewportContext == .normal,
-              Self.viewportModifiers(from: event.modifierFlags).isEmpty,
+              PDFArrowKeyRepeater.accepts(modifiers: event.modifierFlags),
               !hasPageEditingFocus,
-              event.keyCode == 123 || event.keyCode == 124 else { return false }
+              !isDrawingInkStroke,
+              (123...126).contains(event.keyCode),
+              let workspace = workspaceState,
+              let document, document === workspace.document else { return false }
+        // Option arrows always reach PDFKit unchanged. Shift arrows still
+        // belong to native text selection when a selection is active.
+        if currentSelection != nil,
+           event.modifierFlags.contains(.shift) { return false }
         resetPageTurnGesture()
-        return turnPage(by: event.keyCode == 124 ? 1 : -1)
+        let revision = workspace.revision
+        let mode = workspace.mode
+        let columns = workspace.pageColumns
+        let navigation = pageNavigationMode
+        return arrowKeyRepeater.handleKeyDown(
+            keyCode: event.keyCode,
+            modifiers: event.modifierFlags,
+            isRepeat: event.isARepeat,
+            window: window
+        ) { [weak self, weak workspace, weak document] in
+            guard let self, let workspace, let document,
+                  self.document === document, workspace.document === document,
+                  workspace.revision == revision, workspace.mode == mode,
+                  workspace.pageColumns == columns, self.pageNavigationMode == navigation,
+                  self.viewportContext == .normal, !self.isDrawingInkStroke,
+                  !self.hasPageEditingFocus, self.ownsArrowKeyFocus else { return false }
+            if self.currentSelection != nil,
+               self.arrowKeyRepeater.currentModifiers.contains(.shift) {
+                return false
+            }
+            if navigation == .horizontalPaging, event.keyCode == 123 || event.keyCode == 124 {
+                return self.turnPage(by: event.keyCode == 124 ? 1 : -1)
+            }
+            return self.scrollDocumentForArrow(keyCode: event.keyCode)
+        }
+    }
+
+    private var ownsArrowKeyFocus: Bool {
+        // Offscreen views can perform a single action but never start a timer.
+        guard let window else { return true }
+        guard let responder = window.firstResponder as? NSView else { return false }
+        return responder === self || responder.isDescendant(of: self)
+    }
+
+    /// Scroll by a stable screen distance; PDFKit's clip coordinates change
+    /// with magnification. The shared repeater controls tempo in every layout.
+    @discardableResult
+    func scrollDocumentForArrow(keyCode: UInt16) -> Bool {
+        guard (123...126).contains(keyCode), let scrollView = firstDocumentScrollView(),
+              let documentView = scrollView.contentView.documentView else { return false }
+        let clip = scrollView.contentView
+        let step = clip.convert(CGSize(width: 40, height: 40), from: self)
+        var proposed = clip.bounds
+        switch keyCode {
+        case 123: proposed.origin.x -= abs(step.width)
+        case 124: proposed.origin.x += abs(step.width)
+        case 125: proposed.origin.y += abs(step.height) * (documentView.isFlipped ? 1 : -1)
+        case 126: proposed.origin.y -= abs(step.height) * (documentView.isFlipped ? 1 : -1)
+        default: return false
+        }
+        let constrained = clip.constrainBoundsRect(proposed)
+        if abs(constrained.origin.y - clip.bounds.origin.y) < 0.001,
+           keyCode == 125 || keyCode == 126,
+           pageNavigationMode == .verticalScroll,
+           displayMode == .singlePage || displayMode == .twoUp {
+            return turnPage(by: keyCode == 125 ? 1 : -1)
+        }
+        clip.setBoundsOrigin(constrained.origin)
+        scrollView.reflectScrolledClipView(clip)
+        return true
     }
 
     @discardableResult
     func turnPage(by step: Int) -> Bool {
-        guard pageNavigationMode == .horizontalPaging, viewportContext == .normal,
+        guard viewportContext == .normal,
               !isDrawingInkStroke, let workspace = workspaceState,
               let document, document === workspace.document, document.pageCount > 0 else { return false }
         guard let target = PDFPageNavigationMode.targetPage(

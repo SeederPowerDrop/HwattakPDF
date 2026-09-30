@@ -259,6 +259,7 @@ final class ImagePDFAssemblyModel: ObservableObject {
                         document: document,
                         checkpoint: checkpoint,
                         to: destination,
+                        renderDPI: effectiveOCRConfiguration.renderDPI,
                         beforeDestinationCommit: {
                             try Self.validateSources(snapshot, destination: destination)
                             try destinationPrecondition.validate()

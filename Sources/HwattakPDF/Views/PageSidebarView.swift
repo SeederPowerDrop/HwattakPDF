@@ -16,6 +16,7 @@ struct PageSidebarView: View {
     /// drag 시작 시 문서 revision과 난수 token을 함께 캡처한다. drop 시 이 값과
     /// provider payload를 모두 검증해 취소된 drag나 외부 텍스트가 페이지를
     /// 뜻밖에 이동시키지 못하게 한다.
+    @State private var showingDisplayOptions = false
     @State private var pageDragSession: PDFPageDragSession?
     @State private var magnificationBaseline: Double?
     @State private var searchHitCountsByPage: [Int: Int] = [:]
@@ -84,8 +85,6 @@ struct PageSidebarView: View {
         VStack(spacing: 0) {
             sidebarHeader
             horizontalDivider
-            sidebarDisplayControls
-            horizontalDivider
             verticalPageScroller
             if canEditPages {
                 horizontalDivider
@@ -104,12 +103,11 @@ struct PageSidebarView: View {
 
     private var horizontalPagePanel: some View {
         HStack(spacing: 0) {
-            VStack(spacing: 0) {
+            VStack(spacing: 12) {
                 sidebarHeader
-                horizontalDivider
-                sidebarDisplayControls
+                PageJumpControl(workspace: workspace)
             }
-            .frame(width: 214)
+            .frame(width: 174)
             verticalDivider
             horizontalPageScroller
             if canEditPages {
@@ -129,11 +127,23 @@ struct PageSidebarView: View {
     }
 
     private var verticalPageScroller: some View {
-        ScrollViewReader { proxy in
+        GeometryReader { geometry in
+            verticalPageScroller(panelWidth: geometry.size.width)
+        }
+    }
+
+    private func verticalPageScroller(panelWidth: CGFloat) -> some View {
+        let thumbnailWidth = CGFloat(PageSidebarLayoutMetrics.thumbnailWidth(
+            panelDimension: panelWidth,
+            placement: placement,
+            layoutMode: layoutMode,
+            thumbnailScale: thumbnailScale
+        ))
+        return ScrollViewReader { proxy in
             ScrollView(.vertical) {
                 LazyVStack(spacing: 12) {
                     ForEach(pageGroups) { group in
-                        verticalPageGroup(group)
+                        verticalPageGroup(group, thumbnailWidth: thumbnailWidth)
                     }
 
                     if workspace.pageCount > 1, canEditPages {
@@ -145,9 +155,9 @@ struct PageSidebarView: View {
             }
             .modifier(pageNavigationKeyboardModifier)
             .onChange(of: workspace.currentPageIndex) { _, newValue in
-                withAnimation(.easeOut(duration: 0.18)) {
-                    proxy.scrollTo(newValue, anchor: .center)
-                }
+                // Held arrows can outpace an animated scroll. Keep the current
+                // thumbnail in view immediately instead of chasing old targets.
+                proxy.scrollTo(newValue, anchor: .center)
             }
             .onChange(of: layoutModeValue) { _, _ in
                 proxy.scrollTo(workspace.currentPageIndex, anchor: .center)
@@ -157,11 +167,17 @@ struct PageSidebarView: View {
     }
 
     private var horizontalPageScroller: some View {
+        GeometryReader { geometry in
+            horizontalPageScroller(panelHeight: geometry.size.height)
+        }
+    }
+
+    private func horizontalPageScroller(panelHeight: CGFloat) -> some View {
         ScrollViewReader { proxy in
             ScrollView(.horizontal) {
                 LazyHStack(alignment: .top, spacing: 12) {
                     ForEach(pageGroups) { group in
-                        horizontalPageGroup(group)
+                        horizontalPageGroup(group, panelHeight: panelHeight)
                     }
 
                     if workspace.pageCount > 1, canEditPages {
@@ -180,9 +196,7 @@ struct PageSidebarView: View {
             }
             .modifier(pageNavigationKeyboardModifier)
             .onChange(of: workspace.currentPageIndex) { _, newValue in
-                withAnimation(.easeOut(duration: 0.18)) {
-                    proxy.scrollTo(newValue, anchor: .center)
-                }
+                proxy.scrollTo(newValue, anchor: .center)
             }
             .onChange(of: layoutModeValue) { _, _ in
                 proxy.scrollTo(workspace.currentPageIndex, anchor: .center)
@@ -201,9 +215,10 @@ struct PageSidebarView: View {
     /// disappears as navigation scrolls. Header fields and sliders retain
     /// their own arrow-key behavior because they are outside this scope.
     private var pageNavigationKeyboardModifier: some ViewModifier {
-        PageSidebarKeyboardModifier(
+        PDFArrowKeyNavigationModifier(
             isFocused: $isPageStripFocused,
-            onKeyPress: { handlePagingKey($0.key, modifiers: $0.modifiers) }
+            contextID: "\(workspace.revision)-\(workspace.mode)-\(placement)-\(layoutMode)",
+            onArrow: { handlePagingKey($0, modifiers: []) }
         )
     }
 
@@ -241,36 +256,33 @@ struct PageSidebarView: View {
     }
 
     private var sidebarHeader: some View {
-        VStack(spacing: 10) {
-            HStack {
-                headerTitle
-                    .layoutPriority(0)
-                Spacer(minLength: 6)
-                PageJumpControl(workspace: workspace)
-                    .layoutPriority(1)
-            }
-
+        HStack(spacing: 8) {
             DocumentSidebarModePicker(selection: $sidebarMode)
+            Button { showingDisplayOptions.toggle() } label: {
+                Image(systemName: "slider.horizontal.3")
+                    .font(.system(size: 12))
+                    .foregroundStyle(theme.secondaryText)
+                    .frame(width: 26, height: 28)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .help(L10n.string("page.sidebar.layout", defaultValue: "페이지 묶음 보기"))
+            .accessibilityLabel(L10n.string("page.sidebar.layout", defaultValue: "페이지 묶음 보기"))
+            .accessibilityIdentifier("page-sidebar-options")
+            .popover(isPresented: $showingDisplayOptions, arrowEdge: .bottom) {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text(L10n.string("page.sidebar.layout", defaultValue: "페이지 묶음 보기"))
+                        .font(.headline)
+                        .padding(.horizontal, 12)
+                    sidebarDisplayControls
+                }
+                .padding(.vertical, 14)
+                .frame(width: 250)
+                .foregroundStyle(theme.primaryText)
+            }
         }
-        .padding(.horizontal, 15)
-        .padding(.vertical, 13)
-    }
-
-    private var headerTitle: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text("페이지")
-                .font(.headline.weight(.semibold))
-                .lineLimit(1)
-            Text(
-                canEditPages
-                    ? L10n.string("page.sidebar.edit_hint", defaultValue: "드래그하여 순서 변경")
-                    : L10n.string("page.sidebar.view_hint", defaultValue: "선택하여 페이지 이동")
-            )
-                .font(.caption2)
-                .foregroundStyle(theme.secondaryText)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
     }
 
     private var sidebarDisplayControls: some View {
@@ -371,26 +383,19 @@ struct PageSidebarView: View {
         Int((thumbnailScale * 100).rounded())
     }
 
-    private var verticalThumbnailWidth: CGFloat {
-        let baseWidth: CGFloat = layoutMode == .single ? 148 : 72
-        return baseWidth * CGFloat(thumbnailScale)
-    }
-
-    private var horizontalThumbnailWidth: CGFloat {
-        let baseWidth: CGFloat = layoutMode == .single ? 108 : 72
-        return baseWidth * CGFloat(thumbnailScale)
-    }
-
     @ViewBuilder
-    private func verticalPageGroup(_ group: PageSidebarPageGroup) -> some View {
+    private func verticalPageGroup(
+        _ group: PageSidebarPageGroup,
+        thumbnailWidth: CGFloat
+    ) -> some View {
         switch layoutMode {
         case .single:
-            pageSlot(group.slots.first ?? nil, thumbnailWidth: verticalThumbnailWidth)
+            pageSlot(group.slots.first ?? nil, thumbnailWidth: thumbnailWidth)
 
         case .facingPages:
             HStack(alignment: .top, spacing: 6) {
                 ForEach(Array(group.slots.enumerated()), id: \.offset) { _, pageIndex in
-                    pageSlot(pageIndex, thumbnailWidth: verticalThumbnailWidth)
+                    pageSlot(pageIndex, thumbnailWidth: thumbnailWidth)
                 }
             }
             .modifier(PageSidebarGroupCard(theme: theme))
@@ -398,14 +403,14 @@ struct PageSidebarView: View {
         case .fourPages:
             LazyVGrid(
                 columns: [
-                    GridItem(.fixed(verticalThumbnailWidth + 16), spacing: 6),
-                    GridItem(.fixed(verticalThumbnailWidth + 16), spacing: 6)
+                    GridItem(.fixed(thumbnailWidth + 16), spacing: 6),
+                    GridItem(.fixed(thumbnailWidth + 16), spacing: 6)
                 ],
                 alignment: .center,
                 spacing: 6
             ) {
                 ForEach(Array(group.slots.enumerated()), id: \.offset) { _, pageIndex in
-                    pageSlot(pageIndex, thumbnailWidth: verticalThumbnailWidth)
+                    pageSlot(pageIndex, thumbnailWidth: thumbnailWidth)
                 }
             }
             .modifier(PageSidebarGroupCard(theme: theme))
@@ -413,21 +418,51 @@ struct PageSidebarView: View {
     }
 
     @ViewBuilder
-    private func horizontalPageGroup(_ group: PageSidebarPageGroup) -> some View {
+    private func horizontalPageGroup(
+        _ group: PageSidebarPageGroup,
+        panelHeight: CGFloat
+    ) -> some View {
+        let thumbnailWidth = CGFloat(PageSidebarLayoutMetrics.thumbnailWidth(
+            panelDimension: panelHeight,
+            placement: placement,
+            layoutMode: layoutMode,
+            thumbnailScale: thumbnailScale,
+            maximumPageAspect: maximumPageAspect(in: group)
+        ))
         if layoutMode == .single {
-            pageSlot(group.slots.first ?? nil, thumbnailWidth: horizontalThumbnailWidth)
+            pageSlot(group.slots.first ?? nil, thumbnailWidth: thumbnailWidth)
         } else {
             HStack(alignment: .top, spacing: 6) {
                 ForEach(Array(group.slots.enumerated()), id: \.offset) { _, pageIndex in
-                    pageSlot(pageIndex, thumbnailWidth: horizontalThumbnailWidth)
+                    // Empty trailing slots reserve a column, not a portrait
+                    // page's height that could overflow a landscape group.
+                    pageSlot(pageIndex, thumbnailWidth: thumbnailWidth, placeholderHeight: 1)
                 }
             }
             .modifier(PageSidebarGroupCard(theme: theme))
         }
     }
 
+    private func maximumPageAspect(in group: PageSidebarPageGroup) -> Double {
+        // Inspect only this lazy group's pages. Scanning the entire document
+        // on every divider movement defeats PDFKit's lazy page loading.
+        group.pageIndices.compactMap { index -> Double? in
+            guard let page = workspace.document?.page(at: index) else { return nil }
+            let size = page.bounds(for: .cropBox).size
+            guard size.width.isFinite, size.height.isFinite,
+                  size.width > 0, size.height > 0 else { return nil }
+            let aspect = abs(page.rotation % 180) == 90
+                ? size.width / size.height : size.height / size.width
+            return aspect.isFinite && aspect > 0 ? Double(aspect) : nil
+        }.max() ?? 1.414
+    }
+
     @ViewBuilder
-    private func pageSlot(_ pageIndex: Int?, thumbnailWidth: CGFloat) -> some View {
+    private func pageSlot(
+        _ pageIndex: Int?,
+        thumbnailWidth: CGFloat,
+        placeholderHeight: CGFloat? = nil
+    ) -> some View {
         if
             let pageIndex,
             let page = workspace.document?.page(at: pageIndex)
@@ -439,7 +474,7 @@ struct PageSidebarView: View {
             Color.clear
                 .frame(
                     width: thumbnailWidth + 16,
-                    height: thumbnailWidth * 1.35 + 25
+                    height: placeholderHeight ?? thumbnailWidth * 1.35 + 25
                 )
                 .allowsHitTesting(false)
                 .accessibilityHidden(true)
@@ -463,21 +498,13 @@ struct PageSidebarView: View {
             .frame(width: thumbnailWidth)
             .padding(8)
             .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(selected ? theme.dropHighlight : Color.clear)
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(selected ? theme.dropHighlight.opacity(0.6) : Color.clear)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
                     .stroke(selected ? theme.accent : Color.clear, lineWidth: 1.5)
             )
-            .overlay(alignment: .leading) {
-                if selected {
-                    RoundedRectangle(cornerRadius: 1.5, style: .continuous)
-                        .fill(theme.ribbon)
-                        .frame(width: 3)
-                        .padding(.vertical, 12)
-                }
-            }
             .overlay(alignment: .topTrailing) {
                 if selected {
                     Image(systemName: "checkmark.circle.fill")
@@ -738,35 +765,15 @@ struct PageSidebarView: View {
     }
 }
 
-private struct PageSidebarKeyboardModifier: ViewModifier {
-    var isFocused: FocusState<Bool>.Binding
-    let onKeyPress: (KeyPress) -> KeyPress.Result
-
-    func body(content: Content) -> some View {
-        content
-            .focusable()
-            .focused(isFocused)
-            .onKeyPress(
-                keys: [.upArrow, .downArrow, .leftArrow, .rightArrow],
-                phases: [.down, .repeat],
-                action: onKeyPress
-            )
-    }
-}
-
 private struct PageSidebarGroupCard: ViewModifier {
     let theme: HwattakPDFTheme
 
     func body(content: Content) -> some View {
         content
             .padding(5)
-            .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(theme.card.opacity(0.55))
-            )
             .overlay {
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .stroke(theme.border.opacity(0.7), lineWidth: 0.75)
+                    .stroke(theme.border.opacity(0.45), lineWidth: 0.75)
             }
             .accessibilityElement(children: .contain)
     }

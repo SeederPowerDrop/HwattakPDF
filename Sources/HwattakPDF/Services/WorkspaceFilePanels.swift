@@ -132,13 +132,15 @@ enum WorkspaceFilePanels {
     /// 저장 위치를 하나 선택한다. 실제 쓰기와 오류 처리는 writer가 담당한다.
     static func chooseSavePDF(
         suggestedName: String,
-        title: String? = nil
+        title: String? = nil,
+        directoryURL: URL? = nil
     ) -> URL? {
         let panel = NSSavePanel()
         panel.allowedContentTypes = [.pdf]
         panel.canCreateDirectories = true
         panel.isExtensionHidden = false
         panel.nameFieldStringValue = suggestedName
+        panel.directoryURL = directoryURL
         panel.title = title ?? L10n.string("panel.title.save_pdf")
         panel.prompt = L10n.string("action.save")
         return panel.runModal() == .OK ? panel.url : nil

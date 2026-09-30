@@ -162,7 +162,7 @@ struct PluginPanelHostView: View {
             Group {
                 switch request.kind {
                 case .translation:
-                    PluginTranslationPanel(
+                    TranslationWorkspacePanel(
                         request: request,
                         preferences: preferences
                     )
@@ -188,6 +188,38 @@ struct PluginPanelHostView: View {
         }
         .background(theme.canvas)
         .foregroundStyle(theme.primaryText)
+    }
+}
+
+/// The host supplies both experiences; a declarative package never executes code.
+private struct TranslationWorkspacePanel: View {
+    let request: PluginPanelRequest
+    let preferences: PluginPreferences
+    @State private var usesWeb: Bool
+
+    init(request: PluginPanelRequest, preferences: PluginPreferences) {
+        self.request = request
+        self.preferences = preferences
+        _usesWeb = State(initialValue: preferences.translationUsesWebCompanion)
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Picker(L10n.string("translation.experience", defaultValue: "번역 방식"), selection: $usesWeb) {
+                Text(L10n.string("translation.experience.in_app", defaultValue: "앱에서 번역")).tag(false)
+                Text(L10n.string("translation.experience.web", defaultValue: "웹 번역 도우미")).tag(true)
+            }
+            .pickerStyle(.segmented)
+            .padding(10)
+            if usesWeb {
+                PluginTranslationPanel(request: request, preferences: preferences)
+            } else {
+                PageTranslationPanel(
+                    request: request,
+                    preferences: preferences
+                )
+            }
+        }
     }
 }
 

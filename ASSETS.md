@@ -67,6 +67,21 @@ OpenAI ImageGen으로 제작한 자산은 프로젝트 소유자의 지시에 �
 | `Documentation/Images/document-comparison.jpg` | 두 예제 PDF의 좌우 비교 | `3197578e49cf883559012943ecba0b5ae30881991b19e98bc64694a1b1d13380` |
 | `Documentation/Images/page-overview.jpg` | 편집 모드의 2×2 페이지 개요 | `2e3f4dee51bb3d93d269474dd2ee90c9c7bcd4edb68cef15fdce44814ab4d8aa` |
 
+## 0.9.0 화면 미리보기 (2026-09-30)
+
+새 시작 화면과 읽기 도구 배치를 확인하기 위해 실제 SwiftUI 뷰를 렌더링했습니다.
+최근 파일 목록은 가상의 예제 이름이며, 본문은 프로젝트에서 직접 그린 예제 문서입니다.
+읽기 화면의 본문은 해당 예제의 페이지 이미지로 표시했으므로 전체 PDFKit 실행 화면을
+촬영한 스크린샷과는 구분합니다. 개인 문서, 참고로 전달된 타사 앱 화면이나 외부 출판물은
+포함하지 않았습니다. 아래 미리보기에도 프로젝트의 MPL-2.0을 적용합니다.
+
+| 저장소 파일 | 표시하는 화면 | SHA-256 |
+| --- | --- | --- |
+| `Documentation/Images/calm-home-dark.png` | 다크 시작 화면 | `41e648a9e1b3a416c04400742f5289c7df3b1aa414d2a895beaa662eb6b6cace` |
+| `Documentation/Images/calm-home-light.png` | 라이트 시작 화면 | `c2f63e305b74f0ea4254e2b0ad13e406c45939e3df5795986fe664dcc04508a1` |
+| `Documentation/Images/calm-reader-dark.png` | 다크 읽기 화면 | `e9688cbb37d70b43ef623f145424ec985cacbb9bf42bf4656632d9d62c373e51` |
+| `Documentation/Images/calm-reader-light.png` | 라이트 읽기 화면 | `6477530fdefbb179fa4f01a15ecc0b58bc9ea8aa1a978c27a4d2367a23cbd481` |
+
 ## 상표와 공식성
 
 MPL-2.0은 위 자산에 적용되지만, 그 사실만으로 HwattakPDF의 상표를 사용할

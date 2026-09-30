@@ -66,6 +66,149 @@ final class PageSidebarLayoutModeTests: XCTestCase {
         )
     }
 
+    func testThumbnailsGrowWhenEachPanelPlacementExpands() {
+        for placement in PageOverviewPlacement.allCases {
+            let initialDimension = placement.usesHorizontalPageStrip ? 188.0 : 224.0
+            let expandedDimension = placement.usesHorizontalPageStrip ? 400.0 : 440.0
+            for mode in PageSidebarLayoutMode.allCases {
+                for scale in [0.65, 1.0, 1.35] {
+                    let initial = PageSidebarLayoutMetrics.thumbnailWidth(
+                        panelDimension: initialDimension,
+                        placement: placement,
+                        layoutMode: mode,
+                        thumbnailScale: scale
+                    )
+                    let expanded = PageSidebarLayoutMetrics.thumbnailWidth(
+                        panelDimension: expandedDimension,
+                        placement: placement,
+                        layoutMode: mode,
+                        thumbnailScale: scale
+                    )
+
+                    XCTAssertGreaterThan(
+                        expanded, initial,
+                        "\(placement), \(mode), zoom \(scale)"
+                    )
+                }
+            }
+        }
+    }
+
+    func testVerticalThumbnailsKeepSlotsAndGroupPaddingInsidePanel() {
+        for placement in [PageOverviewPlacement.left, .right] {
+            for mode in PageSidebarLayoutMode.allCases {
+                for dimension in [224.0, 320.0, 440.0, 520.0] {
+                    for scale in [0.65, 1.0, 1.35] {
+                        let width = PageSidebarLayoutMetrics.thumbnailWidth(
+                            panelDimension: dimension,
+                            placement: placement,
+                            layoutMode: mode,
+                            thumbnailScale: scale
+                        )
+                        // Each page button adds 8pt per side. A two-column
+                        // group adds a 6pt gap and 5pt border padding per side.
+                        let contentWidth = mode == .single
+                            ? width + 16 + 26
+                            : 2 * (width + 16) + 6 + 10 + 26
+
+                        XCTAssertLessThanOrEqual(
+                            contentWidth, dimension + 0.001,
+                            "\(placement), \(mode), width \(dimension), zoom \(scale)"
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    func testHorizontalThumbnailsReservePageNumbersForDifferentPageShapes() {
+        for placement in [PageOverviewPlacement.top, .bottom] {
+            for mode in PageSidebarLayoutMode.allCases {
+                for dimension in [188.0, 276.0, 400.0, 440.0] {
+                    for scale in [0.65, 1.0, 1.35] {
+                        // Landscape, portrait, and unusually tall crop boxes.
+                        for aspect in [0.707, 1.414, 4.0, 8.0] {
+                            let width = PageSidebarLayoutMetrics.thumbnailWidth(
+                                panelDimension: dimension,
+                                placement: placement,
+                                layoutMode: mode,
+                                thumbnailScale: scale,
+                                maximumPageAspect: aspect
+                            )
+                            let imageAndLabelHeight = width * aspect + 9 + 14
+                            let buttonAndScrollerPadding = 16.0 + 8 + 8
+                            let groupPadding = mode == .single ? 0.0 : 10.0
+                            let contentHeight = imageAndLabelHeight
+                                + buttonAndScrollerPadding + groupPadding
+
+                            XCTAssertLessThanOrEqual(
+                                contentHeight, dimension + 0.001,
+                                "\(placement), \(mode), height \(dimension), zoom \(scale), aspect \(aspect)"
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    func testSavedThumbnailZoomRemainsEffectiveAfterPanelResize() {
+        for placement in PageOverviewPlacement.allCases {
+            let dimension = placement.usesHorizontalPageStrip ? 400.0 : 320.0
+            for mode in PageSidebarLayoutMode.allCases {
+                let widths = [0.65, 1.0, 1.35].map { scale in
+                    PageSidebarLayoutMetrics.thumbnailWidth(
+                        panelDimension: dimension,
+                        placement: placement,
+                        layoutMode: mode,
+                        thumbnailScale: scale
+                    )
+                }
+
+                XCTAssertLessThan(widths[0], widths[1], "\(placement), \(mode)")
+                XCTAssertLessThan(widths[1], widths[2], "\(placement), \(mode)")
+            }
+        }
+    }
+
+    func testAdaptiveThumbnailWidthHandlesInvalidDimensionsAndPreferences() {
+        for placement in PageOverviewPlacement.allCases {
+            for mode in PageSidebarLayoutMode.allCases {
+                for dimension in [Double.nan, .infinity, -.infinity, -100, 0, 1] {
+                    let width = PageSidebarLayoutMetrics.thumbnailWidth(
+                        panelDimension: dimension,
+                        placement: placement,
+                        layoutMode: mode,
+                        thumbnailScale: .nan,
+                        maximumPageAspect: .nan
+                    )
+
+                    XCTAssertTrue(width.isFinite, "\(placement), \(mode), \(dimension)")
+                    XCTAssertGreaterThanOrEqual(width, 1)
+                }
+
+                let referenceDimension = PageSidebarResizeMetrics.defaultDimension(for: placement)
+                let expectedFallback = PageSidebarLayoutMetrics.thumbnailWidth(
+                    panelDimension: referenceDimension,
+                    placement: placement,
+                    layoutMode: mode,
+                    thumbnailScale: 1
+                )
+                for invalidAspect in [Double.nan, .infinity, -.infinity, -1, 0] {
+                    let fallback = PageSidebarLayoutMetrics.thumbnailWidth(
+                        panelDimension: .infinity,
+                        placement: placement,
+                        layoutMode: mode,
+                        thumbnailScale: .infinity,
+                        maximumPageAspect: invalidAspect
+                    )
+
+                    XCTAssertEqual(fallback, expectedFallback, accuracy: 0.001)
+                }
+            }
+        }
+    }
+
     func testHorizontalPanelExpandsEnoughForMaximumScaleA4ThumbnailAndPageNumber() {
         let thumbnailWidth = 108 * PageSidebarPreferences.maximumThumbnailScale
         let metrics = PageSidebarLayoutMetrics.horizontalPanel(

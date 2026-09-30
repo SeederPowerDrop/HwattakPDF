@@ -188,11 +188,26 @@ enum OCRRecognitionQuality: String, Codable, Equatable {
 
 struct OCRConfiguration: Codable, Equatable {
     var languages = ["ko-KR", "en-US", "ja-JP"]
-    var skipPagesWithText = true
+    /// Nil processes the full document; explicit indexes refer to the original
+    /// PDF's zero-based page positions, never to a separately extracted PDF.
+    var pageIndexes: [Int]? = nil
+    // A scan can already contain an inaccurate hidden text layer. Running OCR
+    // should repair that layer unless the user explicitly chooses to keep it.
+    var skipPagesWithText = false
     var minimumExistingCharacters = 24
     var renderDPI: CGFloat = 220
     var useLanguageCorrection = true
     var recognitionQuality: OCRRecognitionQuality = .accurate
+
+    func resolvedPageIndexes(pageCount: Int) throws -> [Int] {
+        guard pageCount > 0 else { throw OCRPageSelectionError.emptySelection }
+        guard let pageIndexes else { return Array(0..<pageCount) }
+        guard !pageIndexes.isEmpty else { throw OCRPageSelectionError.emptySelection }
+        guard pageIndexes.allSatisfy({ $0 >= 0 && $0 < pageCount }) else {
+            throw OCRPageSelectionError.outOfBounds(pageCount: pageCount)
+        }
+        return Array(Set(pageIndexes)).sorted()
+    }
 }
 
 /// Vision이 인식한 문자열과 페이지 안의 정규화된 위치다.

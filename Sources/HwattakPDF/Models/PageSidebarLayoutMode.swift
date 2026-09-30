@@ -305,6 +305,38 @@ struct PageSidebarLayoutMetrics: Equatable {
     let maximumHorizontalPanelHeight: Double
     let estimatedThumbnailCardHeight: Double
 
+    /// Grow thumbnails with the panel's cross-axis while retaining the saved
+    /// zoom preference. Cap the result after reserving card/label padding so
+    /// larger previews never spill into the document or clip their page number.
+    static func thumbnailWidth(
+        panelDimension: Double,
+        placement: PageOverviewPlacement,
+        layoutMode: PageSidebarLayoutMode,
+        thumbnailScale: Double,
+        maximumPageAspect: Double = 1.414
+    ) -> Double {
+        let horizontal = placement.usesHorizontalPageStrip
+        let grouped = layoutMode != .single
+        let reference = PageSidebarResizeMetrics.defaultDimension(for: placement)
+        let dimension = panelDimension.isFinite ? max(1, panelDimension) : reference
+        let scale = PageSidebarPreferences.clampedThumbnailScale(thumbnailScale)
+        let baseWidth = grouped ? 72.0 : (horizontal ? 108.0 : 148.0)
+        let preferredWidth = baseWidth * scale * dimension / reference
+        let fittedWidth: Double
+        if horizontal {
+            let aspect = maximumPageAspect.isFinite && maximumPageAspect > 0
+                ? maximumPageAspect : 1.414
+            let chrome = 9 + 14 + 16
+                + horizontalScrollerTopPadding + horizontalScrollerBottomPadding
+                + (grouped ? 10 : 0)
+            fittedWidth = (dimension - chrome) / aspect
+        } else {
+            let columns = grouped ? 2.0 : 1.0
+            fittedWidth = (dimension - 26 - (grouped ? 16 : 0)) / columns - 16
+        }
+        return max(1, min(preferredWidth, fittedWidth))
+    }
+
     static func horizontalPanel(
         thumbnailWidth: Double,
         maximumPageAspect: Double = 1.414,

@@ -56,7 +56,8 @@ struct OCRCheckpointStore {
     func load(
         fingerprint: String,
         pageCount: Int,
-        configurationFingerprint: String = "default"
+        configurationFingerprint: String = "default",
+        requiresConfigurationMatch: Bool = false
     ) -> OCRCheckpoint? {
         if let checkpoint = loadIncremental(
             fingerprint: fingerprint,
@@ -69,7 +70,8 @@ struct OCRCheckpointStore {
         if let legacy = loadLegacyCheckpoint(
             fingerprint: fingerprint,
             pageCount: pageCount,
-            configurationFingerprint: configurationFingerprint
+            configurationFingerprint: configurationFingerprint,
+            requiresConfigurationMatch: requiresConfigurationMatch
         ) {
             // Migration is best effort. A read-only or full disk must not make an
             // otherwise valid legacy checkpoint unusable for the current run.
@@ -84,7 +86,8 @@ struct OCRCheckpointStore {
             let legacy = OCRCheckpointStore(directory: legacyDirectory).load(
                 fingerprint: fingerprint,
                 pageCount: pageCount,
-                configurationFingerprint: configurationFingerprint
+                configurationFingerprint: configurationFingerprint,
+                requiresConfigurationMatch: requiresConfigurationMatch
             )
         else {
             return nil
@@ -249,7 +252,8 @@ struct OCRCheckpointStore {
     private func loadLegacyCheckpoint(
         fingerprint: String,
         pageCount: Int,
-        configurationFingerprint: String
+        configurationFingerprint: String,
+        requiresConfigurationMatch: Bool
     ) -> OCRCheckpoint? {
         let schema2URL = checkpointURL(
             fingerprint: fingerprint,
@@ -265,6 +269,11 @@ struct OCRCheckpointStore {
         {
             return checkpoint
         }
+
+        // Schema 1 cannot prove which languages, text-skipping policy or page
+        // selection produced it. A new OCR request must actually recognize its
+        // selected pages instead of silently adopting these unverified results.
+        guard !requiresConfigurationMatch else { return nil }
 
         // Schema 1 predated configuration fingerprints and used
         // `<document fingerprint>.json`. Preserve its former resume behavior by

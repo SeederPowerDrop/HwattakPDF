@@ -600,6 +600,7 @@ struct PluginActionRunner {
                 title: localizedActionTitle,
                 kind: .translation,
                 sourceText: rendered,
+                sourceDocumentURL: workspace.documentURL,
                 includesSelectedText: action.needsSelection,
                 includesCurrentPageText: action.needsCurrentPageText
             )
@@ -668,8 +669,32 @@ struct PluginActionRunner {
         try PluginDocumentTextAccess.validate(for: action, workspace: workspace)
         let selectedText: String?
         if action.needsSelection {
-            let bounded = PDFShareNote.boundedExcerpt(from: workspace.currentSelection)
-                .trimmingCharacters(in: .whitespacesAndNewlines)
+            let excerpt: String
+            if action.output == .translatePanel, let selection = workspace.currentSelection {
+                // Translation must never present a shortened excerpt as the full selection.
+                let lines = selection.selectionsByLine().lazy.compactMap(\.string)
+                var snapshot = EncodedTextLimiter.joined(
+                    fragments: lines,
+                    separator: "\n",
+                    budget: HwattakPluginLimits.renderedTextBudget
+                )
+                if snapshot.text.isEmpty && !snapshot.wasTruncated {
+                    snapshot = EncodedTextLimiter.limit(
+                        selection.string ?? "",
+                        budget: HwattakPluginLimits.renderedTextBudget
+                    )
+                }
+                guard !snapshot.wasTruncated else {
+                    throw PluginSystemError.actionFailed(L10n.string(
+                        "translation.selection_too_large",
+                        defaultValue: "선택한 내용이 번역 한도를 넘습니다. 페이지 단위로 나누어 번역하세요."
+                    ))
+                }
+                excerpt = snapshot.text
+            } else {
+                excerpt = PDFShareNote.boundedExcerpt(from: workspace.currentSelection)
+            }
+            let bounded = excerpt.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !bounded.isEmpty else {
                 throw PluginSystemError.actionUnavailable(
                     L10n.string(

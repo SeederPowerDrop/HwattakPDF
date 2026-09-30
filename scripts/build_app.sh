@@ -145,6 +145,13 @@ if [[ ! -f "${ABOUT_IMAGE_PATH}" ]]; then
     exit 1
 fi
 cp "${ABOUT_IMAGE_PATH}" "${PACKAGE_TEMPORARY}/Contents/Resources/${ABOUT_IMAGE}"
+cp "${PROJECT_DIRECTORY}/scripts/translation_argos_worker.py" \
+    "${PACKAGE_TEMPORARY}/Contents/Resources/translation_argos_worker.py"
+cp "${PROJECT_DIRECTORY}/scripts/start_local_translation.command" \
+    "${PACKAGE_TEMPORARY}/Contents/Resources/start_local_translation.command"
+chmod 755 "${PACKAGE_TEMPORARY}/Contents/Resources/start_local_translation.command"
+cp "${PROJECT_DIRECTORY}/Documentation/LOCAL-TRANSLATION.md" \
+    "${PACKAGE_TEMPORARY}/Contents/Resources/LOCAL-TRANSLATION.md"
 
 mkdir -p "${PACKAGE_TEMPORARY}/Contents/Resources/Legal"
 for legal_document in "${LEGAL_DOCUMENTS[@]}"; do
@@ -215,6 +222,9 @@ for icon_name in "${ICON_VARIANTS[@]}"; do
     test -f "${APP_BUNDLE}/Contents/Resources/${icon_name}"
 done
 test -f "${APP_BUNDLE}/Contents/Resources/${ABOUT_IMAGE}"
+cmp "${PROJECT_DIRECTORY}/scripts/translation_argos_worker.py" \
+    "${APP_BUNDLE}/Contents/Resources/translation_argos_worker.py"
+test -x "${APP_BUNDLE}/Contents/Resources/start_local_translation.command"
 for legal_document in "${LEGAL_DOCUMENTS[@]}"; do
     test -f "${APP_BUNDLE}/Contents/Resources/Legal/${legal_document}"
 done

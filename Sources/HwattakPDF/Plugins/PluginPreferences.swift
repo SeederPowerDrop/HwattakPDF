@@ -96,6 +96,7 @@ struct PluginPreferences: Codable, Equatable {
     var translationProvider: PluginTranslationProvider
     var translationTargetLanguageCode: String
     var translationShowsSource: Bool
+    var translationUsesWebCompanion: Bool
     var youtubeLoadsStartPage: Bool
     var browserSearchEngine: PluginWebSearchEngine
     var browserLoadsStartPage: Bool
@@ -104,6 +105,7 @@ struct PluginPreferences: Codable, Equatable {
         translationProvider: PluginTranslationProvider = .google,
         translationTargetLanguageCode: String = followAppLanguageCode,
         translationShowsSource: Bool = true,
+        translationUsesWebCompanion: Bool = false,
         youtubeLoadsStartPage: Bool = true,
         browserSearchEngine: PluginWebSearchEngine = .google,
         browserLoadsStartPage: Bool = true
@@ -113,6 +115,7 @@ struct PluginPreferences: Codable, Equatable {
             translationTargetLanguageCode
         ) ? translationTargetLanguageCode : Self.followAppLanguageCode
         self.translationShowsSource = translationShowsSource
+        self.translationUsesWebCompanion = translationUsesWebCompanion
         self.youtubeLoadsStartPage = youtubeLoadsStartPage
         self.browserSearchEngine = browserSearchEngine
         self.browserLoadsStartPage = browserLoadsStartPage
@@ -122,6 +125,7 @@ struct PluginPreferences: Codable, Equatable {
         case translationProvider
         case translationTargetLanguageCode
         case translationShowsSource
+        case translationUsesWebCompanion
         case youtubeLoadsStartPage
         case browserSearchEngine
         case browserLoadsStartPage
@@ -143,6 +147,10 @@ struct PluginPreferences: Codable, Equatable {
                 Bool.self,
                 forKey: .translationShowsSource
             )) ?? true,
+            translationUsesWebCompanion: (try? values.decode(
+                Bool.self,
+                forKey: .translationUsesWebCompanion
+            )) ?? false,
             youtubeLoadsStartPage: (try? values.decode(
                 Bool.self,
                 forKey: .youtubeLoadsStartPage
@@ -164,6 +172,7 @@ struct PluginPreferences: Codable, Equatable {
             forKey: .translationTargetLanguageCode
         )
         try values.encode(translationShowsSource, forKey: .translationShowsSource)
+        try values.encode(translationUsesWebCompanion, forKey: .translationUsesWebCompanion)
         try values.encode(youtubeLoadsStartPage, forKey: .youtubeLoadsStartPage)
         try values.encode(browserSearchEngine.rawValue, forKey: .browserSearchEngine)
         try values.encode(browserLoadsStartPage, forKey: .browserLoadsStartPage)

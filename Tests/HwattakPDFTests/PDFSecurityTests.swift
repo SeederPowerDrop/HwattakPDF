@@ -773,7 +773,7 @@ final class PDFSecurityTests: XCTestCase {
         }
         XCTAssertNotNil(workspace.ocrCheckpoint)
 
-        workspace.exportSearchableOCRCopy(to: sourceURL)
+        await workspace.exportSearchableOCRCopy(to: sourceURL)
 
         XCTAssertNotNil(workspace.presentedError)
         XCTAssertEqual(try Data(contentsOf: sourceURL), originalBytes)

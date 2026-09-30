@@ -58,10 +58,10 @@ struct PageJumpControl: View {
         .environment(\.layoutDirection, .leftToRight)
         .padding(.horizontal, 7)
         .frame(height: 28)
-        .background(theme.card, in: RoundedRectangle(cornerRadius: 7, style: .continuous))
+        .background(theme.card.opacity(isFocused ? 1 : 0.45), in: RoundedRectangle(cornerRadius: 7, style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: 7, style: .continuous)
-                .stroke(isInvalid ? Color.red : theme.border, lineWidth: isInvalid ? 1.5 : 1)
+                .stroke(isInvalid ? Color.red : (isFocused ? theme.accent : Color.clear), lineWidth: isInvalid ? 1.5 : 1)
         }
         .contentShape(Rectangle())
         .onTapGesture { isFocused = true }

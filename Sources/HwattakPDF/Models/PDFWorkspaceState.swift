@@ -178,6 +178,10 @@ final class PDFWorkspaceState: ObservableObject {
     @Published var pendingProtectedExport: PDFProtectedExportPresentation?
     @Published private(set) var ocrState: OCRRunState = .idle
     @Published private(set) var ocrCheckpoint: OCRCheckpoint?
+    @Published private(set) var ocrConfiguration = OCRConfiguration()
+    @Published private(set) var isApplyingOCR = false
+    @Published private(set) var isExportingOCR = false
+    var isWritingOCRResult: Bool { isApplyingOCR || isExportingOCR }
 
     /// 파일을 연 탭이 살아 있는 동안 샌드박스 URL 권한도 함께 유지한다.
     private var scopedAccess: SecurityScopedAccess?
@@ -223,6 +227,7 @@ final class PDFWorkspaceState: ObservableObject {
                 try Task.checkCancellation()
                 guard let self, let document, self.document === document, self.isDirty,
                       !document.isEncrypted, !self.ocrState.isActivelyProcessing,
+                      !self.isWritingOCRResult,
                       self.officeExportTask == nil,
                       UserDefaults.standard.object(forKey: PDFRecoveryStore.enabledKey) as? Bool != false else { return }
                 try recoveryStore.save(document: document, id: self.recoveryID, displayName: self.displayName)
@@ -268,6 +273,13 @@ final class PDFWorkspaceState: ObservableObject {
     private let editHistory = PDFEditHistory(limit: PDFWorkspaceState.undoHistoryLimit)
     private var ocrTask: Task<Void, Never>?
     private var ocrRunID: UUID?
+    private var ocrApplicationID: UUID?
+    private var ocrExportID: UUID?
+    private var completedOCRRevision: UUID?
+    private var completedOCRDocumentID: ObjectIdentifier?
+    private var completedOCRSourceURL: URL?
+    private var completedOCRSourceVersion: PDFSourceFileVersion?
+    private var completedOCRFingerprint: String?
     private var searchTask: Task<Void, Never>?
     private var searchGeneration = UUID()
     private let searchEngineConfiguration: PDFSearchEngine.Configuration
@@ -334,6 +346,32 @@ final class PDFWorkspaceState: ObservableObject {
         return sourceFileVersion
     }
 
+    /// Only complete results from the current document and settings may be
+    /// applied or exported. Disk conflicts are checked again when applying.
+    var canUseCompletedOCRResult: Bool {
+        !isWritingOCRResult && hasValidCompletedOCRResult
+    }
+
+    private var hasValidCompletedOCRResult: Bool {
+        guard case .finished = ocrState,
+              ocrTask == nil,
+              let document, let checkpoint = ocrCheckpoint,
+              allows(.ocr),
+              completedOCRRevision == revision,
+              completedOCRDocumentID == ObjectIdentifier(document),
+              completedOCRSourceURL == documentURL,
+              completedOCRSourceVersion == sourceFileVersion,
+              checkpoint.documentFingerprint == completedOCRFingerprint,
+              checkpoint.configurationFingerprint == VisionOCRService.configurationFingerprint(for: ocrConfiguration),
+              checkpoint.pageCount == document.pageCount,
+              document.pageCount > 0,
+              let pageIndexes = try? ocrConfiguration.resolvedPageIndexes(pageCount: document.pageCount),
+              Set(checkpoint.pages.keys) == Set(pageIndexes) else { return false }
+        return pageIndexes.allSatisfy { index in
+            checkpoint.pages[index]?.pageIndex == index
+        }
+    }
+
     var isHibernated: Bool {
         document == nil && documentURL != nil && hibernatedPageCount != nil
     }
@@ -351,6 +389,7 @@ final class PDFWorkspaceState: ObservableObject {
             && pendingTextEdit == nil
             && pendingInlineTextEdit == nil
             && ocrTask == nil
+            && !isWritingOCRResult
             && officeExportTask == nil
             && !ocrState.isActivelyProcessing
     }
@@ -889,6 +928,7 @@ final class PDFWorkspaceState: ObservableObject {
     var canRequestProtectedPDFExport: Bool {
         guard
             let document,
+            !isWritingOCRResult,
             pendingProtectedExport == nil,
             pendingTextEdit == nil,
             pendingInlineTextEdit == nil
@@ -1014,6 +1054,9 @@ final class PDFWorkspaceState: ObservableObject {
     /// when the write fails or the destination has not been chosen.
     @discardableResult
     func saveSynchronously(as requestedURL: URL? = nil) -> Bool {
+        // [학습 05] 모델은 메뉴·화면·테스트에서 공통으로 사용하는 저장 절차를 담당합니다. 호출한 화면에서
+        // 검사했더라도 이곳에서 편집 내용의 확정 여부, 권한, 저장 위치, 파일 버전을 다시 확인합니다.
+        guard !isWritingOCRResult else { return false }
         // `WorkspaceSaveCoordinator` already prepares the visible tab, but
         // this model API is also called directly by tests and future
         // integrations. Treat the model itself as the final durability
@@ -1125,6 +1168,8 @@ final class PDFWorkspaceState: ObservableObject {
             sourceFileVersion = saved.version
             hibernatedPageCount = nil
             // OCR hashing is deliberately lazy and runs off the main actor.
+            // [학습 04·05] 저장해도 실행 취소(undo) 기록은 유지합니다. 파일 쓰기에 성공하면 현재 이력 위치를
+            // 저장 지점으로 표시하므로, 실행 취소로 이 위치에 돌아오면 미저장 변경이 없는 상태(clean)가 됩니다.
             editHistory.markSaved()
             synchronizeHistoryPresentation()
             refreshPrimedWidgetValueSnapshot()
@@ -3489,7 +3534,9 @@ final class PDFWorkspaceState: ObservableObject {
         statusMessage = L10n.string("status.ocr_cancelling")
     }
 
-    func startOCR(configuration: OCRConfiguration) {
+    func startOCR(configuration requestedConfiguration: OCRConfiguration) {
+        guard ocrTask == nil, !isWritingOCRResult else { return }
+        prepareForDeactivation()
         guard let document else {
             presentedError = WorkspaceError.noDocument.localizedDescription
             return
@@ -3500,7 +3547,22 @@ final class PDFWorkspaceState: ObservableObject {
             }
             return
         }
-        guard ocrTask == nil else { return }
+        guard pendingInlineTextEdit == nil else {
+            presentedError = L10n.string("error.finish_inline_text_before_export")
+            return
+        }
+        var configuration = requestedConfiguration
+        let pageIndexes: [Int]
+        do {
+            pageIndexes = try configuration.resolvedPageIndexes(pageCount: document.pageCount)
+            if configuration.pageIndexes != nil { configuration.pageIndexes = pageIndexes }
+        } catch {
+            presentedError = error.localizedDescription
+            return
+        }
+        ocrConfiguration = configuration
+        ocrCheckpoint = nil
+        completedOCRRevision = nil
         let snapshotURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("HwattakPDF-OCR-\(UUID().uuidString).pdf")
         do {
@@ -3510,7 +3572,7 @@ final class PDFWorkspaceState: ObservableObject {
             return
         }
 
-        ocrState = .running(completed: 0, total: document.pageCount, page: 1)
+        ocrState = .running(completed: 0, total: pageIndexes.count, page: pageIndexes[0] + 1)
         statusMessage = L10n.string("status.ocr_started")
         let runID = UUID()
         // Only a clean document with a known source baseline may reuse a
@@ -3518,6 +3580,11 @@ final class PDFWorkspaceState: ObservableObject {
         // path so VisionOCRService hashes the exact serialized edit snapshot.
         let expectedSourceVersion = reusableOCRSourceVersion
         let sourceURL = documentURL
+        let sourceVersion = sourceFileVersion
+        // [학습 05] 비동기 작업(asynchronous task)은 시작할 때의 문서를 기억해야 합니다. 완료 시 변경 신호인
+        // revision과 문서·실행 식별자를 비교해야 늦게 도착한 결과를 새 편집에 잘못 적용하지 않습니다.
+        let startingRevision = revision
+        let documentID = ObjectIdentifier(document)
         let ocrRecognizer = self.ocrRecognizer
         ocrRunID = runID
         ocrTask = Task { [weak self] in
@@ -3549,9 +3616,23 @@ final class PDFWorkspaceState: ObservableObject {
                     stableFingerprint = nil
                 }
 
+                // Bind the returned result to the exact snapshot even for a
+                // dirty document whose source file cannot be reused.
+                let expectedFingerprint: String
+                if let stableFingerprint {
+                    expectedFingerprint = stableFingerprint
+                } else {
+                    let worker = Task.detached(priority: .utility) {
+                        try VisionOCRService.fingerprint(for: snapshotURL)
+                    }
+                    expectedFingerprint = try await withTaskCancellationHandler {
+                        try await worker.value
+                    } onCancel: { worker.cancel() }
+                }
+                try Task.checkCancellation()
                 let checkpoint = try await ocrRecognizer(
                     snapshotURL,
-                    stableFingerprint,
+                    expectedFingerprint,
                     configuration
                 ) { progress in
                     Task { @MainActor [weak self] in
@@ -3572,12 +3653,25 @@ final class PDFWorkspaceState: ObservableObject {
                 // a plain `return` would leave `.cancelling` and `ocrTask`
                 // permanently stuck.
                 try Task.checkCancellation()
-                guard self?.ocrRunID == runID else { return }
+                guard let self, self.ocrRunID == runID else { return }
+                guard self.document.map(ObjectIdentifier.init) == documentID,
+                      self.revision == startingRevision,
+                      self.documentURL == sourceURL,
+                      self.sourceFileVersion == sourceVersion else {
+                    self.ocrState = .idle
+                    self.statusMessage = L10n.string("error.ocr_result_changed")
+                    return
+                }
                 let recognized = checkpoint.pages.values.filter { !$0.skippedBecauseTextExists }.count
                 let skipped = checkpoint.pages.values.filter(\.skippedBecauseTextExists).count
-                self?.ocrCheckpoint = checkpoint
-                self?.ocrState = .finished(recognizedPages: recognized, skippedPages: skipped)
-                self?.statusMessage = L10n.string("status.ocr_finished")
+                self.completedOCRRevision = startingRevision
+                self.completedOCRDocumentID = documentID
+                self.completedOCRSourceURL = sourceURL
+                self.completedOCRSourceVersion = sourceVersion
+                self.completedOCRFingerprint = expectedFingerprint
+                self.ocrCheckpoint = checkpoint
+                self.ocrState = .finished(recognizedPages: recognized, skippedPages: skipped)
+                self.statusMessage = L10n.string("status.ocr_finished")
             } catch is CancellationError {
                 guard self?.ocrRunID == runID else { return }
                 self?.ocrState = .idle
@@ -3590,42 +3684,205 @@ final class PDFWorkspaceState: ObservableObject {
         }
     }
 
-    func exportSearchableOCRCopy(to url: URL) {
-        guard document != nil, ocrCheckpoint != nil else {
+    @discardableResult
+    func exportSearchableOCRCopy(to url: URL) async -> Bool {
+        guard canUseCompletedOCRResult else {
             presentedError = L10n.string("error.ocr_required")
-            return
+            return false
         }
         // The visible PDF may still own a native field editor or an inline text
         // overlay. Materializing either is a document mutation that invalidates
         // the checkpoint, so prepare first and then reacquire both values.
         prepareForDeactivation()
-        guard pendingInlineTextEdit == nil else {
+        guard pendingInlineTextEdit == nil, pendingTextEdit == nil else {
             presentedError = L10n.string("error.finish_inline_text_before_export")
-            return
+            return false
         }
-        guard let document, let ocrCheckpoint else {
+        guard canUseCompletedOCRResult, let document, let ocrCheckpoint else {
             presentedError = L10n.string("error.ocr_required")
-            return
+            return false
+        }
+        let exportID = UUID()
+        let startingRevision = revision
+        let sourceURL = documentURL
+        let sourceVersion = sourceFileVersion
+        let protectedSourceURLs = [sourceURL, document.documentURL].compactMap { $0 }
+        let renderDPI = ocrConfiguration.renderDPI
+        let access = SecurityScopedAccess(url: url)
+        let snapshotURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("HwattakPDF-OCR-Export-\(UUID().uuidString).pdf")
+        ocrExportID = exportID
+        isExportingOCR = true
+        defer {
+            withExtendedLifetime(access) {}
+            try? FileManager.default.removeItem(at: snapshotURL)
+            if ocrExportID == exportID {
+                ocrExportID = nil
+                isExportingOCR = false
+                if isDirty { scheduleRecoverySnapshot() }
+            }
         }
         do {
-            let sourceURL = documentURL
-            if
-                let sourceURL,
-                PDFSourceFileVersion.refersToSameLocation(sourceURL, url)
-            {
+            try PDFDocumentSecurityPolicy.validateCanExportSearchableOCR(document)
+            if protectedSourceURLs.contains(where: { PDFSourceFileVersion.refersToSameLocation($0, url) }) {
                 throw WorkspaceError.operationFailed(
                     L10n.string("error.save_copy_same_as_original")
                 )
             }
-            try SearchablePDFExporter.export(
-                document: document,
-                checkpoint: ocrCheckpoint,
-                to: url,
-                sourceURL: sourceURL
+            let destinationPrecondition = try PDFDestinationPrecondition(destination: url)
+            try validateOCRApplicationSource(sourceURL, expectedVersion: sourceVersion)
+            try PDFOCRSnapshotWriter.write(document, to: snapshotURL)
+            let outputData = try await PDFOCRApplication.render(
+                snapshotURL: snapshotURL, checkpoint: ocrCheckpoint, renderDPI: renderDPI
             )
-            statusMessage = L10n.format("status.ocr_exported", url.lastPathComponent)
+            try Task.checkCancellation()
+            guard ocrExportID == exportID else { return false }
+            prepareForDeactivation()
+            guard self.document === document, revision == startingRevision,
+                  hasValidCompletedOCRResult, pendingTextEdit == nil,
+                  pendingInlineTextEdit == nil else {
+                throw WorkspaceError.operationFailed(L10n.string("error.ocr_result_changed"))
+            }
+            try validateOCRApplicationSource(sourceURL, expectedVersion: sourceVersion)
+            try await PDFOCRApplication.saveRenderedCopy(
+                outputData, to: url, protectedSourceURLs: protectedSourceURLs,
+                destinationPrecondition: destinationPrecondition
+            )
+            if ocrExportID == exportID {
+                statusMessage = L10n.format("status.ocr_exported", url.lastPathComponent)
+            }
+            return true
+        } catch is CancellationError {
+            return false
         } catch {
-            presentedError = error.localizedDescription
+            if ocrExportID == exportID {
+                presentedError = L10n.format(
+                    "error.ocr_save_failed", url.lastPathComponent, error.localizedDescription
+                )
+            }
+            return false
+        }
+    }
+
+    /// Applies the explicitly chosen OCR result in memory. Ordinary Save keeps
+    /// its original source-version conflict checks and encrypted-save policy.
+    /// Page references retained by the history make flattening fully undoable.
+    @discardableResult
+    func applySearchableOCRToCurrentDocument() async -> Bool {
+        guard canUseCompletedOCRResult else {
+            presentedError = L10n.string("error.ocr_required")
+            return false
+        }
+        prepareForDeactivation()
+        guard pendingInlineTextEdit == nil, pendingTextEdit == nil else {
+            presentedError = L10n.string("error.ocr_finish_draft")
+            return false
+        }
+        guard hasValidCompletedOCRResult, let document, let checkpoint = ocrCheckpoint else {
+            presentedError = L10n.string("error.ocr_result_changed")
+            return false
+        }
+        let applicationID = UUID()
+        let startingRevision = revision
+        let sourceURL = documentURL
+        let sourceVersion = sourceFileVersion
+        let snapshotURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("HwattakPDF-OCR-Apply-\(UUID().uuidString).pdf")
+        ocrApplicationID = applicationID
+        isApplyingOCR = true
+        defer {
+            try? FileManager.default.removeItem(at: snapshotURL)
+            if ocrApplicationID == applicationID {
+                ocrApplicationID = nil
+                isApplyingOCR = false
+                if isDirty { scheduleRecoverySnapshot() }
+            }
+        }
+        do {
+            try validateOCRApplicationSource(sourceURL, expectedVersion: sourceVersion)
+            try PDFOCRSnapshotWriter.write(document, to: snapshotURL)
+            let outputData = try await PDFOCRApplication.render(
+                snapshotURL: snapshotURL,
+                checkpoint: checkpoint,
+                renderDPI: ocrConfiguration.renderDPI
+            )
+            try Task.checkCancellation()
+            guard ocrApplicationID == applicationID else { return false }
+            // A field may have been edited during rendering. Commit it before
+            // validating the revision so the new text is never discarded.
+            prepareForDeactivation()
+            guard self.document === document, revision == startingRevision,
+                  hasValidCompletedOCRResult, pendingTextEdit == nil,
+                  pendingInlineTextEdit == nil else {
+                throw WorkspaceError.operationFailed(L10n.string("error.ocr_result_changed"))
+            }
+            try validateOCRApplicationSource(sourceURL, expectedVersion: sourceVersion)
+            guard let rendered = PDFDocument(data: outputData),
+                  rendered.pageCount == document.pageCount else {
+                throw WorkspaceError.operationFailed(L10n.string("error.validate_ocr_copy"))
+            }
+            let beforePages = (0..<document.pageCount).compactMap(document.page(at:))
+            guard beforePages.count == document.pageCount else {
+                throw WorkspaceError.operationFailed(L10n.string("error.validate_ocr_copy"))
+            }
+            let replacedIndexes = PDFOCRApplication.replacementPageIndexes(checkpoint: checkpoint)
+            guard !replacedIndexes.isEmpty else {
+                statusMessage = L10n.string("status.ocr_no_changes")
+                return true
+            }
+            let afterPages = (0..<rendered.pageCount).compactMap { index in
+                replacedIndexes.contains(index) ? rendered.page(at: index) : beforePages[index]
+            }
+            guard afterPages.count == document.pageCount else {
+                throw WorkspaceError.operationFailed(L10n.string("error.validate_ocr_copy"))
+            }
+            let beforeOutline = document.outlineRoot
+            let afterOutline = PDFOCRApplication.copyOutline(
+                beforeOutline, from: document, to: afterPages
+            )
+            let linkChanges = PDFOCRApplication.linkDestinationChanges(from: beforePages, to: afterPages)
+            let beforeNavigation = navigationSnapshot
+            try PDFOCRApplication.replacePages(in: document, expected: beforePages, with: afterPages)
+            linkChanges.forEach { $0.apply() }
+            document.outlineRoot = afterOutline
+            resetWidgetSnapshotsAfterPageStructureMutation()
+            recordEdit(
+                actionName: L10n.string("history.ocr_apply"),
+                beforeNavigation: beforeNavigation,
+                invalidatingDocumentSelections: true,
+                retainedPageCost: replacedIndexes.count,
+                undo: {
+                    try PDFOCRApplication.replacePages(in: document, expected: afterPages, with: beforePages)
+                    linkChanges.forEach { $0.restore() }
+                    document.outlineRoot = beforeOutline
+                },
+                redo: {
+                    try PDFOCRApplication.replacePages(in: document, expected: beforePages, with: afterPages)
+                    linkChanges.forEach { $0.apply() }
+                    document.outlineRoot = afterOutline
+                }
+            )
+            if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                performSearch()
+            }
+            statusMessage = L10n.string("status.ocr_applied")
+            return true
+        } catch is CancellationError {
+            return false
+        } catch {
+            if ocrApplicationID == applicationID { presentedError = error.localizedDescription }
+            return false
+        }
+    }
+
+    private func validateOCRApplicationSource(
+        _ url: URL?,
+        expectedVersion: PDFSourceFileVersion?
+    ) throws {
+        guard let url else { return }
+        guard let expectedVersion,
+              (try? PDFSourceFileVersion.capture(at: url)) == expectedVersion else {
+            throw WorkspaceError.externalModification(url)
         }
     }
 
@@ -3893,6 +4150,8 @@ final class PDFWorkspaceState: ObservableObject {
     }
 
     private func synchronizeHistoryPresentation() {
+        // [학습 04] 미저장 변경이 있는 상태(dirty)는 실행 취소(undo)가 가능한지가 아니라 저장 지점과 다른지로 판단합니다.
+        // 이력 상태를 화면 표시용 값으로 옮기는 곳을 한군데로 모으면 메뉴와 저장 표시를 일치시킬 수 있습니다.
         canUndo = editHistory.canUndo
         canRedo = editHistory.canRedo
         undoActionName = editHistory.undoActionName
@@ -3916,6 +4175,8 @@ final class PDFWorkspaceState: ObservableObject {
             cancelSearchAndInvalidate(clearResults: true)
         }
         ocrCheckpoint = nil
+        completedOCRRevision = nil
+        if !ocrState.isActivelyProcessing { ocrState = .idle }
         synchronizeHistoryPresentation()
         refresh(message)
         scheduleRecoverySnapshot()
@@ -3943,9 +4204,19 @@ final class PDFWorkspaceState: ObservableObject {
     }
 
     private func abandonOCR() {
+        ocrConfiguration.pageIndexes = nil
         ocrRunID = nil
         ocrTask?.cancel()
         ocrTask = nil
         ocrState = .idle
+        completedOCRRevision = nil
+        completedOCRDocumentID = nil
+        completedOCRSourceURL = nil
+        completedOCRSourceVersion = nil
+        completedOCRFingerprint = nil
+        ocrApplicationID = nil
+        isApplyingOCR = false
+        ocrExportID = nil
+        isExportingOCR = false
     }
 }

@@ -144,6 +144,8 @@ struct PluginPanelRequest: Identifiable, Equatable {
     let kind: PluginPanelKind
     let initialURL: URL?
     let sourceText: String?
+    /// Host-only export guard. Never included in a translation provider request.
+    let sourceDocumentURL: URL?
     let includesSelectedText: Bool
     let includesCurrentPageText: Bool
 
@@ -158,6 +160,7 @@ struct PluginPanelRequest: Identifiable, Equatable {
         kind: PluginPanelKind,
         initialURL: URL? = nil,
         sourceText: String? = nil,
+        sourceDocumentURL: URL? = nil,
         includesSelectedText: Bool = false,
         includesCurrentPageText: Bool = false
     ) {
@@ -171,6 +174,7 @@ struct PluginPanelRequest: Identifiable, Equatable {
         self.kind = kind
         self.initialURL = initialURL
         self.sourceText = sourceText
+        self.sourceDocumentURL = sourceDocumentURL
         self.includesSelectedText = includesSelectedText
         self.includesCurrentPageText = includesCurrentPageText
     }

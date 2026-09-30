@@ -3,11 +3,7 @@
 import AppKit
 import SwiftUI
 
-/// Empty-workspace landing page.
-///
-/// File access is deliberately delegated through closures: this presentation
-/// view never opens a security-scoped URL itself. The parent coordinates the
-/// open panel/recent bookmark and installs the resulting tab in the model.
+/// Empty-workspace landing page. The parent owns file access and tab creation.
 struct WelcomeView: View {
     let openDocument: () -> Void
     let recentDocuments: [RecentDocument]
@@ -17,6 +13,7 @@ struct WelcomeView: View {
 
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var iconManager: AppIconManager
+    @State private var hoveredRecentDocumentID: UUID?
 
     private var theme: HwattakPDFTheme {
         HwattakPDFTheme(colorScheme: colorScheme)
@@ -37,267 +34,152 @@ struct WelcomeView: View {
     }
 
     var body: some View {
-        ZStack {
-            theme.canvas.ignoresSafeArea()
-
-            LinearGradient(
-                colors: [
-                    theme.paperIvory.opacity(colorScheme == .dark ? 0.04 : 0.92),
-                    theme.canvas,
-                    theme.steel.opacity(colorScheme == .dark ? 0.10 : 0.08),
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
-
-            Circle()
-                .fill(theme.ribbon.opacity(colorScheme == .dark ? 0.07 : 0.055))
-                .frame(width: 420, height: 420)
-                .blur(radius: 2)
-                .offset(x: -470, y: 330)
-
-            HStack(spacing: 54) {
-                hero
-                    .frame(maxWidth: 440, alignment: .leading)
-
-                workspacePreview
-                    .frame(width: 440, height: 510)
+        GeometryReader { geometry in
+            ScrollView(.vertical) {
+                VStack(spacing: 40) {
+                    openDocumentSection
+                    recentDocumentsSection
+                }
+                .frame(maxWidth: 640)
+                .padding(.horizontal, 28)
+                .padding(.vertical, 40)
+                .frame(maxWidth: .infinity, minHeight: geometry.size.height)
             }
-            .padding(.horizontal, 56)
-            .padding(.vertical, 42)
-            .frame(maxWidth: 1_100)
         }
+        .background(theme.canvas.ignoresSafeArea())
         .foregroundStyle(theme.primaryText)
         .tint(theme.accent)
     }
 
-    private var hero: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 15) {
+    private var openDocumentSection: some View {
+        VStack(spacing: 20) {
+            HStack(spacing: 10) {
                 Image(nsImage: iconManager.currentImage ?? NSApplication.shared.applicationIconImage)
                     .resizable()
                     .interpolation(.high)
-                    .frame(width: 64, height: 64)
-                    .shadow(color: theme.elevatedShadow, radius: 12, y: 6)
+                    .frame(width: 38, height: 38)
+                    .accessibilityHidden(true)
 
-                VStack(alignment: .leading, spacing: 5) {
-                    HStack(spacing: 8) {
-                        Text("HwattakPDF")
-                            .font(.system(size: 22, weight: .bold))
-                            .lineLimit(1)
-
-                        Text("v\(HwattakPDFRelease.badge)")
-                            .font(.system(size: 10, weight: .bold))
-                            .foregroundStyle(theme.cream)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(theme.ribbonLabel, in: Capsule())
-                    }
-
-                    Text("PRIVATE PDF WORKSPACE")
-                        .font(.system(size: 9, weight: .bold))
-                        .tracking(1.35)
-                        .foregroundStyle(theme.secondaryText)
-                }
+                Text("HwattakPDF")
+                    .font(.system(size: 24, weight: .medium))
             }
 
-            Text("화딱지나서 만든 앱.")
-                .font(.system(size: 42, weight: .bold))
-                .tracking(-1.15)
-                .lineLimit(2)
-                .minimumScaleFactor(0.76)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.top, 34)
-
-            Button(action: openDocument) {
-                HStack(spacing: 10) {
-                    Image(systemName: "folder.badge.plus")
-                    Text(L10n.string("menu.open_document"))
-                    Spacer(minLength: 8)
-                    Image(systemName: "arrow.forward")
-                        .font(.caption.weight(.bold))
-                        .opacity(0.82)
+            VStack(spacing: 10) {
+                Button(action: openDocument) {
+                    Label(L10n.string("menu.open_document"), systemImage: "folder")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(Color.white)
+                        .padding(.horizontal, 18)
+                        .frame(height: 36)
+                        .background(
+                            Color(red: 0.20, green: 0.39, blue: 0.62),
+                            in: RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        )
                 }
-                .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(theme.cream)
-                .padding(.horizontal, 17)
-                .frame(minWidth: 224, idealWidth: 250, maxWidth: 320, minHeight: 46)
-                .background(theme.brandNavy, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        .stroke(theme.cream.opacity(0.12), lineWidth: 1)
-                }
-                .shadow(color: theme.brandNavy.opacity(0.22), radius: 10, y: 5)
-            }
-            .buttonStyle(.plain)
-            .keyboardShortcut("o", modifiers: .command)
-            .padding(.top, 35)
+                .buttonStyle(.plain)
+                .keyboardShortcut("o", modifiers: .command)
+                .help(L10n.string("menu.open_document") + " (⌘O)")
 
-            Label("Finder에서 여러 PDF를 놓아도 각각 새 탭으로 열립니다", systemImage: "arrow.down.doc.fill")
-                .font(.caption.weight(.medium))
-                .foregroundStyle(theme.secondaryText)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.top, 13)
-
-            LazyVGrid(
-                columns: [GridItem(.adaptive(minimum: 104), spacing: 8)],
-                alignment: .leading,
-                spacing: 8
-            ) {
-                privacyPill("lock.fill", "온디바이스")
-                privacyPill("rectangle.stack.fill", "다중 탭")
-                privacyPill("creditcard.fill", "구독 없음")
-            }
-            .frame(maxWidth: 390, alignment: .leading)
-            .padding(.top, 19)
-        }
-    }
-
-    private var workspacePreview: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 26, style: .continuous)
-                .fill(theme.chrome)
-                .shadow(color: theme.elevatedShadow, radius: 30, y: 14)
-
-            RoundedRectangle(cornerRadius: 26, style: .continuous)
-                .stroke(theme.cream.opacity(0.13), lineWidth: 1)
-
-            VStack(spacing: 0) {
-                HStack(spacing: 9) {
-                    recentGlyph
-
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("RECENT PDFS")
-                            .font(.system(size: 9, weight: .bold))
-                            .tracking(1.05)
-                        Text("최근 PDF")
-                            .font(.system(size: 14, weight: .semibold))
-                    }
-                    .foregroundStyle(theme.chromeText)
-
-                    Spacer()
-
-                    Text("\(recentDocuments.count)")
-                        .font(.caption.weight(.bold).monospacedDigit())
-                        .foregroundStyle(theme.chromeText)
-                        .frame(width: 28, height: 28)
-                        .background(theme.chromeRaised, in: Circle())
-                        .accessibilityLabel(L10n.format("recent.count", recentDocuments.count))
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 20)
-                .padding(.bottom, 14)
-
-                panelDivider
-
-                recentDocumentsContent
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-                panelDivider
-
-                recentDocumentsFooter
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 14)
+                Text(L10n.string("Finder에서 여러 PDF를 놓아도 각각 새 탭으로 열립니다"))
+                    .font(.system(size: 12))
+                    .foregroundStyle(theme.secondaryText)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
+        .frame(maxWidth: .infinity)
     }
 
-    private var recentGlyph: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(theme.paperIvory)
-            Image(systemName: "clock.arrow.circlepath")
-                .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(theme.brandNavy)
+    private var recentDocumentsSection: some View {
+        VStack(spacing: 12) {
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                Text(L10n.string("최근 PDF"))
+                    .font(.system(size: 13, weight: .semibold))
+                    .accessibilityValue(L10n.format("recent.count", recentDocuments.count))
+
+                Spacer(minLength: 8)
+
+                if !recentDocuments.isEmpty {
+                    Button(action: clearRecentDocuments) {
+                        Text(L10n.string("목록 지우기"))
+                            .font(.system(size: 11))
+                            .foregroundStyle(theme.secondaryText)
+                    }
+                    .buttonStyle(.plain)
+                    .help(L10n.string("최근 PDF 목록 전체 삭제"))
+                    .accessibilityLabel(L10n.string("최근 PDF 목록 지우기"))
+                }
+            }
+            .padding(.horizontal, 10)
+
             Rectangle()
-                .fill(theme.ribbon)
-                .frame(height: 5)
-                .offset(y: 11)
-        }
-        .frame(width: 34, height: 34)
-        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-    }
+                .fill(theme.border.opacity(0.65))
+                .frame(height: 1)
 
-    private var panelDivider: some View {
-        Rectangle()
-            .fill(theme.cream.opacity(0.12))
-            .frame(height: 1)
-    }
-
-    @ViewBuilder
-    private var recentDocumentsContent: some View {
-        if recentDocuments.isEmpty {
-            VStack(spacing: 11) {
-                Image(systemName: "clock")
-                    .font(.system(size: 34, weight: .light))
-                    .foregroundStyle(theme.chromeSecondaryText)
-
-                Text("최근에 연 PDF가 없습니다.")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(theme.chromeText)
-
-                Text("PDF를 열면 최대 7개까지 여기에 표시됩니다.")
-                    .font(.caption)
-                    .foregroundStyle(theme.chromeSecondaryText)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(24)
-        } else {
-            // The store already enforces the seven-item policy, but prefixing
-            // here keeps the UI bounded even if a future caller supplies more.
-            VStack(spacing: 6) {
-                ForEach(Array(recentDocuments.prefix(7))) { document in
-                    recentDocumentRow(document)
+            if recentDocuments.isEmpty {
+                emptyRecentDocuments
+            } else {
+                // The store already enforces the seven-item policy. Keep the
+                // presentation bounded if another caller supplies more items.
+                VStack(spacing: 2) {
+                    ForEach(Array(recentDocuments.prefix(7))) { document in
+                        recentDocumentRow(document)
+                    }
                 }
-                Spacer(minLength: 0)
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 12)
         }
+    }
+
+    private var emptyRecentDocuments: some View {
+        VStack(spacing: 8) {
+            Text(L10n.string("최근에 연 PDF가 없습니다."))
+                .font(.system(size: 13))
+            Text(L10n.string("PDF를 열면 최대 7개까지 여기에 표시됩니다."))
+                .font(.system(size: 12))
+        }
+        .foregroundStyle(theme.secondaryText)
+        .multilineTextAlignment(.center)
+        .fixedSize(horizontal: false, vertical: true)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 32)
     }
 
     private func recentDocumentRow(_ document: RecentDocument) -> some View {
-        // Opening and removing are separate buttons. A single context-sensitive
-        // row would be harder to discover with keyboard and VoiceOver.
-        HStack(spacing: 7) {
+        HStack(spacing: 8) {
             Button {
                 openRecentDocument(document)
             } label: {
-                HStack(spacing: 10) {
-                    Image(systemName: "doc.fill")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(theme.ribbon)
-                        .frame(width: 26, height: 26)
-                        .background(theme.paperIvory, in: RoundedRectangle(cornerRadius: 6, style: .continuous))
+                HStack(spacing: 13) {
+                    Image(systemName: "doc")
+                        .font(.system(size: 22, weight: .light))
+                        .foregroundStyle(theme.secondaryText)
+                        .frame(width: 30)
+                        .accessibilityHidden(true)
 
-                    VStack(alignment: .leading, spacing: 2) {
+                    VStack(alignment: .leading, spacing: 4) {
                         Text(document.displayName)
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(theme.chromeText)
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(theme.primaryText)
                             .lineLimit(1)
                             .truncationMode(.middle)
 
-                        HStack(spacing: 4) {
-                            Text(document.locationDescription)
-                                .lineLimit(1)
-                                .truncationMode(.middle)
-                            Text("·")
-                            Text(document.lastOpenedAt, style: .relative)
-                                .fixedSize(horizontal: true, vertical: false)
-                        }
-                        .font(.system(size: 9, weight: .medium))
-                        .foregroundStyle(theme.chromeSecondaryText)
+                        Text(document.locationDescription)
+                            .font(.system(size: 11))
+                            .foregroundStyle(theme.secondaryText)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
                     }
 
-                    Spacer(minLength: 5)
+                    Spacer(minLength: 4)
 
-                    Image(systemName: "chevron.forward")
-                        .font(.system(size: 8, weight: .bold))
-                        .foregroundStyle(theme.chromeSecondaryText)
+                    Text(document.lastOpenedAt, style: .date)
+                        .font(.system(size: 11))
+                        .foregroundStyle(theme.secondaryText)
+                        .lineLimit(1)
+                        .layoutPriority(-1)
                 }
-                .padding(.leading, 8)
-                .frame(maxWidth: .infinity, minHeight: 42, alignment: .leading)
+                .padding(.leading, 10)
+                .frame(maxWidth: .infinity, minHeight: 58, alignment: .leading)
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
@@ -305,12 +187,15 @@ struct WelcomeView: View {
             .accessibilityLabel(L10n.format("recent.open", document.displayName))
             .accessibilityValue(document.locationDescription)
 
+            // Keep the secondary action available to keyboard and VoiceOver
+            // users even while its row is not hovered.
             Button {
                 removeRecentDocument(document)
             } label: {
                 Image(systemName: "xmark")
-                    .font(.system(size: 8, weight: .bold))
-                    .foregroundStyle(theme.chromeSecondaryText)
+                    .font(.system(size: 10))
+                    .foregroundStyle(theme.secondaryText)
+                    .opacity(hoveredRecentDocumentID == document.id ? 1 : 0.55)
                     .frame(width: 28, height: 28)
                     .contentShape(Rectangle())
             }
@@ -318,50 +203,22 @@ struct WelcomeView: View {
             .help(L10n.format("recent.remove", document.displayName))
             .accessibilityLabel(L10n.format("recent.remove", document.displayName))
         }
-        .padding(.trailing, 5)
-        .background(theme.chromeRaised, in: RoundedRectangle(cornerRadius: 9, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 9, style: .continuous)
-                .stroke(theme.cream.opacity(0.08), lineWidth: 1)
+        .padding(.trailing, 6)
+        .background {
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(hoveredRecentDocumentID == document.id ? theme.panel : Color.clear)
         }
-    }
-
-    private var recentDocumentsFooter: some View {
-        HStack(spacing: 10) {
-            Button(action: openDocument) {
-                Label(L10n.string("menu.open_document"), systemImage: "folder.badge.plus")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(theme.brandNavy)
-                    .padding(.horizontal, 13)
-                    .frame(height: 34)
-                    .background(theme.paperIvory, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
-            }
-            .buttonStyle(.plain)
-            .help(L10n.string("menu.open_document") + " (⌘O)")
-
-            Spacer()
-
-            if !recentDocuments.isEmpty {
-                Button(action: clearRecentDocuments) {
-                    Label("목록 지우기", systemImage: "trash")
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundStyle(theme.chromeSecondaryText)
-                        .frame(height: 34)
-                }
-                .buttonStyle(.plain)
-                .help("최근 PDF 목록 전체 삭제")
-                .accessibilityLabel("최근 PDF 목록 지우기")
+        .onHover { isHovered in
+            if isHovered {
+                hoveredRecentDocumentID = document.id
+            } else if hoveredRecentDocumentID == document.id {
+                hoveredRecentDocumentID = nil
             }
         }
-    }
-
-    private func privacyPill(_ systemImage: String, _ title: String) -> some View {
-        Label(L10n.string(title), systemImage: systemImage)
-            .font(.caption.weight(.medium))
-            .foregroundStyle(theme.secondaryText)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(theme.card.opacity(0.78), in: Capsule())
-            .overlay { Capsule().stroke(theme.border, lineWidth: 1) }
+        .contextMenu {
+            Button(L10n.format("recent.remove", document.displayName)) {
+                removeRecentDocument(document)
+            }
+        }
     }
 }
