@@ -14,6 +14,16 @@
 
 *문서를 중심에 두고 탭과 도구줄의 높이·색상·테두리를 줄였습니다. 검색·화면 배치·모드별 도구는 필요한 때 펼쳐 사용합니다.*
 
+## Ember Recall · 복습 카드 플러그인
+
+선택한 PDF 문장을 질문·답 카드로 만들고, 답을 가린 채 오늘 복습한 뒤 열린 원문 페이지로 돌아갈 수 있는 로컬 학습 플러그인입니다. 카드 수정·삭제와 복습 일정 저장을 지원합니다.
+
+**플러그인 소스 미리보기 · schema 6 호스트 필요.** 현재 공개 앱 소스(build 20 / schema 1~3)에서는 실행할 수 없으며, 호환되는 EmberPDF 개발 빌드가 필요합니다. 이번 공개는 앱 실행 파일이나 호스트 SDK 배포를 포함하지 않습니다.
+
+[기능 소개·설치 조건](Documentation/EMBER-RECALL.md) · [플러그인 소스와 사용 설명](Examples/Plugins/EmberRecall.hwattakplugin/README.md)
+
+*Ember Recall is a local flashcard plugin source preview: selected-text cards, hidden answers, due reviews and source-page navigation. Requires a schema 6 development host; the current public host baseline is not compatible.*
+
 ## 화면으로 둘러보기
 
 0.9.0의 실제 SwiftUI 뷰를 예제 데이터로 렌더링한 미리보기입니다. 최근 파일 이름은 가상이며, 읽기 화면의 본문에는 직접 만든 페이지 이미지를 사용했습니다. 전체 PDFKit 실행 화면을 촬영한 스크린샷과는 구분합니다. 출처와 체크섬은 [자산 기록](ASSETS.md)에 있습니다.

@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 6,
+  "identifier": "org.emberpdf.plugins.recall",
+  "displayName": "Ember Recall · 복습 카드",
+  "version": "1.0.0",
+  "author": "EmberPDF contributors",
+  "description": "선택한 문장으로 로컬 복습 카드를 만들고, 답 가리기·오늘 복습·열린 원문 페이지 이동을 사용합니다. Local flashcards from selected PDF text, with hidden answers and a review queue.",
+  "minimumHostVersion": "0.9.0",
+  "capabilities": [
+    "backgroundExecution",
+    "documentMetadata",
+    "selectedText",
+    "currentPageText",
+    "openDocumentsRead",
+    "workspaceNavigation",
+    "pluginStorage"
+  ],
+  "actions": [],
+  "runtime": {
+    "apiVersion": 1,
+    "entry": "main.js",
+    "sha256": "95b32fc1c855946c303e2295a17d4ae944eb4240eb0abe32cbc89c05a05d8109",
+    "activation": "window",
+    "capabilities": [
+      "backgroundExecution",
+      "documentMetadata",
+      "selectedText",
+      "currentPageText",
+      "openDocumentsRead",
+      "workspaceNavigation",
+      "pluginStorage"
+    ]
+  }
+}

@@ -6,11 +6,14 @@
 
 | 패키지 | schema | 배울 내용 |
 | --- | --- | --- |
+| [EmberRecall](EmberRecall.hwattakplugin/README.md) | 6 | 선택문 복습 카드·답 가리기·오늘 복습·원문 이동. schema 6 호스트용 소스 미리보기 |
 | [OfflineChecklist](OfflineChecklist.hwattakplugin/manifest.json) | 1 | 권한 없이 텍스트 표시. 첫 설치에 적합 |
 | [CommunityStarter](CommunityStarter.hwattakplugin/manifest.json) | 3 | 하이라이트·밑줄·펜·학습 모드·페이지 이동 |
 | [MarkdownQuote](MarkdownQuote.hwattakplugin/manifest.json) | 1 | 선택 문장을 Markdown으로 미리보기/복사 |
 | [ReferenceSearch](ReferenceSearch.hwattakplugin/manifest.json) | 1 | 선택 문장의 공개 HTTPS 검색과 호출별 동의 |
 | [QuickCitation](QuickCitation.hwattakplugin/manifest.json) | 1 | 텍스트 출력·복사·링크의 종합 예 |
+
+**Ember Recall은 별도 호환 조건이 있습니다.** 현재 공개 호스트(build 20 / schema 1~3)에서 실행되지 않으며 schema 6 개발 호스트가 필요합니다. [기능 소개와 공개 범위](../../Documentation/EMBER-RECALL.md)를 먼저 확인하세요.
 
 복사 후 **identifier·작성자·이름을 바꾸고** 기능과 권한을 수정한다. `org.example.*`와 `dev.example.*`는 예제용이며 제작자 인증이 아니다. schema 3은 2026-09-05 안정화 후보 또는 실제 지원을 확인한 빌드가 필요하다. 이전 0.8.0/build 18과 구별하는 방법은 호환성 문서를 따른다.
 
