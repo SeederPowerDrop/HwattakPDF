@@ -941,6 +941,9 @@
 "settings.pdf_input.zoom_modifier.option" = "Opción (⌥)";
 "settings.pdf_input.zoom_modifier.command" = "Comando (⌘)";
 "settings.pdf_input.zoom_modifier.disabled" = "Desactivado";
+"settings.pdf_input.zoom_sensitivity.label" = "Sensibilidad del zoom con desplazamiento";
+"settings.pdf_input.zoom_preview.hint" = "Mantén pulsada la tecla de zoom y desplázate sobre el área de arriba para probarlo.";
+"settings.pdf_input.zoom_preview.reset" = "Restablecer";
 "settings.pdf_input.horizontal_hint" = "Mantén pulsada Mayúsculas (⇧) y desplázate verticalmente para mover el PDF en horizontal. Los gestos horizontales nativos y el gesto de pellizcar siguen funcionando.";
 "page.jump.label" = "Ir a la página";
 "page.jump.placeholder" = "Página";

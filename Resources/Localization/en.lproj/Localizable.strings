@@ -941,6 +941,9 @@
 "settings.pdf_input.zoom_modifier.option" = "Option (⌥)";
 "settings.pdf_input.zoom_modifier.command" = "Command (⌘)";
 "settings.pdf_input.zoom_modifier.disabled" = "Off";
+"settings.pdf_input.zoom_sensitivity.label" = "Scroll-to-zoom sensitivity";
+"settings.pdf_input.zoom_preview.hint" = "Hold the zoom key and scroll over the area above to try it.";
+"settings.pdf_input.zoom_preview.reset" = "Reset";
 "settings.pdf_input.horizontal_hint" = "Hold Shift (⇧) and scroll vertically to pan the PDF horizontally. Native horizontal gestures and pinch-to-zoom continue to work.";
 "page.jump.label" = "Go to page";
 "page.jump.placeholder" = "Page";
