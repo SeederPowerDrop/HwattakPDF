@@ -136,6 +136,42 @@ final class PDFViewportScrollInteractionTests: XCTestCase {
         XCTAssertLessThan(zoomOut, 1)
     }
 
+    func testZoomSensitivityMultiplierScalesStepAndPerEventCap() throws {
+        let resolver = PDFViewportScrollIntentResolver.self
+
+        // Multiplier 1 keeps the original curve.
+        let baseline = try XCTUnwrap(
+            resolver.zoomStepFactor(deltaY: 2, hasPreciseDeltas: true, sensitivityMultiplier: 1)
+        )
+        XCTAssertEqual(baseline, exp(0.024), accuracy: 0.0001)
+
+        // Half sensitivity halves the exponent.
+        let gentle = try XCTUnwrap(
+            resolver.zoomStepFactor(deltaY: 2, hasPreciseDeltas: true, sensitivityMultiplier: 0.5)
+        )
+        XCTAssertEqual(gentle, exp(0.012), accuracy: 0.0001)
+
+        // A large swipe is capped at 0.35 * 0.5 instead of 0.35.
+        let capped = try XCTUnwrap(
+            resolver.zoomStepFactor(deltaY: 500, hasPreciseDeltas: true, sensitivityMultiplier: 0.5)
+        )
+        XCTAssertEqual(capped, exp(0.175), accuracy: 0.0001)
+        let cappedOut = try XCTUnwrap(
+            resolver.zoomStepFactor(deltaY: -500, hasPreciseDeltas: true, sensitivityMultiplier: 0.5)
+        )
+        XCTAssertEqual(cappedOut, exp(-0.175), accuracy: 0.0001)
+
+        // Out-of-range or invalid multipliers are clamped or fall back to the default.
+        let tooLow = try XCTUnwrap(
+            resolver.zoomStepFactor(deltaY: 2, hasPreciseDeltas: true, sensitivityMultiplier: 0)
+        )
+        XCTAssertEqual(tooLow, exp(0.024 * 0.25), accuracy: 0.0001)
+        let invalid = try XCTUnwrap(
+            resolver.zoomStepFactor(deltaY: 2, hasPreciseDeltas: true, sensitivityMultiplier: .nan)
+        )
+        XCTAssertEqual(invalid, exp(0.024), accuracy: 0.0001)
+    }
+
     func testZoomRequiresExactConfiguredModifierAndAmbiguousCombinationsStayNative() {
         XCTAssertNative(input(deltaY: 8, modifiers: []), zoomModifier: .option)
         XCTAssertNative(input(deltaY: 8, modifiers: .command), zoomModifier: .option)

@@ -929,6 +929,9 @@
 "settings.pdf_input.zoom_modifier.option" = "Option (⌥)";
 "settings.pdf_input.zoom_modifier.command" = "Command (⌘)";
 "settings.pdf_input.zoom_modifier.disabled" = "Tắt";
+"settings.pdf_input.zoom_sensitivity.label" = "Độ nhạy cuộn để thu phóng";
+"settings.pdf_input.zoom_preview.hint" = "Giữ phím thu phóng và cuộn trên vùng phía trên để thử.";
+"settings.pdf_input.zoom_preview.reset" = "Đặt lại";
 "settings.pdf_input.horizontal_hint" = "Giữ Shift (⇧) và cuộn dọc để di chuyển PDF theo chiều ngang. Cử chỉ ngang gốc và chụm để thu phóng vẫn hoạt động.";
 "page.jump.label" = "Chuyển đến trang";
 "page.jump.placeholder" = "Trang";

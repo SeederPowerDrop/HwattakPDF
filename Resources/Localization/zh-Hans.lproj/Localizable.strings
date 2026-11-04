@@ -929,6 +929,9 @@
 "settings.pdf_input.zoom_modifier.option" = "Option (⌥)";
 "settings.pdf_input.zoom_modifier.command" = "Command (⌘)";
 "settings.pdf_input.zoom_modifier.disabled" = "关闭";
+"settings.pdf_input.zoom_sensitivity.label" = "滚动缩放灵敏度";
+"settings.pdf_input.zoom_preview.hint" = "按住所设置的按键并在上方区域滚动以试用。";
+"settings.pdf_input.zoom_preview.reset" = "重置";
 "settings.pdf_input.horizontal_hint" = "按住 Shift (⇧) 并垂直滚动可水平移动 PDF。原生水平手势和双指缩放仍可正常使用。";
 "page.jump.label" = "跳转到页面";
 "page.jump.placeholder" = "页码";
