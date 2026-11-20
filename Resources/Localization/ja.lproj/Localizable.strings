@@ -929,6 +929,9 @@
 "settings.pdf_input.zoom_modifier.option" = "Option (⌥)";
 "settings.pdf_input.zoom_modifier.command" = "Command (⌘)";
 "settings.pdf_input.zoom_modifier.disabled" = "オフ";
+"settings.pdf_input.zoom_sensitivity.label" = "スクロールズームの感度";
+"settings.pdf_input.zoom_preview.hint" = "設定したキーを押しながら上の領域でスクロールして試してください。";
+"settings.pdf_input.zoom_preview.reset" = "リセット";
 "settings.pdf_input.horizontal_hint" = "Shift (⇧) を押しながら縦にスクロールすると、PDFを横方向に移動できます。通常の横ジェスチャとピンチズームも引き続き使えます。";
 "page.jump.label" = "ページへ移動";
 "page.jump.placeholder" = "ページ";

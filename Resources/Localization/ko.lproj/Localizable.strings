@@ -955,6 +955,9 @@
 "settings.pdf_input.zoom_modifier.option" = "Option (⌥)";
 "settings.pdf_input.zoom_modifier.command" = "Command (⌘)";
 "settings.pdf_input.zoom_modifier.disabled" = "끄기";
+"settings.pdf_input.zoom_sensitivity.label" = "스크롤 확대·축소 민감도";
+"settings.pdf_input.zoom_preview.hint" = "설정한 키를 누른 채 위 영역에서 스크롤해 보세요.";
+"settings.pdf_input.zoom_preview.reset" = "초기화";
 "settings.pdf_input.horizontal_hint" = "Shift(⇧)를 누른 채 세로로 스크롤하면 PDF를 좌우로 이동합니다. 원래의 좌우 제스처와 핀치 확대는 그대로 작동합니다.";
 "page.jump.label" = "페이지로 이동";
 "page.jump.placeholder" = "번호";

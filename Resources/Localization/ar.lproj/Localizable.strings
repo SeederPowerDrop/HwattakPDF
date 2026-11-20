@@ -929,6 +929,9 @@
 "settings.pdf_input.zoom_modifier.option" = "Option (⌥)";
 "settings.pdf_input.zoom_modifier.command" = "Command (⌘)";
 "settings.pdf_input.zoom_modifier.disabled" = "إيقاف";
+"settings.pdf_input.zoom_sensitivity.label" = "حساسية التكبير بالتمرير";
+"settings.pdf_input.zoom_preview.hint" = "اضغط مع الاستمرار على مفتاح التكبير ومرّر فوق المنطقة أعلاه لتجربته.";
+"settings.pdf_input.zoom_preview.reset" = "إعادة تعيين";
 "settings.pdf_input.horizontal_hint" = "اضغط مطولاً على Shift (⇧) ومرّر عمودياً لتحريك PDF أفقياً. تستمر الإيماءات الأفقية الأصلية والتكبير بالقرص في العمل.";
 "page.jump.label" = "الانتقال إلى صفحة";
 "page.jump.placeholder" = "صفحة";

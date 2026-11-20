@@ -941,6 +941,9 @@
 "settings.pdf_input.zoom_modifier.option" = "Wahltaste (⌥)";
 "settings.pdf_input.zoom_modifier.command" = "Befehlstaste (⌘)";
 "settings.pdf_input.zoom_modifier.disabled" = "Aus";
+"settings.pdf_input.zoom_sensitivity.label" = "Empfindlichkeit für Scroll-Zoom";
+"settings.pdf_input.zoom_preview.hint" = "Halten Sie die Zoom-Taste gedrückt und scrollen Sie im Bereich oben, um es auszuprobieren.";
+"settings.pdf_input.zoom_preview.reset" = "Zurücksetzen";
 "settings.pdf_input.horizontal_hint" = "Umschalttaste (⇧) gedrückt halten und vertikal scrollen, um das PDF horizontal zu verschieben. Native horizontale Gesten und Auf-/Zuziehen zum Zoomen funktionieren weiterhin.";
 "page.jump.label" = "Zur Seite";
 "page.jump.placeholder" = "Seite";

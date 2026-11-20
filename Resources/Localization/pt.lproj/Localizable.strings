@@ -955,6 +955,9 @@
 "settings.pdf_input.zoom_modifier.option" = "Option (⌥)";
 "settings.pdf_input.zoom_modifier.command" = "Command (⌘)";
 "settings.pdf_input.zoom_modifier.disabled" = "Desativado";
+"settings.pdf_input.zoom_sensitivity.label" = "Sensibilidade do zoom por rolagem";
+"settings.pdf_input.zoom_preview.hint" = "Mantenha a tecla de zoom pressionada e role sobre a área acima para testar.";
+"settings.pdf_input.zoom_preview.reset" = "Redefinir";
 "settings.pdf_input.horizontal_hint" = "Mantenha Shift (⇧) pressionado e role verticalmente para mover o PDF na horizontal. Gestos horizontais nativos e o zoom por pinça continuam funcionando.";
 "page.jump.label" = "Ir para a página";
 "page.jump.placeholder" = "Página";

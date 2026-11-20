@@ -24,6 +24,8 @@ struct SettingsView: View {
     private var pageNavigationModeValue = PDFPageNavigationMode.defaultValue.rawValue
     @AppStorage(PDFKeyboardNavigationSpeed.defaultsKey)
     private var keyboardNavigationSpeedValue = PDFKeyboardNavigationSpeed.defaultValue.rawValue
+    @AppStorage(PDFWheelZoomSensitivity.defaultsKey)
+    private var wheelZoomSensitivity = PDFWheelZoomSensitivity.defaultValue
     @AppStorage(AppPerformanceSettings.efficientRenderingEnabledKey)
     private var efficientRenderingEnabled = AppPerformanceSettings.defaultEfficientRenderingEnabled
     /// TextField 편집 중인 secret은 영속 model에 실시간 반영하지 않는다.
@@ -323,6 +325,31 @@ struct SettingsView: View {
                 }
                 .pickerStyle(.menu)
                 .frame(maxWidth: 360, alignment: .leading)
+
+                HStack(spacing: 10) {
+                    Text(
+                        L10n.string(
+                            "settings.pdf_input.zoom_sensitivity.label",
+                            defaultValue: "스크롤 확대·축소 민감도"
+                        )
+                    )
+                    Slider(
+                        value: $wheelZoomSensitivity,
+                        in: PDFWheelZoomSensitivity.range,
+                        step: PDFWheelZoomSensitivity.step
+                    )
+                    .frame(maxWidth: 180)
+                    Text(String(format: "%.2fx", wheelZoomSensitivity))
+                        .monospacedDigit()
+                        .foregroundStyle(theme.secondaryText)
+                }
+                .frame(maxWidth: 420, alignment: .leading)
+                .disabled(wheelZoomModifierValue == PDFWheelZoomModifier.disabled.rawValue)
+
+                WheelZoomPreview(
+                    zoomModifier: PDFWheelZoomModifier(rawValue: wheelZoomModifierValue) ?? .defaultValue,
+                    secondaryText: theme.secondaryText
+                )
 
                 if pageNavigationModeValue != PDFPageNavigationMode.horizontalPaging.rawValue {
                     Label(

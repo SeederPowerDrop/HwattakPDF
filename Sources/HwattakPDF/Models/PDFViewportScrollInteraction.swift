@@ -3,6 +3,22 @@
 import CoreGraphics
 import Foundation
 
+/// User-adjustable multiplier for scroll-to-zoom speed.
+/// 1.0 keeps the original behaviour; lower values zoom more gently.
+enum PDFWheelZoomSensitivity {
+    static let defaultsKey = "pdf.viewport.wheelZoomSensitivity"
+    static let defaultValue: Double = 1.0
+    static let range: ClosedRange<Double> = 0.25...2.0
+    static let step: Double = 0.05
+
+    /// Read on every event so a settings change applies without reopening the view.
+    static var current: CGFloat {
+        let stored = UserDefaults.standard.object(forKey: defaultsKey) as? Double ?? defaultValue
+        guard stored.isFinite else { return CGFloat(defaultValue) }
+        return CGFloat(min(range.upperBound, max(range.lowerBound, stored)))
+    }
+}
+
 /// The modifier used for wheel/trackpad-scroll zoom in the main PDF canvas.
 /// Option follows Adobe's macOS convention; Command remains available for
 /// users who prefer the browser convention or need to avoid an accessibility
@@ -105,11 +121,18 @@ enum PDFViewportScrollIntentResolver {
 
     static func zoomStepFactor(
         deltaY: CGFloat,
-        hasPreciseDeltas: Bool
+        hasPreciseDeltas: Bool,
+        sensitivityMultiplier: CGFloat = PDFWheelZoomSensitivity.current
     ) -> CGFloat? {
         guard deltaY.isFinite, abs(deltaY) > 0.0001 else { return nil }
-        let sensitivity: CGFloat = hasPreciseDeltas ? 0.012 : 0.12
-        let exponent = min(0.35, max(-0.35, deltaY * sensitivity))
+        let multiplier = sensitivityMultiplier.isFinite
+            ? min(CGFloat(PDFWheelZoomSensitivity.range.upperBound),
+                  max(CGFloat(PDFWheelZoomSensitivity.range.lowerBound), sensitivityMultiplier))
+            : CGFloat(PDFWheelZoomSensitivity.defaultValue)
+        let sensitivity: CGFloat = (hasPreciseDeltas ? 0.012 : 0.12) * multiplier
+        // Lower sensitivity also lowers the per-event cap so fast swipes stay gentle.
+        let limit: CGFloat = 0.35 * min(1, multiplier)
+        let exponent = min(limit, max(-limit, deltaY * sensitivity))
         return exp(exponent)
     }
 
