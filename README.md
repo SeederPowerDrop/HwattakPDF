@@ -1,5 +1,9 @@
 # HwattakPDF
 
+EmberPDF는 이 프로젝트의 새 이름입니다. 최신 소스와 사용 안내는 새 저장소에서 확인할 수 있습니다. [EmberPDF](https://github.com/SeederPowerDrop/EmberPDF)
+
+HwattakPDF continues as EmberPDF. The current source and documentation are available in the new repository. [EmberPDF](https://github.com/SeederPowerDrop/EmberPDF)
+
 구독과 계정 없이도 내 Mac에서 핵심 기능이 동작하는 네이티브 PDF 학습·편집기 프로토타입입니다. 읽기·편집·OCR은 로컬 우선이며, 외부 AI는 사용자가 직접 API 키를 연결하고 요청별 전송 내용을 확인한 경우에만 사용합니다.
 
 현재 소스 버전은 **0.9.0 (build 20) Developer Preview**입니다. 앱 표시 이름, SwiftPM 실행 타깃과 소스·테스트 이름을 **HwattakPDF**로 통일했습니다. [2026-10-01 소스 갱신 기록](Documentation/SOURCE-UPDATE-2026-10-01.md)에 화면 간소화, 읽기 조작, OCR·번역과 검증 결과를 정리했습니다. GitHub Releases의 마지막 다운로드 배포본은 **0.8.0 (build 18)**이며, 0.9.0은 로컬 빌드와 소스 갱신 단계입니다.
